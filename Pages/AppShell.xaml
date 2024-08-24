@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Ridebase.Pages.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+    xmlns:pages="clr-namespace:Ridebase.Pages.Rider"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels"
+    Title="Ridebase"
+    x:DataType="vm:AppShellViewModel"
+    Shell.BackgroundColor="Transparent"
+    Shell.FlyoutBehavior="Flyout">
+
+    <Shell.Behaviors>
+        <toolkit:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </Shell.Behaviors>
+
+    <Shell.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </Shell.Resources>
+
+
+    <Shell.FlyoutHeader>
+        <StackLayout>
+            <Button
+                Margin="20"
+                Command="{Binding LoginCommand}"
+                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+                Text="Login" />
+
+            <StackLayout Padding="20" IsVisible="{Binding IsLoggedIn}">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="Large"
+                    Text="{Binding RidebaseUser.UserName}" />
+                <Label Text="{Binding RidebaseUser.Email}" />
+            </StackLayout>
+        </StackLayout>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems" FlyoutIcon="{FontImageSource FontFamily=FARegular, Glyph={x:Static fa:Regular.Message}, Color={AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}}">
+
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate pages:MapHomePage}"
+            Route="Home">
+            <ShellContent.Icon>
+                <FontImageSource
+                    FontFamily="FARegular"
+                    Glyph="{x:Static fa:Regular.Star}"
+                    Size="10"
+                    Color="{AppThemeBinding Dark={StaticResource White},
+                                            Light={StaticResource Primary}}" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </FlyoutItem>
+
+    <!--  FAQ Option  -->
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
+
+        <ShellContent Title="FAQ">
+            <ShellContent.Icon>
+                <FontImageSource
+                    FontFamily="FARegular"
+                    Glyph="{x:Static fa:Regular.Question}"
+                    Size="10"
+                    Color="{AppThemeBinding Dark={StaticResource White},
+                                            Light={StaticResource Primary}}" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </FlyoutItem>
+
+    <!--  Support Option  -->
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
+
+        <ShellContent Title="Support">
+            <ShellContent.Icon>
+                <FontImageSource
+                    FontFamily="FARegular"
+                    Glyph="{x:Static fa:Regular.ChessQueen}"
+                    Size="10"
+                    Color="{AppThemeBinding Dark={StaticResource White},
+                                            Light={StaticResource Primary}}" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </FlyoutItem>
+
+    <!--  Flyout Footer  -->
+    <Shell.FlyoutFooter>
+        <Button Margin="20" Text="Driver mode" />
+    </Shell.FlyoutFooter>
+
+</Shell>

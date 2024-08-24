@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage
+    x:Class="Ridebase.Pages.Rider.Dialogs.RideOptionsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+    BackgroundColor="#80000000"
+    CloseWhenBackgroundIsClicked="True">
+    <Border
+        Padding="20"
+        BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
+                                          Light={StaticResource White}}"
+        HeightRequest="300"
+        HorizontalOptions="Center"
+        StrokeShape="RoundRectangle 10"
+        VerticalOptions="Center"
+        WidthRequest="320">
+        <VerticalStackLayout Spacing="10" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="Large"
+                HorizontalOptions="Center"
+                Text="Options"
+                VerticalOptions="Center" />
+
+            <material:TextField
+                x:Name="NumberOfPassengersEntry"
+                Title="Number of Passengers"
+                IsEnabled="True"
+                Keyboard="Numeric">
+                <material:TextField.Icon>
+                    <FontImageSource
+                        FontFamily="FARegular"
+                        Glyph="{x:Static fa:Regular.FileCode}"
+                        Size="10" />
+                </material:TextField.Icon>
+            </material:TextField>
+
+            <material:TextField
+                x:Name="Comments"
+                Title="Comments"
+                Keyboard="Text">
+                <material:TextField.Icon>
+                    <FontImageSource
+                        FontFamily="FARegular"
+                        Glyph="{x:Static fa:Regular.Comment}"
+                        Size="10" />
+                </material:TextField.Icon>
+            </material:TextField>
+
+            <Button x:Name="Close" Text="Close" />
+        </VerticalStackLayout>
+    </Border>
+</mopups:PopupPage>

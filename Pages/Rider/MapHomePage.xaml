@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Rider.MapHomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+    xmlns:dxco="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
+    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+    xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels"
+    x:DataType="vm:MapHomeViewModel">
+
+    <Grid IgnoreSafeArea="true" RowDefinitions="*, Auto">
+
+        <maps:Map
+            x:Name="homeMapControl"
+            Grid.Row="0"
+            MyLocationEnabled="True" />
+
+        <Border
+            x:Name="bottomSheetHome"
+            Grid.Row="1"
+            Padding="20"
+            IsEnabled="True"
+            IsVisible="True"
+            StrokeShape="RoundRectangle 20,20,0,0">
+            <VerticalStackLayout Spacing="12">
+
+                <Label x:Name="currentLocationLabel" Text="Hello" />
+
+                <material:TextField
+                    x:Name="GoToLocationEntry"
+                    Title="Where to?"
+                    Focused="AutoCompleteTextField_Focused"
+                    IsEnabled="True">
+                    <material:TextField.Icon>
+                        <FontImageSource
+                            FontFamily="FARegular"
+                            Glyph="{x:Static fa:Regular.AddressCard}"
+                            Size="10" />
+                    </material:TextField.Icon>
+                </material:TextField>
+
+                <material:TextField Title="How much you want to pay?" Keyboard="Numeric">
+                    <material:TextField.Icon>
+                        <FontImageSource
+                            FontFamily="FARegular"
+                            Glyph="{x:Static fa:Regular.MoneyBill1}"
+                            Size="10" />
+                    </material:TextField.Icon>
+                </material:TextField>
+
+                <Grid Margin="5" VerticalOptions="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="50" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Add ImageButton with FontAwesome icon  -->
+                    <ImageButton
+                        Grid.Column="0"
+                        BackgroundColor="Transparent"
+                        HeightRequest="28"
+                        Source="{FontImageSource FontFamily=FARegular,
+                                                 Color={AppThemeBinding Dark={StaticResource White},
+                                                                        Light={StaticResource Gray400}},
+                                                 Glyph={x:Static fa:Regular.MoneyBill1},
+                                                 Size=24}"
+                        VerticalOptions="Center" />
+
+                    <Button
+                        Grid.Column="1"
+                        Text="Request Ride"
+                        VerticalOptions="Center" />
+
+                    <!--  Add ImageButton with FontAwesome icon  -->
+                    <ImageButton
+                        Grid.Column="2"
+                        BackgroundColor="Transparent"
+                        Clicked="OpenOptionsPopup"
+                        HeightRequest="28"
+                        Source="{FontImageSource FontFamily=FARegular,
+                                                 Glyph={x:Static fa:Regular.FileCode},
+                                                 Size=12,
+                                                 Color={AppThemeBinding Dark={StaticResource White},
+                                                                        Light={StaticResource Gray400}}}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+
+</ContentPage>
