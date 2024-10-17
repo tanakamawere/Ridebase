@@ -46,6 +46,22 @@
         <member name="P:Ridebase.ViewModels.ChooseGoToLocationViewModel.GetLocationsCommand">
             <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:Ridebase.ViewModels.ChooseGoToLocationViewModel.GetLocations(System.String)"/>.</summary>
         </member>
+        <member name="T:Ridebase.ViewModels.MapHomeViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Ridebase.ViewModels.MapHomeViewModel.SearchQuery">
+            <inheritdoc cref="F:Ridebase.ViewModels.MapHomeViewModel.searchQuery"/>
+        </member>
+        <member name="P:Ridebase.ViewModels.MapHomeViewModel.PlacesList">
+            <inheritdoc cref="F:Ridebase.ViewModels.MapHomeViewModel.placesList"/>
+        </member>
+        <member name="F:Ridebase.ViewModels.MapHomeViewModel.searchPlacesCommand">
+            <summary>The backing field for <see cref="P:Ridebase.ViewModels.MapHomeViewModel.SearchPlacesCommand"/>.</summary>
+        </member>
+        <member name="P:Ridebase.ViewModels.MapHomeViewModel.SearchPlacesCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Ridebase.ViewModels.MapHomeViewModel.SearchPlaces"/>.</summary>
+        </member>
         <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Button.TextColorTo(Microsoft.Maui.Controls.Button,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
             <summary>
             Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
@@ -187,6 +203,12 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GoToLocation">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GoToLocation" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SearchQuery">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SearchQuery" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.PlacesList">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "PlacesList" generated properties.</summary>
+        </member>
         <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
             <summary>
             A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
@@ -207,6 +229,12 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GoToLocation">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GoToLocation" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SearchQuery">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SearchQuery" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.PlacesList">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "PlacesList" generated properties.</summary>
         </member>
     </members>
 </doc>

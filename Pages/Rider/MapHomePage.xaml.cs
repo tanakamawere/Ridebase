@@ -1,9 +1,8 @@
 using Maui.GoogleMaps;
 using Mopups.Interfaces;
-using Ridebase.Models;
-using Ridebase.Services;
+using Ridebase.Services.Geocoding;
 using Ridebase.ViewModels;
-using BaseResponse = Ridebase.Models.BaseResponse;
+using BaseResponse = Ridebase.Services.Geocoding.BaseResponse;
 using Location = Microsoft.Maui.Devices.Sensors.Location;
 
 namespace Ridebase.Pages.Rider;

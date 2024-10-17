@@ -1,13 +1,16 @@
 ﻿using Auth0.OidcClient;
 using CommunityToolkit.Maui;
 using DevExpress.Maui;
+using GoogleApi.Extensions;
 using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using Ridebase.Pages.Rider;
 using Ridebase.Pages.Rider.Dialogs;
-using Ridebase.Services;
+using Ridebase.Services.Geocoding;
+using Ridebase.Services.Places;
+using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
 using System.Reflection;
 using The49.Maui.BottomSheet;
@@ -47,6 +50,10 @@ namespace Ridebase
             builder.Services.AddSingleton<MapHomePage>();
 
             builder.Services.AddTransient<IGeocodeGoogle, GeocodingGoogle>();
+            builder.Services.AddSingleton<IRideService, RideService>();
+            builder.Services.AddSingleton<IPlaces, PlacesService>();
+            //Google APIs injection
+            builder.Services.AddGoogleApiClients();
 
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
 #if DEBUG

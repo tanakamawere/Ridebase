@@ -1,5 +1,5 @@
 using Mopups.Services;
-using Ridebase.Models;
+using Ridebase.Services.Geocoding;
 using Ridebase.ViewModels;
 using System.Threading.Tasks;
 
@@ -36,6 +36,6 @@ public partial class ChooseLocation
     {
         if (e.CurrentSelection is null) return;
 
-        Models.Result response = (Models.Result)e.CurrentSelection[0];
+        Result response = (Result)e.CurrentSelection[0];
     }
 }

@@ -2,8 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MvvmHelpers;
-using Ridebase.Models;
-using Ridebase.Services;
+using Ridebase.Services.Geocoding;
 
 namespace Ridebase.ViewModels;
 

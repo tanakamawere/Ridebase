@@ -8,10 +8,17 @@
     xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
     xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:models="clr-namespace:Ridebase.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     xmlns:wits="http://what.is.this.sheet/schemas/controls"
     x:DataType="vm:MapHomeViewModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid IgnoreSafeArea="true" RowDefinitions="auto, *">
 
@@ -24,7 +31,9 @@
             x:Name="MainBottomSheet"
             Grid.Row="0"
             Grid.RowSpan="3"
-            AllowBackgroundInteraction="True">
+            AllowBackgroundInteraction="True"
+            SheetColor="{AppThemeBinding Light={StaticResource White},
+                                         Dark={StaticResource OffBlack}}">
             <wits:BottomSheet.SheetStops>
                 <wits:SheetStop Measurement="Fixed" Value="5" />
                 <wits:SheetStop Measurement="Percentage" Value="0.28" />
@@ -40,8 +49,8 @@
                 <material:TextField
                     x:Name="GoToLocationEntry"
                     Title="Where to?"
-                    Focused="AutoCompleteTextField_Focused"
-                    IsEnabled="False">
+                    IsEnabled="True"
+                    Text="{Binding SearchQuery}">
                     <material:TextField.Icon>
                         <FontImageSource
                             FontFamily="FARegular"
@@ -49,6 +58,51 @@
                             Size="10" />
                     </material:TextField.Icon>
                 </material:TextField>
+
+                <Button Command="{Binding SearchPlacesCommand}" Text="Search" />
+
+                <CollectionView
+                    EmptyView="Enter the location you want to go"
+                    IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    ItemsSource="{Binding PlacesList}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Place">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Grid.Column="0" HeightRequest="20">
+                                    <Image.Source>
+                                        <FontImageSource
+                                            FontFamily="FARegular"
+                                            Glyph="{x:Static fa:Regular.Hospital}"
+                                            Size="10"
+                                            Color="{AppThemeBinding Dark={StaticResource White},
+                                                                    Light={StaticResource Primary}}" />
+                                    </Image.Source>
+                                </Image>
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="{Binding displayName.text}" />
+                                    <Label Text="{Binding formattedAddress}" />
+                                </StackLayout>
+                                <Button
+                                    Grid.Column="2"
+                                    Margin="1"
+                                    Text="Go" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!--  Loading indicator for the collection view  -->
+                <ActivityIndicator
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}"
+                    Color="{AppThemeBinding Light={StaticResource Primary},
+                                            Dark={StaticResource White}}" />
 
             </VerticalStackLayout>
         </wits:BottomSheet>
