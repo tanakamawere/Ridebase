@@ -79,40 +79,4 @@ public partial class MapHomePage
         {
         }
     }
-
-    //Open options popup dialog
-    private async void OpenOptionsPopup(object sender, EventArgs e)
-    {
-        await popupNavigation.PushAsync(new Dialogs.RideOptionsPopup());
-    }
-
-    private async void AutoCompleteTextField_Focused(object sender, FocusEventArgs e)
-    {
-        var popup = new Dialogs.ChooseLocation(Services.ServiceProvider.GetService<ChooseGoToLocationViewModel>());
-
-        await popupNavigation.PushAsync(popup);
-
-        var response = popup.PopupDismissedTask;
-
-        Result searchResult = response.Result;
-
-        if (response is not null)
-        {
-            destinationPin = new Pin
-            {
-                Label = "Destination",
-                Position = new Position(searchResult.geometry.location.lat, searchResult.geometry.location.lng),
-                Type = PinType.SearchResult,
-                IsVisible = true,
-            };
-
-            homeMapControl.Pins.Add(destinationPin);
-            Bounds bounds = new Bounds(new Position(location.Latitude, location.Longitude), new Position(searchResult.geometry.location.lat, searchResult.geometry.location.lng));
-            CameraUpdate cameraUpdate = CameraUpdateFactory.NewBounds(bounds, 50);
-            await homeMapControl.AnimateCamera(cameraUpdate, TimeSpan.FromSeconds(3));
-
-            var result = response.Result;
-            GoToLocationEntry.Text = result.formatted_address;
-        }
-    }
 }
