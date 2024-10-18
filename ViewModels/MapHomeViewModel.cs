@@ -78,14 +78,33 @@ public partial class MapHomeViewModel : BaseViewModel
     [RelayCommand]
     partial void OnSearchQueryChanged(string value)
     {
-        SearchPlaces(value);
+        //Check if value is not null
+        if (!string.IsNullOrEmpty(value))
+            SearchPlaces(value);
     }
 
     //When startLocation is changed, update the collection view as well
     [RelayCommand]
     partial void OnStartLocationChanged(string value)
     {
-        SearchPlaces(value);
+        if(!string.IsNullOrEmpty(value))
+            SearchPlaces(value);
+    }
+
+    //On click of a place, set the destination place
+    public void SelectPlace(Place place)
+    {
+        if (place != null)
+        {
+            if (place.displayName.text == "Current Location")
+            {
+                StartPlace = place;
+            }
+            else
+            {
+                DestinationPlace = place;
+            }
+        }
     }
 }
 

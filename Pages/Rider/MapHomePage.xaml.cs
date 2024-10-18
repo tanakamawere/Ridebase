@@ -1,5 +1,6 @@
 using Maui.GoogleMaps;
 using Mopups.Interfaces;
+using Ridebase.Models;
 using Ridebase.Services.Geocoding;
 using Ridebase.ViewModels;
 using BaseResponse = Ridebase.Services.Geocoding.BaseResponse;
@@ -78,5 +79,25 @@ public partial class MapHomePage
     private void FromLocationEntry_TextChanged(object sender, TextChangedEventArgs e)
     {
         mapHomeViewModel.StartLocation = e.NewTextValue;
+    }
+
+    //Select a place from the collection view
+    private void PlaceCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is Place place)
+        {
+            mapHomeViewModel.SelectPlace(place);
+
+            homeMapControl.Pins.Add(new Pin
+            {
+                Label = place.displayName.text,
+                Position = new Position(place.location.latitude, place.location.longitude),
+                Type = PinType.Place
+            });
+            MainBottomSheet.Dismiss();
+
+            //Make selection null
+            ((CollectionView)sender).SelectedItem = null;
+        }
     }
 }

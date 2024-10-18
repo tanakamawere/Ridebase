@@ -16,10 +16,12 @@ public class PlacesService : IPlaces
     {
         try
         {
+            await Task.Delay(1400);
             var requestBody = new
             {
                 textQuery = keyword,
-                pageSize = 10
+                pageSize = 10,
+                minRating = 2
             };
 
             var json = JsonSerializer.Serialize(requestBody);

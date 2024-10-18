@@ -73,7 +73,9 @@
                 <CollectionView
                     EmptyView="Enter the location you want to go"
                     IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                    ItemsSource="{Binding PlacesList}">
+                    ItemsSource="{Binding PlacesList}"
+                    SelectionChanged="PlaceCollectionView_SelectionChanged"
+                    SelectionMode="Single">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Place">
                             <Grid>
@@ -100,6 +102,8 @@
                                 <Button
                                     Grid.Column="2"
                                     Margin="1"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapHomeViewModel}}, Path=SelectPlaceCommand}"
+                                    CommandParameter="{Binding .}"
                                     Text="Go" />
                             </Grid>
                         </DataTemplate>

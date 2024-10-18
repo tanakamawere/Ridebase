@@ -55,7 +55,7 @@ namespace Ridebase
 
             builder.Services.AddSingleton<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddSingleton<IRideService, RideService>();
-            builder.Services.AddSingleton<IPlaces, PlacesService>();
+            builder.Services.AddTransient<IPlaces, PlacesService>();
             //Google APIs injection
             builder.Services.AddGoogleApiClients();
 
