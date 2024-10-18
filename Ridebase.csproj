@@ -42,6 +42,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="darkmap.json" />
+	  <None Remove="lightmap.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Auth0.OidcClient.MAUI" Version="1.0.1" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
@@ -72,6 +77,12 @@
 	<ItemGroup>
 		<EmbeddedResource Include="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="darkmap.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="lightmap.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 	</ItemGroup>
 

@@ -8,6 +8,7 @@ using Mopups.Hosting;
 using Ridebase.Pages.Rider;
 using Ridebase.Pages.Rider.Dialogs;
 using Ridebase.Services;
+using Ridebase.Services.Directions;
 using Ridebase.Services.Geocoding;
 using Ridebase.Services.Places;
 using Ridebase.Services.RideService;
@@ -46,9 +47,10 @@ namespace Ridebase
 
             builder.Services.AddHttpClient<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddHttpClient<IRideService, RideService>();
+            builder.Services.AddHttpClient<IDirections, DirectionsService>();
             builder.Services.AddHttpClient<IPlaces, PlacesService>();
 
-            builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+            builder.Services.AddSingleton(Connectivity.Current);
 
 #if ANDROID
             builder.Services.AddSingleton<IKeyboardService, Platforms.Android.KeyboardService>();
@@ -61,6 +63,7 @@ namespace Ridebase
 
             builder.Services.AddSingleton<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddSingleton<IRideService, RideService>();
+            builder.Services.AddSingleton<IDirections, DirectionsService>();
             builder.Services.AddTransient<IPlaces, PlacesService>();
 
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);

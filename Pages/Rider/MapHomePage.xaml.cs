@@ -2,11 +2,14 @@ using Maui.GoogleMaps;
 using Mopups.Interfaces;
 using Ridebase.Models;
 using Ridebase.Services.Geocoding;
+using System.Reflection;
 using Ridebase.ViewModels;
 using Ridebase.Services;
 using MauiLocation = Microsoft.Maui.Devices.Sensors.Location;
 using GoogleApi.Entities.Maps.Common;
 using CommunityToolkit.Maui.Core.Platform;
+using GoogleApi.Interfaces.Maps;
+using Ridebase.Services.Directions;
 
 namespace Ridebase.Pages.Rider;
 
@@ -18,10 +21,12 @@ public partial class MapHomePage
     private Position position;
     private IKeyboardService keyboardService;
     private IPopupNavigation popupNavigation;
+    private IDirections directionsApi;
     private MapHomeViewModel mapHomeViewModel;
 
     public MapHomePage(MapHomeViewModel mapHomeViewModel,
         IGeocodeGoogle geocodeGoogle,
+        IDirections directionsApi,
         IPopupNavigation navigation,
         IKeyboardService keyboardService)
 	    {
@@ -30,13 +35,15 @@ public partial class MapHomePage
             homeMapControl.UiSettings.MyLocationButtonEnabled = true;
             this.geocodeGoogle = geocodeGoogle;
             this.mapHomeViewModel = mapHomeViewModel;
-            popupNavigation = navigation;
+        this.directionsApi = directionsApi;
+        popupNavigation = navigation;
 
             BindingContext = mapHomeViewModel;
 
-        ShowBottomSheet(0.3);
+            ShowBottomSheet(0.3);
 
-        GetCurrentLocation();
+        SetTheme();
+            GetCurrentLocation();
 	    }
 
     //Get current location name and write to console
@@ -121,7 +128,7 @@ public partial class MapHomePage
 
             //Move the camera to show both pins
             MoveCamera(position, new Position(place.location.latitude, place.location.longitude));
-            SetRideConfirmationState();
+            SetRideConfirmationState(place.id);
 
             //Make selection null
             ((CollectionView)sender).SelectedItem = null;
@@ -140,7 +147,7 @@ public partial class MapHomePage
     }
 
     //Method to make changes to the display for the ride confirmation
-    private void SetRideConfirmationState()
+    private async Task SetRideConfirmationState(string selectedPlaceId)
     {
         //Resize bottom sheet
         ShowBottomSheet(0.4);
@@ -152,11 +159,57 @@ public partial class MapHomePage
         Shell.SetNavBarIsVisible(this, false);
 
         //Add popup for destination editing
-        //TODO
+
+        //Draw polyline path
+        var response = await directionsApi.GetDirections($"{position.Latitude},{position.Longitude}", $"place_id:{selectedPlaceId}");
+
+        if (response != null)
+        {
+            Maui.GoogleMaps.Polyline polyline = new() 
+            {
+                StrokeColor = Colors.AliceBlue,
+                StrokeWidth = 5f,
+            };
+
+            foreach (var step in response.routes.First().legs.First().steps)
+            {
+                polyline.Positions.Add(new Position(step.start_location.lat, step.start_location.lng));
+            }
+
+            homeMapControl.Polylines.Add(polyline);
+        }
     }
 
     private void ShowBottomSheet(double value)
     {
         locationSelectionSheet.Show(value);
+    }
+    private void SetTheme()
+    {
+        //Determine if it is dark mode
+        if (Application.Current.RequestedTheme == AppTheme.Dark)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"Ridebase.darkmap.json");
+            string styleFile;
+            using (var reader = new StreamReader(stream))
+            {
+                styleFile = reader.ReadToEnd();
+            }
+            //Set the theme of the map
+            homeMapControl.MapStyle = MapStyle.FromJson(styleFile);
+        }
+        else
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"Ridebase.lightmap.json");
+            string styleFile;
+            using (var reader = new StreamReader(stream))
+            {
+                styleFile = reader.ReadToEnd();
+            }
+            //Set the theme of the map
+            homeMapControl.MapStyle = MapStyle.FromJson(styleFile);
+        }
     }
 }

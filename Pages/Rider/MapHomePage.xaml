@@ -35,7 +35,6 @@
                 Padding="10"
                 AbsoluteLayout.LayoutBounds="0,0,1,50"
                 AbsoluteLayout.LayoutFlags="WidthProportional"
-                BackgroundColor="LightGray"
                 HeightRequest="100"
                 IsVisible="{Binding IsLocationSheetVisible, Converter={StaticResource InvertedBoolConverter}}"
                 StrokeShape="RoundRectangle 20">
