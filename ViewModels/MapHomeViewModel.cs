@@ -1,7 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GoogleApi;
+using Maui.GoogleMaps;
+using Mopups.Interfaces;
 using Ridebase.Models;
+using Ridebase.Services.Geocoding;
 using Ridebase.Services.Places;
 using Ridebase.Services.RideService;
 
@@ -11,33 +14,59 @@ public partial class MapHomeViewModel : BaseViewModel
 {
     [ObservableProperty]
     private string searchQuery;
+
+    //The following obviously defaults to the current location, but can be changed by the user
+    [ObservableProperty]
+    private string startLocation;
+
     [ObservableProperty]
     private List<Place> placesList = new();
+
+    //Destination location/place more strictly
+    [ObservableProperty]
+    private Place destinationPlace = new();
+    //Start place
+    [ObservableProperty]
+    private Place startPlace = new();
 
     //Create ride root and add properties to it to send to the backend
     public RideRoot rideRoot { get; set; } = new();
 
-    public MapHomeViewModel(IPlaces places)
+    
+
+    public MapHomeViewModel(IPlaces places, IGeocodeGoogle geocodeGoogle, IPopupNavigation navigation)
     {
         Title = "Map Page";
         placesApi = places;
+        this.geocodeGoogle = geocodeGoogle;
+        popupNavigation = navigation;
     }
 
     //Search for places using Google Places API
-    [RelayCommand]
-    public async Task SearchPlaces()
+    //Location type here is for telling the collection view which location to update, and to append "Current Location" option to the list
+    public async Task SearchPlaces(string keyword, LocationType locationType = LocationType.Destination)
     {
+        IsBusy = true;
+        PlacesList.Clear();
         try
         {
-            IsBusy = true;
-
-            PlacesList.Clear();
-
-            PlacesList = await placesApi.GetPlacesAutocomplete(SearchQuery);
+            PlacesList = await placesApi.GetPlacesAutocomplete(keyword);
+            if (locationType.Equals(LocationType.Start))
+            {
+                LocationWithAddress locationWithAddress = await geocodeGoogle.GetCurrentLocationWithAddressAsync();
+                PlacesList.Add(new Place
+                {
+                    displayName = new DisplayName
+                    {
+                        text = "Current Location"
+                    },
+                    formattedAddress = locationWithAddress.FormattedAddress,
+                    location = locationWithAddress.Location
+                });
+            }
         }
         catch (Exception)
         {
-
             throw;
         }
         finally
@@ -45,4 +74,23 @@ public partial class MapHomeViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
+    [RelayCommand]
+    partial void OnSearchQueryChanged(string value)
+    {
+        SearchPlaces(value);
+    }
+
+    //When startLocation is changed, update the collection view as well
+    [RelayCommand]
+    partial void OnStartLocationChanged(string value)
+    {
+        SearchPlaces(value);
+    }
+}
+
+public enum LocationType
+{
+    Start,
+    Destination
 }

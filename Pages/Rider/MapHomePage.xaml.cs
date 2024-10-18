@@ -3,18 +3,17 @@ using Mopups.Interfaces;
 using Ridebase.Services.Geocoding;
 using Ridebase.ViewModels;
 using BaseResponse = Ridebase.Services.Geocoding.BaseResponse;
-using Location = Microsoft.Maui.Devices.Sensors.Location;
 
 namespace Ridebase.Pages.Rider;
 
 public partial class MapHomePage 
 {
     private IGeocodeGoogle geocodeGoogle;
-    private Location location;
     private Pin currentLocationPin;
     private Pin destinationPin = null;
     private Position position;
     private IPopupNavigation popupNavigation;
+    private MapHomeViewModel mapHomeViewModel;
 
     public MapHomePage(MapHomeViewModel mapHomeViewModel,
         IGeocodeGoogle geocodeGoogle,
@@ -24,9 +23,10 @@ public partial class MapHomePage
 
             homeMapControl.UiSettings.MyLocationButtonEnabled = true;
             this.geocodeGoogle = geocodeGoogle;
-
+            this.mapHomeViewModel = mapHomeViewModel;
             popupNavigation = navigation;
-        BindingContext = mapHomeViewModel;
+
+            BindingContext = mapHomeViewModel;
 
             GetCurrentLocation();
 	    }
@@ -36,16 +36,14 @@ public partial class MapHomePage
     {
         try
         {
-            currentLocationLabel.Text = "Searching for your current location";
+            FromLocationEntry.Text = "Searching...";
 
-            GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+            LocationWithAddress locationWithAddress
+                = await geocodeGoogle.GetCurrentLocationWithAddressAsync();
 
-            location = await Geolocation.Default.GetLocationAsync(request);
-
-            if (location != null)
+            if (locationWithAddress != null)
             {
-                string locationAddress = $"Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}";
-                position = new(location.Latitude, location.Longitude);
+                position = new(locationWithAddress.Location.latitude, locationWithAddress.Location.longitude);
                 homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromMeters(1000)));
 
                 currentLocationPin = new Pin
@@ -57,14 +55,12 @@ public partial class MapHomePage
 
                 homeMapControl.Pins.Add(currentLocationPin);
 
-                BaseResponse locations = await geocodeGoogle.GetPlacemarksAsync(location.Latitude, location.Longitude);
-                var baseResponse = locations.results.FirstOrDefault();
-                currentLocationLabel.Text = $"Your current location: {baseResponse.formatted_address}";
+                FromLocationEntry.Text = locationWithAddress.FormattedAddress;
             }
             else
             {
-                currentLocationLabel.Text = "Couldn't get your location";
-                    }
+                FromLocationEntry.Text = "Couldn't get your location";
+            }
         }
         // Catch one of the following exceptions:
         //   FeatureNotSupportedException
@@ -77,5 +73,10 @@ public partial class MapHomePage
         finally
         {
         }
+    }
+
+    private void FromLocationEntry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        mapHomeViewModel.StartLocation = e.NewTextValue;
     }
 }

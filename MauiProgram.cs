@@ -46,10 +46,14 @@ namespace Ridebase
             builder.Services.AddSingleton<MapHomeViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
 
+            builder.Services.AddHttpClient<IGeocodeGoogle, GeocodingGoogle>();
+            builder.Services.AddHttpClient<IRideService, RideService>();
+            builder.Services.AddHttpClient<IPlaces, PlacesService>();
+
             //Pages registration
             builder.Services.AddSingleton<MapHomePage>();
 
-            builder.Services.AddTransient<IGeocodeGoogle, GeocodingGoogle>();
+            builder.Services.AddSingleton<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddSingleton<IRideService, RideService>();
             builder.Services.AddSingleton<IPlaces, PlacesService>();
             //Google APIs injection

@@ -35,7 +35,7 @@
             SheetColor="{AppThemeBinding Light={StaticResource White},
                                          Dark={StaticResource OffBlack}}">
             <wits:BottomSheet.SheetStops>
-                <wits:SheetStop Measurement="Fixed" Value="5" />
+                <wits:SheetStop Measurement="Fixed" Value="2" />
                 <wits:SheetStop Measurement="Percentage" Value="0.28" />
             </wits:BottomSheet.SheetStops>
 
@@ -44,7 +44,18 @@
                 Spacing="12"
                 VerticalOptions="FillAndExpand">
 
-                <Label x:Name="currentLocationLabel" Text="Hello" />
+                <material:TextField
+                    x:Name="FromLocationEntry"
+                    Title="From..."
+                    IsEnabled="True"
+                    TextChanged="FromLocationEntry_TextChanged">
+                    <material:TextField.Icon>
+                        <FontImageSource
+                            FontFamily="FARegular"
+                            Glyph="{x:Static fa:Regular.CirclePause}"
+                            Size="10" />
+                    </material:TextField.Icon>
+                </material:TextField>
 
                 <material:TextField
                     x:Name="GoToLocationEntry"
@@ -58,8 +69,6 @@
                             Size="10" />
                     </material:TextField.Icon>
                 </material:TextField>
-
-                <Button Command="{Binding SearchPlacesCommand}" Text="Search" />
 
                 <CollectionView
                     EmptyView="Enter the location you want to go"

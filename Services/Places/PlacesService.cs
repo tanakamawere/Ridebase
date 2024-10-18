@@ -8,9 +8,9 @@ namespace Ridebase.Services.Places;
 public class PlacesService : IPlaces
 {
     private readonly HttpClient httpClient;
-    public PlacesService()
+    public PlacesService(HttpClient httpClient)
     {
-        httpClient = new();
+        this.httpClient = httpClient;
     }
     public async Task<List<Place>> GetPlacesAutocomplete(string keyword)
     {
@@ -19,7 +19,7 @@ public class PlacesService : IPlaces
             var requestBody = new
             {
                 textQuery = keyword,
-                pageSize = 5
+                pageSize = 10
             };
 
             var json = JsonSerializer.Serialize(requestBody);
@@ -33,9 +33,20 @@ public class PlacesService : IPlaces
             var response = await httpClient.PostAsync(Constants.googlePlacesApiUrl, content);
 
             //Read the response and convert it to a Root Object
-            var rootPlaces = JsonSerializer.Deserialize<PlacesRoot>(await response.Content.ReadAsStringAsync());
+            //Check if it was successful
+            if (response.IsSuccessStatusCode)
+            {
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                var placesRoot = await JsonSerializer.DeserializeAsync<PlacesRoot>(responseStream);
 
-            return rootPlaces.places;
+                httpClient.DefaultRequestHeaders.Clear();
+
+                return placesRoot.places;
+            }
+            else
+            {
+                return new List<Place>();
+            }
         }
         catch (Exception ex)
         {

@@ -6,9 +6,30 @@ public class GeocodingGoogle : IGeocodeGoogle
 {
     public readonly HttpClient httpClient;
 
-    public GeocodingGoogle()
+    public GeocodingGoogle(HttpClient httpClient)
     {
-        httpClient = new();
+        this.httpClient = httpClient;
+    }
+
+    public async Task<Ridebase.Models.Location> GetCurrentLocation()
+    {
+        GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+        Location location = await Geolocation.Default.GetLocationAsync(request);
+        return new Models.Location()
+        {
+            latitude = location.Latitude,
+            longitude = location.Longitude
+        };
+    }
+
+    public async Task<LocationWithAddress> GetCurrentLocationWithAddressAsync()
+    {
+        var location = await GetCurrentLocation();
+        return new LocationWithAddress()
+        {
+            Location = location,
+            FormattedAddress = (await GetPlacemarksAsync(location.latitude, location.longitude)).results.FirstOrDefault().formatted_address
+        };
     }
 
     public async Task<BaseResponse> GetLocationsAsync(string address)

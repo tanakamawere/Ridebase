@@ -56,3 +56,9 @@ public class Viewport
     public Northeast northeast { get; set; }
     public Southwest southwest { get; set; }
 }
+
+public class LocationWithAddress
+{
+    public Models.Location Location { get; set; }
+    public string FormattedAddress { get; set; }
+}
