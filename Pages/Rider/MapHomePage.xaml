@@ -22,13 +22,36 @@
 
     <Grid IgnoreSafeArea="true" RowDefinitions="auto, *">
 
-        <maps:Map
-            x:Name="homeMapControl"
-            Grid.Row="1"
-            MyLocationEnabled="True" />
+        <AbsoluteLayout Grid.Row="1" Margin="0,0,0,200">
+            <!--  Map filling the entire background  -->
+            <maps:Map
+                x:Name="homeMapControl"
+                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                AbsoluteLayout.LayoutFlags="All"
+                MyLocationEnabled="True" />
+
+            <Border
+                Margin="20,100,20,0"
+                Padding="10"
+                AbsoluteLayout.LayoutBounds="0,0,1,50"
+                AbsoluteLayout.LayoutFlags="WidthProportional"
+                BackgroundColor="LightGray"
+                HeightRequest="100"
+                IsVisible="{Binding IsLocationSheetVisible, Converter={StaticResource InvertedBoolConverter}}"
+                StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout>
+                    <Entry IsEnabled="False" Placeholder="From..." />
+
+                    <Entry
+                        IsEnabled="False"
+                        Placeholder="Where to...?"
+                        Text="{Binding SearchQuery}" />
+                </VerticalStackLayout>
+            </Border>
+        </AbsoluteLayout>
 
         <wits:BottomSheet
-            x:Name="MainBottomSheet"
+            x:Name="locationSelectionSheet"
             Grid.Row="0"
             Grid.RowSpan="3"
             AllowBackgroundInteraction="True"
@@ -38,74 +61,113 @@
                 <wits:SheetStop Measurement="Percentage" Value="0.2" />
             </wits:BottomSheet.SheetStops>
 
-            <VerticalStackLayout
-                Padding="20"
-                Spacing="12"
-                VerticalOptions="FillAndExpand">
+            <Grid>
 
-                <Entry
-                    x:Name="FromLocationEntry"
-                    Focused="EntriesFocused"
-                    IsEnabled="True"
-                    Placeholder="From..."
-                    TextChanged="FromLocationEntry_TextChanged"
-                    Unfocused="EntriesUnfocused" />
+                <!--  Section for the location selection  -->
+                <VerticalStackLayout
+                    Padding="20"
+                    IsVisible="{Binding IsLocationSheetVisible}"
+                    Spacing="12"
+                    VerticalOptions="FillAndExpand">
 
-                <Entry
-                    x:Name="GoToLocationEntry"
-                    Focused="EntriesFocused"
-                    IsEnabled="True"
-                    Placeholder="Where to...?"
-                    Text="{Binding SearchQuery}"
-                    Unfocused="EntriesUnfocused" />
+                    <Entry
+                        x:Name="FromLocationEntry"
+                        Focused="EntriesFocused"
+                        IsEnabled="True"
+                        Placeholder="From..."
+                        TextChanged="FromLocationEntry_TextChanged"
+                        Unfocused="EntriesUnfocused" />
 
-                <CollectionView
-                    EmptyView="Enter the location you want to go"
-                    IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                    ItemsSource="{Binding PlacesList}"
-                    SelectionChanged="PlaceCollectionView_SelectionChanged"
-                    SelectionMode="Single">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Place">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                    <Entry
+                        x:Name="GoToLocationEntry"
+                        Focused="EntriesFocused"
+                        IsEnabled="True"
+                        Placeholder="Where to...?"
+                        Text="{Binding SearchQuery}"
+                        Unfocused="EntriesUnfocused" />
 
-                                <Image Grid.Column="0" HeightRequest="20">
-                                    <Image.Source>
-                                        <FontImageSource
-                                            FontFamily="FARegular"
-                                            Glyph="{x:Static fa:Regular.Hospital}"
-                                            Size="10"
-                                            Color="{AppThemeBinding Dark={StaticResource White},
-                                                                    Light={StaticResource Primary}}" />
-                                    </Image.Source>
-                                </Image>
-                                <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                    <Label Text="{Binding displayName.text}" />
-                                    <Label Text="{Binding formattedAddress}" />
-                                </StackLayout>
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="1"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapHomeViewModel}}, Path=SelectPlaceCommand}"
-                                    CommandParameter="{Binding .}"
-                                    Text="Go" />
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    <CollectionView
+                        EmptyView="Enter the location you want to go"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        ItemsSource="{Binding PlacesList}"
+                        SelectionChanged="PlaceCollectionView_SelectionChanged"
+                        SelectionMode="Single">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Place">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                <!--  Loading indicator for the collection view  -->
-                <ActivityIndicator
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}"
-                    Color="{AppThemeBinding Light={StaticResource Primary},
-                                            Dark={StaticResource White}}" />
-            </VerticalStackLayout>
+                                    <Image Grid.Column="0" HeightRequest="20">
+                                        <Image.Source>
+                                            <FontImageSource
+                                                FontFamily="FARegular"
+                                                Glyph="{x:Static fa:Regular.Hospital}"
+                                                Size="10"
+                                                Color="{AppThemeBinding Dark={StaticResource White},
+                                                                        Light={StaticResource Primary}}" />
+                                        </Image.Source>
+                                    </Image>
+                                    <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding displayName.text}" />
+                                        <Label Text="{Binding formattedAddress}" />
+                                    </StackLayout>
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="1"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapHomeViewModel}}, Path=SelectPlaceCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Go" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!--  Loading indicator for the collection view  -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="{AppThemeBinding Light={StaticResource Primary},
+                                                Dark={StaticResource White}}" />
+                </VerticalStackLayout>
+
+
+                <!--  Section for the ride confirmation  -->
+                <VerticalStackLayout
+                    Padding="20"
+                    IsVisible="{Binding IsLocationSheetVisible, Converter={StaticResource InvertedBoolConverter}}"
+                    Spacing="12"
+                    VerticalOptions="FillAndExpand">
+
+                    <Label
+                        FontSize="Title"
+                        Text="Confirm your ride"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                    Dark={StaticResource White}}" />
+
+                    <Label
+                        FontSize="Body"
+                        Text="Display Text"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                    Dark={StaticResource White}}" />
+
+                    <Label
+                        FontSize="Caption"
+                        Text="Formatted Address"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                    Dark={StaticResource White}}" />
+
+                    <Button
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary},
+                                                          Dark={StaticResource White}}"
+                        Text="Confirm"
+                        TextColor="{AppThemeBinding Light={StaticResource White},
+                                                    Dark={StaticResource OffBlack}}" />
+                </VerticalStackLayout>
+            </Grid>
         </wits:BottomSheet>
     </Grid>
 </ContentPage>

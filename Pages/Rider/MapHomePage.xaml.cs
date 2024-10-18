@@ -1,11 +1,12 @@
 using Maui.GoogleMaps;
 using Mopups.Interfaces;
-using CommunityToolkit.Maui.Core.Platform;
 using Ridebase.Models;
 using Ridebase.Services.Geocoding;
 using Ridebase.ViewModels;
 using Ridebase.Services;
 using MauiLocation = Microsoft.Maui.Devices.Sensors.Location;
+using GoogleApi.Entities.Maps.Common;
+using CommunityToolkit.Maui.Core.Platform;
 
 namespace Ridebase.Pages.Rider;
 
@@ -18,7 +19,6 @@ public partial class MapHomePage
     private IKeyboardService keyboardService;
     private IPopupNavigation popupNavigation;
     private MapHomeViewModel mapHomeViewModel;
-    private bool bottomSheetIsMini = true;
 
     public MapHomePage(MapHomeViewModel mapHomeViewModel,
         IGeocodeGoogle geocodeGoogle,
@@ -52,7 +52,7 @@ public partial class MapHomePage
             if (locationWithAddress != null)
             {
                 position = new(locationWithAddress.Location.latitude, locationWithAddress.Location.longitude);
-                homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromMeters(1000)));
+                homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(position, Maui.GoogleMaps.Distance.FromMeters(1000)));
 
                 currentLocationPin = new Pin
                 {
@@ -101,8 +101,12 @@ public partial class MapHomePage
     //Select a place from the collection view
     private void PlaceCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is Place place)
+        
+
+        if (e.CurrentSelection.FirstOrDefault() is Models.Place place)
         {
+            FromLocationEntry.HideKeyboardAsync(CancellationToken.None);
+            GoToLocationEntry.HideKeyboardAsync(CancellationToken.None);
             //Clear all pins first if new pin will be selected
             homeMapControl.Pins.Clear();
             mapHomeViewModel.SelectPlace(place);
@@ -117,8 +121,7 @@ public partial class MapHomePage
 
             //Move the camera to show both pins
             MoveCamera(position, new Position(place.location.latitude, place.location.longitude));
-
-            MainBottomSheet.Show(0.1);
+            SetRideConfirmationState();
 
             //Make selection null
             ((CollectionView)sender).SelectedItem = null;
@@ -133,11 +136,27 @@ public partial class MapHomePage
 
         //Distance / 2 is the altitude from which to view the map
         //Adjust camera to show new pin and current location together. Calculate the appropriate distance that should be shown, with very smooth animation
-        homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Distance.FromMeters(distance / 2)), true);
+        homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Maui.GoogleMaps.Distance.FromMeters(distance / 2)), true);
+    }
+
+    //Method to make changes to the display for the ride confirmation
+    private void SetRideConfirmationState()
+    {
+        //Resize bottom sheet
+        ShowBottomSheet(0.4);
+
+        //Display the ride confirmation side
+        mapHomeViewModel.IsLocationSheetVisible = false;
+
+        //Hide the Shell nav bar on the page
+        Shell.SetNavBarIsVisible(this, false);
+
+        //Add popup for destination editing
+        //TODO
     }
 
     private void ShowBottomSheet(double value)
     {
-        MainBottomSheet.Show(value);
+        locationSelectionSheet.Show(value);
     }
 }

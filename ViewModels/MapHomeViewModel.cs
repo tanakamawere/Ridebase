@@ -28,6 +28,8 @@ public partial class MapHomeViewModel : BaseViewModel
     //Start place
     [ObservableProperty]
     private Place startPlace = new();
+    [ObservableProperty]
+    private bool isLocationSheetVisible = true;
 
     //Create ride root and add properties to it to send to the backend
     public RideRoot rideRoot { get; set; } = new();

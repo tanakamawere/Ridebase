@@ -66,6 +66,9 @@
         <member name="P:Ridebase.ViewModels.MapHomeViewModel.StartPlace">
             <inheritdoc cref="F:Ridebase.ViewModels.MapHomeViewModel.startPlace"/>
         </member>
+        <member name="P:Ridebase.ViewModels.MapHomeViewModel.IsLocationSheetVisible">
+            <inheritdoc cref="F:Ridebase.ViewModels.MapHomeViewModel.isLocationSheetVisible"/>
+        </member>
         <member name="M:Ridebase.ViewModels.MapHomeViewModel.OnSearchQueryChanged(System.String)">
             <summary>Executes the logic for when <see cref="P:Ridebase.ViewModels.MapHomeViewModel.SearchQuery"/> just changed.</summary>
             <param name="value">The new property value that was set.</param>
@@ -244,6 +247,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StartPlace">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StartPlace" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsLocationSheetVisible">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsLocationSheetVisible" generated properties.</summary>
+        </member>
         <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
             <summary>
             A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
@@ -279,6 +285,9 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StartPlace">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StartPlace" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsLocationSheetVisible">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsLocationSheetVisible" generated properties.</summary>
         </member>
     </members>
 </doc>
