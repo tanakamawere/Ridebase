@@ -35,8 +35,7 @@
             SheetColor="{AppThemeBinding Light={StaticResource White},
                                          Dark={StaticResource OffBlack}}">
             <wits:BottomSheet.SheetStops>
-                <wits:SheetStop Measurement="Fixed" Value="2" />
-                <wits:SheetStop Measurement="Percentage" Value="0.28" />
+                <wits:SheetStop Measurement="Percentage" Value="0.2" />
             </wits:BottomSheet.SheetStops>
 
             <VerticalStackLayout
@@ -44,31 +43,21 @@
                 Spacing="12"
                 VerticalOptions="FillAndExpand">
 
-                <material:TextField
+                <Entry
                     x:Name="FromLocationEntry"
-                    Title="From..."
+                    Focused="EntriesFocused"
                     IsEnabled="True"
-                    TextChanged="FromLocationEntry_TextChanged">
-                    <material:TextField.Icon>
-                        <FontImageSource
-                            FontFamily="FARegular"
-                            Glyph="{x:Static fa:Regular.CirclePause}"
-                            Size="10" />
-                    </material:TextField.Icon>
-                </material:TextField>
+                    Placeholder="From..."
+                    TextChanged="FromLocationEntry_TextChanged"
+                    Unfocused="EntriesUnfocused" />
 
-                <material:TextField
+                <Entry
                     x:Name="GoToLocationEntry"
-                    Title="Where to?"
+                    Focused="EntriesFocused"
                     IsEnabled="True"
-                    Text="{Binding SearchQuery}">
-                    <material:TextField.Icon>
-                        <FontImageSource
-                            FontFamily="FARegular"
-                            Glyph="{x:Static fa:Regular.CirclePause}"
-                            Size="10" />
-                    </material:TextField.Icon>
-                </material:TextField>
+                    Placeholder="Where to...?"
+                    Text="{Binding SearchQuery}"
+                    Unfocused="EntriesUnfocused" />
 
                 <CollectionView
                     EmptyView="Enter the location you want to go"
@@ -116,9 +105,7 @@
                     IsVisible="{Binding IsBusy}"
                     Color="{AppThemeBinding Light={StaticResource Primary},
                                             Dark={StaticResource White}}" />
-
             </VerticalStackLayout>
         </wits:BottomSheet>
     </Grid>
-
 </ContentPage>

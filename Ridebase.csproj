@@ -77,6 +77,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Maui.Apps.Framework\Maui.Apps.Framework.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Pages\Rider\Dialogs\ChooseLocation.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

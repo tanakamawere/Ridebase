@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using Ridebase.Pages.Rider;
 using Ridebase.Pages.Rider.Dialogs;
+using Ridebase.Services;
 using Ridebase.Services.Geocoding;
 using Ridebase.Services.Places;
 using Ridebase.Services.RideService;
@@ -49,6 +50,14 @@ namespace Ridebase
             builder.Services.AddHttpClient<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddHttpClient<IRideService, RideService>();
             builder.Services.AddHttpClient<IPlaces, PlacesService>();
+
+            builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+
+#if ANDROID
+            builder.Services.AddSingleton<IKeyboardService, Platforms.Android.KeyboardService>();
+#elif IOS
+            builder.Services.AddSingleton<IKeyboardService, Platforms.iOS.KeyboardService>();
+#endif
 
             //Pages registration
             builder.Services.AddSingleton<MapHomePage>();

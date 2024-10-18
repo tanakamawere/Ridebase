@@ -1,22 +1,20 @@
 ﻿using Ridebase.Models;
-using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text;
+using Maui.Apps.Framework.Services;
 
 namespace Ridebase.Services.Places;
 
-public class PlacesService : IPlaces
+public class PlacesService : RestServiceBase, IPlaces
 {
-    private readonly HttpClient httpClient;
-    public PlacesService(HttpClient httpClient)
+    public PlacesService(IConnectivity connectivity) : base(connectivity)
     {
-        this.httpClient = httpClient;
+        SetBaseURL(Constants.googlePlacesApiUrl);
     }
+
     public async Task<List<Place>> GetPlacesAutocomplete(string keyword)
     {
         try
         {
-            await Task.Delay(1400);
             var requestBody = new
             {
                 textQuery = keyword,
@@ -24,35 +22,19 @@ public class PlacesService : IPlaces
                 minRating = 2
             };
 
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            //setting headers
-            httpClient.DefaultRequestHeaders.Add("X-Goog-Api-Key", Constants.googlePlacesApiKey);
-            httpClient.DefaultRequestHeaders.Add("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.location,places.id,places.types");
-
-            // Make the POST request
-            var response = await httpClient.PostAsync(Constants.googlePlacesApiUrl, content);
+            AddHttpHeader("X-Goog-Api-Key", Constants.googlePlacesApiKey);
+            AddHttpHeader("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.location,places.id,places.types");
+            var response = await PostAsync("", requestBody);
 
             //Read the response and convert it to a Root Object
-            //Check if it was successful
-            if (response.IsSuccessStatusCode)
-            {
-                var responseStream = await response.Content.ReadAsStreamAsync();
-                var placesRoot = await JsonSerializer.DeserializeAsync<PlacesRoot>(responseStream);
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            var placesRoot = await JsonSerializer.DeserializeAsync<PlacesRoot>(responseStream);
 
-                httpClient.DefaultRequestHeaders.Clear();
-
-                return placesRoot.places;
-            }
-            else
-            {
-                return new List<Place>();
-            }
+            return placesRoot.places;
         }
         catch (Exception ex)
         {
-            return new List<Place>();
+            return [];
         }
     }
 
