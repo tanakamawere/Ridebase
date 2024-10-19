@@ -3,7 +3,6 @@
     x:Class="Ridebase.Pages.Rider.Dialogs.ChooseLocation"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:models="clr-namespace:Ridebase.Services.Geocoding"
     xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
@@ -23,14 +22,7 @@
         VerticalOptions="Center"
         WidthRequest="340">
         <VerticalStackLayout Padding="20">
-            <material:TextField Title="Where to?" Text="{Binding GoToLocation}">
-                <material:TextField.Icon>
-                    <FontImageSource
-                        FontFamily="FARegular"
-                        Glyph="{x:Static fa:Regular.AddressCard}"
-                        Size="10" />
-                </material:TextField.Icon>
-            </material:TextField>
+            <Entry Text="{Binding GoToLocation}" />
 
             <CollectionView
                 EmptyView="Nothing in the collection view yet"

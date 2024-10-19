@@ -3,13 +3,13 @@
     x:Class="Ridebase.Pages.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+    xmlns:icons="clr-namespace:Ridebase.Services.FontsCode"
     xmlns:pages="clr-namespace:Ridebase.Pages.Rider"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     Title="Ridebase"
     x:DataType="vm:AppShellViewModel"
-    Shell.BackgroundColor="Transparent"
+    Shell.BackgroundColor="AliceBlue"
     Shell.FlyoutBehavior="Flyout">
 
     <Shell.Behaviors>
@@ -27,6 +27,7 @@
         <StackLayout>
             <Button
                 Margin="20"
+                BackgroundColor="Blue"
                 Command="{Binding LoginCommand}"
                 IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
                 Text="Login" />
@@ -41,7 +42,7 @@
         </StackLayout>
     </Shell.FlyoutHeader>
 
-    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems" FlyoutIcon="{FontImageSource FontFamily=FARegular, Glyph={x:Static fa:Regular.Message}, Color={AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}}">
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems" FlyoutIcon="{FontImageSource FontFamily=faregular, Glyph={x:Static icons:Fasolid.Message}, Color={AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}}">
 
         <ShellContent
             Title="Home"
@@ -49,9 +50,9 @@
             Route="Home">
             <ShellContent.Icon>
                 <FontImageSource
-                    FontFamily="FARegular"
-                    Glyph="{x:Static fa:Regular.Star}"
-                    Size="10"
+                    FontFamily="fasolid"
+                    Glyph="{x:Static icons:Fasolid.House}"
+                    Size="5"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />
             </ShellContent.Icon>
@@ -64,8 +65,8 @@
         <ShellContent Title="FAQ">
             <ShellContent.Icon>
                 <FontImageSource
-                    FontFamily="FARegular"
-                    Glyph="{x:Static fa:Regular.Question}"
+                    FontFamily="fasolid"
+                    Glyph="{x:Static icons:Fasolid.CircleQuestion}"
                     Size="10"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />
@@ -79,8 +80,8 @@
         <ShellContent Title="Support">
             <ShellContent.Icon>
                 <FontImageSource
-                    FontFamily="FARegular"
-                    Glyph="{x:Static fa:Regular.ChessQueen}"
+                    FontFamily="fasolid"
+                    Glyph="{x:Static icons:Fasolid.Phone}"
                     Size="10"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />

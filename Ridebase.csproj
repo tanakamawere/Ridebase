@@ -44,6 +44,10 @@
 	<ItemGroup>
 	  <None Remove="darkmap.json" />
 	  <None Remove="lightmap.json" />
+	  <None Remove="Resources\Fonts\fabrands.otf" />
+	  <None Remove="Resources\Fonts\faregular.otf" />
+	  <None Remove="Resources\Fonts\fasolid.otf" />
+	  <None Remove="Resources\Fonts\rubik.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,8 +64,6 @@
 		<PackageReference Include="Mopups" Version="1.3.2" />
 		<PackageReference Include="Onion.Maui.GoogleMaps" Version="6.0.0" />
 		<PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
-		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.10.2" />
-		<PackageReference Include="UraniumUI.Material" Version="2.10.2" />
 		<PackageReference Include="WhatIsThisSheet" Version="1.0.6" />
 	</ItemGroup>
 
@@ -98,6 +100,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Rider\MapHomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\RidebaseStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

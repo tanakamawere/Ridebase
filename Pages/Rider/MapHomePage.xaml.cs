@@ -6,9 +6,7 @@ using System.Reflection;
 using Ridebase.ViewModels;
 using Ridebase.Services;
 using MauiLocation = Microsoft.Maui.Devices.Sensors.Location;
-using GoogleApi.Entities.Maps.Common;
 using CommunityToolkit.Maui.Core.Platform;
-using GoogleApi.Interfaces.Maps;
 using Ridebase.Services.Directions;
 
 namespace Ridebase.Pages.Rider;
@@ -17,12 +15,14 @@ public partial class MapHomePage
 {
     private IGeocodeGoogle geocodeGoogle;
     private Pin currentLocationPin;
-    private Pin destinationPin = null;
-    private Position position;
-    private IKeyboardService keyboardService;
-    private IPopupNavigation popupNavigation;
-    private IDirections directionsApi;
-    private MapHomeViewModel mapHomeViewModel;
+    private readonly Pin destinationPin = null;
+    private Position currentPosition;
+    private Position startPosition;
+    private readonly IKeyboardService keyboardService;
+    private readonly IPopupNavigation popupNavigation;
+    private readonly IDirections directionsApi;
+    private readonly MapHomeViewModel mapHomeViewModel;
+    private Models.Place startPlace;
 
     public MapHomePage(MapHomeViewModel mapHomeViewModel,
         IGeocodeGoogle geocodeGoogle,
@@ -42,7 +42,7 @@ public partial class MapHomePage
 
             ShowBottomSheet(0.3);
 
-        SetTheme();
+            SetTheme();
             GetCurrentLocation();
 	    }
 
@@ -56,15 +56,35 @@ public partial class MapHomePage
             LocationWithAddress locationWithAddress
                 = await geocodeGoogle.GetCurrentLocationWithAddressAsync();
 
+            //Locations with address to Place object and send that to the view model
+            startPlace = new()
+            {
+                displayName = new()
+                {
+                    text = locationWithAddress.FormattedAddress,
+                    languageCode = "en"
+                },
+                location = new()
+                {
+                    latitude = locationWithAddress.Location.latitude,
+                    longitude = locationWithAddress.Location.longitude
+                },
+                formattedAddress = locationWithAddress.FormattedAddress,
+                id = "Current Location"
+            };
+
+            //Set place to the view model
+            mapHomeViewModel.StartPlace = startPlace;
+
             if (locationWithAddress != null)
             {
-                position = new(locationWithAddress.Location.latitude, locationWithAddress.Location.longitude);
-                homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(position, Maui.GoogleMaps.Distance.FromMeters(1000)));
+                currentPosition = new(locationWithAddress.Location.latitude, locationWithAddress.Location.longitude);
+                homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(currentPosition, Maui.GoogleMaps.Distance.FromMeters(1000)));
 
                 currentLocationPin = new Pin
                 {
                     Label = "Current Location",
-                    Position = position,
+                    Position = currentPosition,
                     Type = PinType.Place,
                 };
 
@@ -108,30 +128,71 @@ public partial class MapHomePage
     //Select a place from the collection view
     private void PlaceCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        
-
         if (e.CurrentSelection.FirstOrDefault() is Models.Place place)
         {
-            FromLocationEntry.HideKeyboardAsync(CancellationToken.None);
-            GoToLocationEntry.HideKeyboardAsync(CancellationToken.None);
-            //Clear all pins first if new pin will be selected
-            homeMapControl.Pins.Clear();
-            mapHomeViewModel.SelectPlace(place);
-
-            //Add pin to the destination location
-            homeMapControl.Pins.Add(new Pin
+            if (FromLocationEntry.Text == "")
             {
-                Label = place.displayName.text,
-                Position = new Position(place.location.latitude, place.location.longitude),
-                Type = PinType.Place
-            });
+                //Means user wants to be taken from where they are
+                startPosition = currentPosition;
+            }
 
-            //Move the camera to show both pins
-            MoveCamera(position, new Position(place.location.latitude, place.location.longitude));
-            SetRideConfirmationState(place.id);
+            //User wants to choose starting from location
+            if (FromLocationEntry.IsFocused)
+            {
+                startPosition = new Position(place.location.latitude, place.location.longitude);
 
-            //Make selection null
-            ((CollectionView)sender).SelectedItem = null;
+                //Create pin for that location
+                homeMapControl.Pins.Add(new Pin
+                {
+                    Label = place.displayName.text,
+                    Position = new Position(place.location.latitude, place.location.longitude),
+                    Type = PinType.Place
+                });
+
+                //Set entry text to the name of the place
+                FromLocationEntry.Text = place.displayName.text;
+
+                //Start location update in the viewmodel
+                mapHomeViewModel.StartPlace = place;
+
+                //Make selection null
+                ((CollectionView)sender).SelectedItem = null;
+            }
+            else
+            {
+                //Check which entry was focused between the go to and destination entries
+                FromLocationEntry.HideKeyboardAsync(CancellationToken.None);
+                GoToLocationEntry.HideKeyboardAsync(CancellationToken.None);
+
+                //if number of pins inside the map pins is greater than 2, it means they have changed start location
+                if (homeMapControl.Pins.Count > 1)
+                {
+                    //remove first pin in the list
+                    homeMapControl.Pins.RemoveAt(0);
+                }
+
+                mapHomeViewModel.SelectDestinationPlace(place);
+
+                //Clear the searchQuery in the view model
+                mapHomeViewModel.SearchQuery = string.Empty;
+                //Now set the entry text to the display name of the selected place
+                GoToLocationEntry.Text = place.displayName.text;
+
+                //Add pin to the destination location
+                homeMapControl.Pins.Add(new Pin
+                {
+                    Label = place.displayName.text,
+                    Position = new Position(place.location.latitude, place.location.longitude),
+                    Type = PinType.Place
+                });
+
+                //Move the camera to show both pins
+                MoveCamera(startPosition, new Position(place.location.latitude, place.location.longitude));
+                SetRideConfirmationState(place.id);
+
+                //Make selection null
+                ((CollectionView)sender).SelectedItem = null;
+            }
         }
     }
 
@@ -143,7 +204,7 @@ public partial class MapHomePage
 
         //Distance / 2 is the altitude from which to view the map
         //Adjust camera to show new pin and current location together. Calculate the appropriate distance that should be shown, with very smooth animation
-        homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Maui.GoogleMaps.Distance.FromMeters(distance / 2)), true);
+        homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Maui.GoogleMaps.Distance.FromMeters(distance / 1.75)), true);
     }
 
     //Method to make changes to the display for the ride confirmation
@@ -161,13 +222,13 @@ public partial class MapHomePage
         //Add popup for destination editing
 
         //Draw polyline path
-        var response = await directionsApi.GetDirections($"{position.Latitude},{position.Longitude}", $"place_id:{selectedPlaceId}");
+        var response = await directionsApi.GetDirections($"{startPosition.Latitude},{startPosition.Longitude}", $"place_id:{selectedPlaceId}");
 
         if (response != null)
         {
             Maui.GoogleMaps.Polyline polyline = new() 
             {
-                StrokeColor = Colors.AliceBlue,
+                StrokeColor = Colors.DarkBlue,
                 StrokeWidth = 5f,
             };
 
@@ -211,5 +272,15 @@ public partial class MapHomePage
             //Set the theme of the map
             homeMapControl.MapStyle = MapStyle.FromJson(styleFile);
         }
+    }
+
+    private void LocationEditBorderTapped(object sender, TappedEventArgs e)
+    {
+        //Remove previous polyline
+
+        //If a user taps on the border, it means they want to edit the start and end locations
+        mapHomeViewModel.IsLocationSheetVisible = true;
+        Shell.SetNavBarIsVisible(this, true);
+        ShowBottomSheet(0.8);
     }
 }

@@ -14,7 +14,6 @@ using Ridebase.Services.Places;
 using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
 using System.Reflection;
-using UraniumUI;
 
 namespace Ridebase
 {
@@ -27,9 +26,7 @@ namespace Ridebase
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseDevExpress()
-                .UseUraniumUI()
                 .ConfigureMopups()
-                .UseUraniumUIMaterial()
 #if ANDROID
                 .UseGoogleMaps()
 #elif IOS
@@ -37,9 +34,10 @@ namespace Ridebase
 #endif
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFontAwesomeIconFonts();
+                    fonts.AddFont("fasolid.otf", "fasolid");
+                    fonts.AddFont("faregular.otf", "faregular");
+                    fonts.AddFont("fabrands.otf", "fabrands");
+                    fonts.AddFont("rubik.ttf", "rubik");
                 });
             //ViewModels registration
             builder.Services.AddSingleton<MapHomeViewModel>();

@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using GoogleApi;
-using Maui.GoogleMaps;
 using Mopups.Interfaces;
 using Ridebase.Models;
 using Ridebase.Services.Geocoding;
@@ -94,7 +92,7 @@ public partial class MapHomeViewModel : BaseViewModel
     }
 
     //On click of a place, set the destination place
-    public void SelectPlace(Place place)
+    public void SelectDestinationPlace(Place place)
     {
         if (place != null)
         {

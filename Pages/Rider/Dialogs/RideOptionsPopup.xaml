@@ -3,7 +3,6 @@
     x:Class="Ridebase.Pages.Rider.Dialogs.RideOptionsPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
     BackgroundColor="#80000000"
@@ -25,30 +24,12 @@
                 Text="Options"
                 VerticalOptions="Center" />
 
-            <material:TextField
+            <Entry
                 x:Name="NumberOfPassengersEntry"
-                Title="Number of Passengers"
                 IsEnabled="True"
-                Keyboard="Numeric">
-                <material:TextField.Icon>
-                    <FontImageSource
-                        FontFamily="FARegular"
-                        Glyph="{x:Static fa:Regular.FileCode}"
-                        Size="10" />
-                </material:TextField.Icon>
-            </material:TextField>
+                Keyboard="Numeric" />
 
-            <material:TextField
-                x:Name="Comments"
-                Title="Comments"
-                Keyboard="Text">
-                <material:TextField.Icon>
-                    <FontImageSource
-                        FontFamily="FARegular"
-                        Glyph="{x:Static fa:Regular.Comment}"
-                        Size="10" />
-                </material:TextField.Icon>
-            </material:TextField>
+            <Entry x:Name="Comments" Keyboard="Text" />
 
             <Button x:Name="Close" Text="Close" />
         </VerticalStackLayout>
