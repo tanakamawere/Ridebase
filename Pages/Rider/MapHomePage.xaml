@@ -61,7 +61,7 @@
                                     FontFamily="fasolid"
                                     Glyph="{x:Static icons:Fasolid.LocationCrosshairs}"
                                     Size="20"
-                                    Color="{AppThemeBinding Dark={StaticResource White},
+                                    Color="{AppThemeBinding Dark={StaticResource Secondary},
                                                             Light={StaticResource Primary}}" />
                             </Image.Source>
                         </Image>
@@ -99,10 +99,10 @@
                             HorizontalOptions="Start">
                             <Image.Source>
                                 <FontImageSource
-                                    FontFamily="fasolid"
-                                    Glyph="{x:Static icons:Fasolid.LocationPin}"
+                                    FontFamily="faregular"
+                                    Glyph="{x:Static icons:Faregular.Map}"
                                     Size="20"
-                                    Color="{AppThemeBinding Dark={StaticResource White},
+                                    Color="{AppThemeBinding Dark={StaticResource Secondary},
                                                             Light={StaticResource Primary}}" />
                             </Image.Source>
                         </Image>
@@ -144,7 +144,7 @@
             SheetColor="{AppThemeBinding Light={StaticResource White},
                                          Dark={StaticResource OffBlack}}">
             <wits:BottomSheet.SheetStops>
-                <wits:SheetStop Measurement="Percentage" Value="0.2" />
+                <wits:SheetStop Measurement="Percentage" Value="0.3" />
             </wits:BottomSheet.SheetStops>
 
             <Grid>
@@ -233,35 +233,84 @@
 
                 <!--  Section for the ride confirmation  -->
                 <VerticalStackLayout
-                    Padding="20"
+                    Padding="10"
                     IsVisible="{Binding IsLocationSheetVisible, Converter={StaticResource InvertedBoolConverter}}"
-                    Spacing="12"
+                    Spacing="15"
                     VerticalOptions="FillAndExpand">
+                    <!--  Ride option section  -->
+                    <Border
+                        Padding="10"
+                        AbsoluteLayout.LayoutBounds="0,0,1,50"
+                        AbsoluteLayout.LayoutFlags="WidthProportional"
+                        BackgroundColor="{AppThemeBinding Dark={StaticResource BlueGray},
+                                                          Light={StaticResource White},
+                                                          Default={StaticResource White}}"
+                        HeightRequest="100"
+                        IsVisible="{Binding IsLocationSheetVisible, Converter={StaticResource InvertedBoolConverter}}"
+                        StrokeShape="RoundRectangle 20">
 
-                    <Label
-                        FontSize="Title"
-                        Text="Confirm your ride"
-                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
-                                                    Dark={StaticResource White}}" />
+                        <Grid
+                            Padding="20,0"
+                            ColumnDefinitions="*,Auto,*"
+                            ColumnSpacing="20"
+                            HorizontalOptions="FillAndExpand">
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="30"
+                                HorizontalOptions="Start">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="faregular"
+                                        Glyph="{x:Static icons:Faregular.SquareMinus}"
+                                        Size="20"
+                                        Color="{AppThemeBinding Dark={StaticResource Secondary},
+                                                                Light={StaticResource Primary}}" />
+                                </Image.Source>
+                            </Image>
+                            <StackLayout
+                                Grid.Column="1"
+                                HorizontalOptions="CenterAndExpand"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="28"
+                                    HorizontalOptions="Center"
+                                    Text="USD$ 5"
+                                    TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                                Dark={StaticResource White}}" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="Small"
+                                    HorizontalOptions="Center"
+                                    Text="Recommended Price"
+                                    TextColor="{AppThemeBinding Light={StaticResource Primary},
+                                                                Dark={StaticResource Secondary}}" />
+                            </StackLayout>
+                            <Image
+                                Grid.Column="2"
+                                HeightRequest="30"
+                                HorizontalOptions="End">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="faregular"
+                                        Glyph="{x:Static icons:Faregular.SquarePlus}"
+                                        Size="30"
+                                        Color="{AppThemeBinding Dark={StaticResource Secondary},
+                                                                Light={StaticResource Primary}}" />
+                                </Image.Source>
+                            </Image>
+                        </Grid>
 
-                    <Label
-                        FontSize="Body"
-                        Text="Display Text"
-                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
-                                                    Dark={StaticResource White}}" />
+                    </Border>
 
-                    <Label
-                        FontSize="Caption"
-                        Text="Formatted Address"
-                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
-                                                    Dark={StaticResource White}}" />
-
+                    <!--  Find offers button  -->
                     <Button
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary},
-                                                          Dark={StaticResource White}}"
-                        Text="Confirm"
-                        TextColor="{AppThemeBinding Light={StaticResource White},
-                                                    Dark={StaticResource OffBlack}}" />
+                        CornerRadius="10"
+                        FontSize="20"
+                        HeightRequest="60"
+                        HorizontalOptions="FillAndExpand"
+                        Text="Find Driver"
+                        TextColor="White" />
                 </VerticalStackLayout>
             </Grid>
         </wits:BottomSheet>

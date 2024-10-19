@@ -211,7 +211,7 @@ public partial class MapHomePage
     private async Task SetRideConfirmationState(string selectedPlaceId)
     {
         //Resize bottom sheet
-        ShowBottomSheet(0.4);
+        ShowBottomSheet(0.3);
 
         //Display the ride confirmation side
         mapHomeViewModel.IsLocationSheetVisible = false;
