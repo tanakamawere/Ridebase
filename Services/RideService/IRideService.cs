@@ -1,7 +1,11 @@
-﻿namespace Ridebase.Services.RideService;
+﻿using Ridebase.Models;
+
+namespace Ridebase.Services.RideService;
 
 public interface IRideService
 {
+    Task<string> PostAccessToken(string accessToken);
+    Task<User> GetUserInfo();
     //Request ride
     Task RequestRide();
     //Cancel ride

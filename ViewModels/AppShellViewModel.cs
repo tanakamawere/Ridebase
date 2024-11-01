@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
+using Ridebase.Services.RideService;
 
 namespace Ridebase.ViewModels;
 
@@ -9,9 +10,10 @@ public partial class AppShellViewModel: BaseViewModel
 {
     private readonly Auth0Client auth0Client;
 
-    public AppShellViewModel(Auth0Client client)
+    public AppShellViewModel(Auth0Client client, IRideService rideService)
     {
         auth0Client = client;
+        this.rideService = rideService;
     }
 
     //Login Command
@@ -34,9 +36,14 @@ public partial class AppShellViewModel: BaseViewModel
                 AccessToken = loginResult.AccessToken
             };
 
+            //Save access token locally
             await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
 
-            await App.Current.MainPage.DisplayAlert("Success", "You are now logged in", "OK");
+            //Send access token to server
+            var response = await rideService.PostAccessToken(loginResult.AccessToken);
+
+            //Get user information
+            await App.Current.MainPage.DisplayAlert("Success", response.ToString(), "OK");
         }
         else
         {

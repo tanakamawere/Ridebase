@@ -1,12 +1,13 @@
-﻿
+﻿using Maui.Apps.Framework.Services;
+using Ridebase.Models;
+
 namespace Ridebase.Services.RideService;
 
-public class RideService : IRideService
+public class RideService : RestServiceBase, IRideService
 {
-    private readonly HttpClient httpClient;
-    public RideService(HttpClient httpClient)
+    public RideService(IConnectivity connectivity) : base(connectivity)
     {
-        this.httpClient = httpClient;
+        SetBaseURL(Constants.RidebaseApiUrl);
     }
 
     public Task CancelRide()
@@ -22,6 +23,24 @@ public class RideService : IRideService
     public Task GetRideStatus()
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<User> GetUserInfo()
+    {
+        AddHttpHeader("Authorization", await SecureStorage.GetAsync("auth_token"));
+
+        var response = await GetAsync<User>("userinfo");
+
+        return response;
+    }
+
+    public async Task<string> PostAccessToken(string accessToken)
+    {
+        AddHttpHeader("Authorization", $"Bearer {accessToken}");
+
+        var response = await PostAsync("login_registration", "");
+
+        return await response.Content.ReadAsStringAsync();
     }
 
     public Task RequestRide()

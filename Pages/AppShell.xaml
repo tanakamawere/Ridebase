@@ -9,7 +9,6 @@
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     Title="Ridebase"
     x:DataType="vm:AppShellViewModel"
-    Shell.BackgroundColor="AliceBlue"
     Shell.FlyoutBehavior="Flyout">
 
     <Shell.Behaviors>
@@ -27,9 +26,7 @@
         <StackLayout>
             <Button
                 Margin="20"
-                BackgroundColor="Blue"
                 Command="{Binding LoginCommand}"
-                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
                 Text="Login" />
 
             <StackLayout Padding="20" IsVisible="{Binding IsLoggedIn}">
@@ -91,7 +88,16 @@
 
     <!--  Flyout Footer  -->
     <Shell.FlyoutFooter>
-        <Button Margin="20" Text="Driver mode" />
+
+        <VerticalStackLayout>
+
+            <Button Margin="20" Text="Driver mode" />
+            <Button
+                Margin="20"
+                Command="{Binding LoginCommand}"
+                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+                Text="Login" />
+        </VerticalStackLayout>
     </Shell.FlyoutFooter>
 
 </Shell>
