@@ -164,6 +164,9 @@ public partial class MapHomePage
                 FromLocationEntry.HideKeyboardAsync(CancellationToken.None);
                 GoToLocationEntry.HideKeyboardAsync(CancellationToken.None);
 
+                //Means user wants to be taken from where they are
+                startPosition = currentPosition;
+
                 //if number of pins inside the map pins is greater than 2, it means they have changed start location
                 if (homeMapControl.Pins.Count > 1)
                 {
@@ -204,14 +207,18 @@ public partial class MapHomePage
 
         //Distance / 2 is the altitude from which to view the map
         //Adjust camera to show new pin and current location together. Calculate the appropriate distance that should be shown, with very smooth animation
-        homeMapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Maui.GoogleMaps.Distance.FromMeters(distance / 1.75)), true);
+        homeMapControl.MoveToRegion
+            (MapSpan.FromCenterAndRadius
+                (new Position
+                    ((destination.Latitude + current.Latitude) / 2, (destination.Longitude + current.Longitude) / 2), Maui.GoogleMaps.Distance.FromMeters(distance / 1.75)
+                ), true);
     }
 
     //Method to make changes to the display for the ride confirmation
     private async Task SetRideConfirmationState(string selectedPlaceId)
     {
         //Resize bottom sheet
-        ShowBottomSheet(0.3);
+        ShowBottomSheet(0.2);
 
         //Display the ride confirmation side
         mapHomeViewModel.IsLocationSheetVisible = false;
@@ -226,9 +233,9 @@ public partial class MapHomePage
 
         if (response != null)
         {
-            Maui.GoogleMaps.Polyline polyline = new() 
+            Maui.GoogleMaps.Polyline polyline = new()
             {
-                StrokeColor = Colors.DarkBlue,
+                StrokeColor = Color.Parse("#9c1ee9"),
                 StrokeWidth = 5f,
             };
 

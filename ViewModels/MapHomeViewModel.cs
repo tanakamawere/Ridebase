@@ -12,6 +12,8 @@ public partial class MapHomeViewModel : BaseViewModel
 {
     [ObservableProperty]
     private string searchQuery;
+    [ObservableProperty]
+    private decimal rideAmount;
 
     //The following obviously defaults to the current location, but can be changed by the user
     [ObservableProperty]
@@ -104,6 +106,20 @@ public partial class MapHomeViewModel : BaseViewModel
             {
                 DestinationPlace = place;
             }
+        }
+    }
+
+    //Relay command to add or subtract the ride amount depending on the command parameter
+    [RelayCommand]
+    public void CalculateRideAmount(string operant)
+    {
+        if (operant.Equals("Add"))
+        {
+            RideAmount += 1;
+        }
+        else if (operant.Equals("Subtract"))
+        {
+            RideAmount -= 1;
         }
     }
 }

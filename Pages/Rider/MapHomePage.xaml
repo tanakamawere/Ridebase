@@ -254,28 +254,36 @@
                             ColumnDefinitions="*,Auto,*"
                             ColumnSpacing="20"
                             HorizontalOptions="FillAndExpand">
-                            <Image
+                            <ImageButton
                                 Grid.Column="0"
+                                Command="{Binding CalculateRideAmountCommand}"
+                                CommandParameter="Subtract"
                                 HeightRequest="30"
                                 HorizontalOptions="Start">
-                                <Image.Source>
+                                <ImageButton.Source>
                                     <FontImageSource
                                         FontFamily="faregular"
                                         Glyph="{x:Static icons:Faregular.SquareMinus}"
                                         Size="20"
                                         Color="{AppThemeBinding Dark={StaticResource Secondary},
                                                                 Light={StaticResource Primary}}" />
-                                </Image.Source>
-                            </Image>
+                                </ImageButton.Source>
+                            </ImageButton>
                             <StackLayout
                                 Grid.Column="1"
                                 HorizontalOptions="CenterAndExpand"
                                 VerticalOptions="Center">
+                                <Entry
+                                    FontAttributes="Bold"
+                                    HorizontalTextAlignment="Center"
+                                    FontSize="20"
+                                    Placeholder="Amount"
+                                    Text="{Binding RideAmount}" />
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="28"
                                     HorizontalOptions="Center"
-                                    Text="USD$ 5"
+                                    Text="USD$"
                                     TextColor="{AppThemeBinding Light={StaticResource OffBlack},
                                                                 Dark={StaticResource White}}" />
                                 <Label
@@ -286,19 +294,21 @@
                                     TextColor="{AppThemeBinding Light={StaticResource Primary},
                                                                 Dark={StaticResource Secondary}}" />
                             </StackLayout>
-                            <Image
+                            <ImageButton
                                 Grid.Column="2"
+                                Command="{Binding CalculateRideAmountCommand}"
+                                CommandParameter="Add"
                                 HeightRequest="30"
                                 HorizontalOptions="End">
-                                <Image.Source>
+                                <ImageButton.Source>
                                     <FontImageSource
                                         FontFamily="faregular"
                                         Glyph="{x:Static icons:Faregular.SquarePlus}"
                                         Size="30"
                                         Color="{AppThemeBinding Dark={StaticResource Secondary},
                                                                 Light={StaticResource Primary}}" />
-                                </Image.Source>
-                            </Image>
+                                </ImageButton.Source>
+                            </ImageButton>
                         </Grid>
 
                     </Border>
