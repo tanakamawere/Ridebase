@@ -52,7 +52,9 @@ public partial class MapHomeViewModel : BaseViewModel
         PlacesList.Clear();
         try
         {
-            PlacesList = await placesApi.GetPlacesAutocomplete(keyword);
+            var placesFromApi = await placesApi.GetPlacesAutocomplete(keyword);
+
+            PlacesList = placesFromApi.Data;
             if (locationType.Equals(LocationType.Start))
             {
                 LocationWithAddress locationWithAddress = await geocodeGoogle.GetCurrentLocationWithAddressAsync();

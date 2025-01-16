@@ -239,7 +239,7 @@ public partial class MapHomePage
                 StrokeWidth = 5f,
             };
 
-            foreach (var step in response.routes.First().legs.First().steps)
+            foreach (var step in response.Data.routes.First().legs.First().steps)
             {
                 polyline.Positions.Add(new Position(step.start_location.lat, step.start_location.lng));
             }

@@ -6,11 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using Ridebase.Pages.Rider;
-using Ridebase.Pages.Rider.Dialogs;
 using Ridebase.Services;
 using Ridebase.Services.Directions;
 using Ridebase.Services.Geocoding;
 using Ridebase.Services.Places;
+using Ridebase.Services.RestService;
 using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
 using System.Reflection;
@@ -39,16 +39,18 @@ namespace Ridebase
                     fonts.AddFont("fabrands.otf", "fabrands");
                     fonts.AddFont("rubik.ttf", "rubik");
                 });
-            //ViewModels registration
-            builder.Services.AddSingleton<MapHomeViewModel>();
-            builder.Services.AddSingleton<AppShellViewModel>();
-
-            builder.Services.AddHttpClient<IGeocodeGoogle, GeocodingGoogle>();
-            builder.Services.AddHttpClient<IRideService, RideService>();
-            builder.Services.AddHttpClient<IDirections, DirectionsService>();
-            builder.Services.AddHttpClient<IPlaces, PlacesService>();
-
             builder.Services.AddSingleton(Connectivity.Current);
+
+            //HttpClient Registration
+            builder.Services.AddHttpClient<IApiClient, ApiClient>("RidebaseClient", client =>
+            {
+                var baseAddress = builder.Configuration["RidebaseEndpoint"];
+                if (string.IsNullOrEmpty(baseAddress))
+                {
+                    throw new ArgumentNullException(nameof(baseAddress), "Ridebase Endpoint configuration is missing or empty.");
+                }
+                client.BaseAddress = new Uri(baseAddress);
+            });
 
 #if ANDROID
             builder.Services.AddSingleton<IKeyboardService, Platforms.Android.KeyboardService>();
@@ -56,9 +58,14 @@ namespace Ridebase
             builder.Services.AddSingleton<IKeyboardService, Platforms.iOS.KeyboardService>();
 #endif
 
+            //ViewModels registration
+            builder.Services.AddSingleton<MapHomeViewModel>();
+            builder.Services.AddSingleton<AppShellViewModel>();
             //Pages registration
             builder.Services.AddSingleton<MapHomePage>();
 
+            builder.Services.AddScoped<IApiClient, ApiClient>();
+            builder.Services.AddScoped<WebSocketClient>();
             builder.Services.AddSingleton<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddSingleton<IRideService, RideService>();
             builder.Services.AddSingleton<IDirections, DirectionsService>();

@@ -1,19 +1,21 @@
-﻿using Maui.Apps.Framework.Services;
+﻿using Ridebase.Services.RestService;
 
 namespace Ridebase.Services.Directions;
 
-public class DirectionsService : RestServiceBase, IDirections
+public class DirectionsService : IDirections
 {
-    public DirectionsService(IConnectivity connectivity) : base(connectivity)
+    private readonly IApiClient apiClient;
+
+    public DirectionsService(IApiClient _apiClient)
     {
-        SetBaseURL(Constants.GoogleDirectionsApiUrl);
+        apiClient = _apiClient;
     }
 
-    public async Task<DirectionsRoot> GetDirections(string origin, string destination)
+    public async Task<ApiResponse<DirectionsRoot>> GetDirections(string origin, string destination)
     {
         try
         {
-            return await GetAsync<DirectionsRoot>($"json?origin={origin}&destination={destination}&key={Constants.googleMapsApiKey}");
+            return await apiClient.GetAsync<DirectionsRoot>($"json?origin={origin}&destination={destination}&key={Constants.googleMapsApiKey}");
             
         }
         catch (Exception ex)
