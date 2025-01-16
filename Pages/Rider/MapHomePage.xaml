@@ -275,8 +275,8 @@
                                 VerticalOptions="Center">
                                 <Entry
                                     FontAttributes="Bold"
-                                    HorizontalTextAlignment="Center"
                                     FontSize="20"
+                                    HorizontalTextAlignment="Center"
                                     Placeholder="Amount"
                                     Text="{Binding RideAmount}" />
                                 <Label

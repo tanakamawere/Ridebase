@@ -60,9 +60,18 @@ namespace Ridebase
 
             //ViewModels registration
             builder.Services.AddSingleton<MapHomeViewModel>();
+            builder.Services.AddSingleton<HomePageViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
-            //Pages registration
+
+            //Rider Pages registration
+            builder.Services.AddSingleton<HomePage>();
             builder.Services.AddSingleton<MapHomePage>();
+            builder.Services.AddTransient<SearchPage>();
+            builder.Services.AddTransient<RideDetailsPage>();
+            builder.Services.AddTransient<RideEndedPage>();
+            builder.Services.AddTransient<RideHistoryPage>();
+            builder.Services.AddScoped<RideProgressPage>();
+            builder.Services.AddTransient<ProfilePage>();
 
             builder.Services.AddScoped<IApiClient, ApiClient>();
             builder.Services.AddScoped<WebSocketClient>();
