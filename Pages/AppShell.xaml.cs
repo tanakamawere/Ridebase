@@ -11,7 +11,6 @@ namespace Ridebase.Pages
 
             BindingContext = Services.ServiceProvider.GetService<AppShellViewModel>();
 
-            Routing.RegisterRoute(nameof(MapHomePage), typeof(MapHomePage));
             Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
             Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
             Routing.RegisterRoute(nameof(RideDetailsPage), typeof(RideDetailsPage));

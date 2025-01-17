@@ -43,7 +43,7 @@
 
         <ShellContent
             Title="Home"
-            ContentTemplate="{DataTemplate pages:MapHomePage}"
+            ContentTemplate="{DataTemplate pages:HomePage}"
             Route="Home">
             <ShellContent.Icon>
                 <FontImageSource

@@ -5,6 +5,7 @@ using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
+using MPowerKit.GoogleMaps;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
 using Ridebase.Services.Directions;
@@ -13,7 +14,10 @@ using Ridebase.Services.Places;
 using Ridebase.Services.RestService;
 using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
+using Ridebase.ViewModels.Rider;
 using System.Reflection;
+using GoogleApi;
+using GoogleApi.Extensions;
 
 namespace Ridebase
 {
@@ -26,6 +30,11 @@ namespace Ridebase
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseDevExpress()
+                .UseMPowerKitGoogleMaps(
+#if IOS
+                    "AIzaSyC9E6Ot4Ui240f88-BGAzUFM-IhPEzT98Y"
+#endif
+                )
                 .ConfigureMopups()
 #if ANDROID
                 .UseGoogleMaps()
@@ -59,13 +68,12 @@ namespace Ridebase
 #endif
 
             //ViewModels registration
-            builder.Services.AddSingleton<MapHomeViewModel>();
             builder.Services.AddSingleton<HomePageViewModel>();
+            builder.Services.AddTransient<SearchPageViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
 
             //Rider Pages registration
             builder.Services.AddSingleton<HomePage>();
-            builder.Services.AddSingleton<MapHomePage>();
             builder.Services.AddTransient<SearchPage>();
             builder.Services.AddTransient<RideDetailsPage>();
             builder.Services.AddTransient<RideEndedPage>();
@@ -81,6 +89,7 @@ namespace Ridebase
             builder.Services.AddTransient<IPlaces, PlacesService>();
 
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
+            builder.Services.AddGoogleApiClients();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
