@@ -5,6 +5,7 @@ using GoogleApi.Entities.Places.Common;
 using Microsoft.IdentityModel.Tokens;
 using MPowerKit.GoogleMaps;
 using Ridebase.Models;
+using Ridebase.Pages;
 using Ridebase.Pages.Rider;
 using Ridebase.Services.Geocoding;
 using System.Collections.ObjectModel;
@@ -32,6 +33,7 @@ public partial class SearchPageViewModel : BaseViewModel
     public ObservableCollection<PlaceResult> places = [];
     //Used for determining which place, start or destination is to be set
     private LocationType locationType = LocationType.Destination;
+    private CancellationTokenSource cts;
 
     private readonly GooglePlaces.Search.NearBySearchApi nearBySearchApi;
 
@@ -39,7 +41,6 @@ public partial class SearchPageViewModel : BaseViewModel
     {
         Title = "Search";
         nearBySearchApi = _googlePlaces;
-        //Convert the current location to a place object when navigated 
     }
 
     public async Task SearchPlaces(string keyword)
@@ -78,13 +79,30 @@ public partial class SearchPageViewModel : BaseViewModel
     {
         //Check if value is not null
         if (!string.IsNullOrEmpty(value))
-            SearchPlaces(value);
+            DebounceSearch(value);
     }
 
     partial void OnStartSearchQueryChanged(string value)
     {
         if (!string.IsNullOrEmpty(value))
-            SearchPlaces(value);
+            DebounceSearch(value);
+    }
+
+    private async Task DebounceSearch(string query)
+    {
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+        cts = new CancellationTokenSource();
+
+        await Task.Delay(500, cts.Token);
+
+        if (cts.IsCancellationRequested)
+            return;
+
+        await SearchPlaces(query);
     }
 
     [RelayCommand]
@@ -97,7 +115,7 @@ public partial class SearchPageViewModel : BaseViewModel
 
     [RelayCommand]
     //Method to select the location from the collection view
-    public void SelectPlace(PlaceResult place)
+    public async void SelectPlace(PlaceResult place)
     {
         if (place == null) return;
 
@@ -109,8 +127,14 @@ public partial class SearchPageViewModel : BaseViewModel
                 break;
 
             case LocationType.Destination:
+
                 DestinationPlace = place;
                 DestinationSearchQuery = place.Name;
+                //meaning if the user has already selected the start location
+                if (!StartPlace.Equals(null))
+                {
+                    await GoToRideDetailsPage();
+                }
                 break;
         }
         Places.Clear();
@@ -121,6 +145,21 @@ public partial class SearchPageViewModel : BaseViewModel
     {
         Places.Clear();
         locationType = _locationType;
+    }
+
+    //Method to go to the ride details page with the start and destination locations
+    public async Task GoToRideDetailsPage()
+    {
+        if (StartPlace == null || DestinationPlace == null)
+        {
+            await AppShell.Current.DisplayAlert("Error", "Please select both start and destination locations", "OK");
+            return;
+        }
+        await Shell.Current.GoToAsync(nameof(RideDetailsPage), true, new Dictionary<string, object>
+        {
+            {"startPlace", StartPlace },
+            {"destinationPlace", DestinationPlace }
+        });
     }
 }
 

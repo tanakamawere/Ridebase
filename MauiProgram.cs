@@ -70,6 +70,7 @@ namespace Ridebase
             //ViewModels registration
             builder.Services.AddSingleton<HomePageViewModel>();
             builder.Services.AddTransient<SearchPageViewModel>();
+            builder.Services.AddTransient<RideDetailsViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
 
             //Rider Pages registration
