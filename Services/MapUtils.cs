@@ -1,4 +1,5 @@
-﻿using MPowerKit.GoogleMaps;
+﻿using GoogleApi.Entities.Common;
+using MPowerKit.GoogleMaps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,15 @@ public static class MapUtils
         // Create the bounds from the calculated values
         var southWest = new Point(minLat, minLon);
         var northEast = new Point(maxLat, maxLon);
+
+        return new LatLngBounds(southWest, northEast);
+    }
+
+    //Method that returns LatLngBounds from a ViewPort object
+    public static LatLngBounds GetLatLngBoundsFromViewPort(ViewPort viewPort)
+    {
+        var southWest = new Point(viewPort.SouthWest.Latitude, viewPort.SouthWest.Longitude);
+        var northEast = new Point(viewPort.NorthEast.Latitude, viewPort.NorthEast.Longitude);
 
         return new LatLngBounds(southWest, northEast);
     }

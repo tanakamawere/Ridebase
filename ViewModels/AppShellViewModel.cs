@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
+using Ridebase.Pages;
 using Ridebase.Services.RideService;
 
 namespace Ridebase.ViewModels;
@@ -36,23 +37,24 @@ public partial class AppShellViewModel: BaseViewModel
                 AccessToken = loginResult.AccessToken
             };
 
-            //Save access token locally
+            //Save access token locally & rider id
             await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
+            await SecureStorage.SetAsync("userId", RidebaseUser.UserId);
 
             //Send access token to server
             var response = await rideService.PostAccessToken(loginResult.AccessToken);
 
             //Get user information
-            await App.Current.MainPage.DisplayAlert("Success", response.ToString(), "OK");
+            await AppShell.Current.DisplayAlert("Success", response.ToString(), "OK");
         }
         else
         {
-            await App.Current.MainPage.DisplayAlert("Error", loginResult.Error, "OK");
+            await AppShell.Current.DisplayAlert("Error", loginResult.Error, "OK");
         }
 
         Console.WriteLine("Login Result: " + loginResult.AccessToken);
 
         if (loginResult.IsError)
-            await App.Current.MainPage.DisplayAlert("Error", loginResult.Error, "OK");
+            await AppShell.Current.DisplayAlert("Error", loginResult.Error, "OK");
     }
 }

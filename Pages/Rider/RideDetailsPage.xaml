@@ -13,7 +13,8 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
     xmlns:wits="http://what.is.this.sheet/schemas/controls"
-    x:DataType="vm:RideDetailsViewModel">
+    x:DataType="vm:RideDetailsViewModel"
+    Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="5*, 3*">
         <!--  Map covering the top 5/8 of the screen  -->
@@ -29,21 +30,23 @@
             Grid.Row="1"
             Padding="10"
             Spacing="10">
-            <Label
-                FontAttributes="Bold"
-                FontSize="Large"
-                Text="Ride Details" />
-
             <!--  Display start location  -->
-            <Label FontAttributes="Bold" Text="Start Location:" />
-            <Label Text="{Binding StartPlace.Name}" />
-
-            <!--  Display destination location  -->
-            <Label FontAttributes="Bold" Text="Destination Location:" />
-            <Label Text="{Binding DestinationPlace.Name}" />
-
-            <!--  Add more details as needed  -->
-            <!--  Section for the ride confirmation  -->
+            <Label FontAttributes="Bold" FontSize="Header">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span FontAttributes="Bold" Text="Start Location: " />
+                        <Span Text="{Binding StartPlace.Name}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Label FontAttributes="Bold" FontSize="Header">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span FontAttributes="Bold" Text="To: " />
+                        <Span Text="{Binding DestinationPlace.Name}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
 
             <!--  Ride option section  -->
             <Border
@@ -51,7 +54,7 @@
                 AbsoluteLayout.LayoutBounds="0,0,1,50"
                 AbsoluteLayout.LayoutFlags="WidthProportional"
                 BackgroundColor="{AppThemeBinding Dark={StaticResource BlueGray},
-                                                  Light={StaticResource White},
+                                                  Light={StaticResource Gray100},
                                                   Default={StaticResource White}}"
                 HeightRequest="100"
                 StrokeShape="RoundRectangle 20">
@@ -86,7 +89,7 @@
                             Placeholder="Amount" />
                         <Label
                             FontAttributes="Bold"
-                            FontSize="28"
+                            FontSize="Caption"
                             HorizontalOptions="Center"
                             Text="USD$"
                             TextColor="{AppThemeBinding Light={StaticResource OffBlack},

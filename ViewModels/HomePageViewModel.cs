@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DevExpress.Xpo.DB;
+using GoogleApi;
 using Mopups.Interfaces;
 using MPowerKit.GoogleMaps;
 using Ridebase.Pages.Rider;
-using Ridebase.Services.Geocoding;
-using Ridebase.Services.Places;
+using Ridebase.Services;
 
 namespace Ridebase.ViewModels;
 
@@ -20,12 +21,12 @@ public partial class HomePageViewModel : BaseViewModel
 
     [ObservableProperty]
     private Func<CameraUpdate, int, Task> _animateCameraFunc;
+    private readonly GoogleMaps.Geocode.LocationGeocodeApi geolocationGoogle;
 
-    public HomePageViewModel(IPlaces places, IGeocodeGoogle geocodeGoogle, IPopupNavigation navigation)
+    public HomePageViewModel(IPopupNavigation navigation, GoogleMaps.Geocode.LocationGeocodeApi locationGeocodeApi)
     {
         Title = "Map Page";
-        placesApi = places;
-        this.geocodeGoogle = geocodeGoogle;
+        geolocationGoogle = locationGeocodeApi;
         popupNavigation = navigation;
 
         GetCurrentLocation();
@@ -37,9 +38,31 @@ public partial class HomePageViewModel : BaseViewModel
         try
         {
             IsBusy = true;
-            CurrentLocation = await geocodeGoogle.GetCurrentLocationWithAddressAsync();
-            if (CurrentLocation != null)
+
+            LocationService locationService = new LocationService();
+            Location location = await locationService.GetCurrentLocationAsync();
+
+            var response = await geolocationGoogle.QueryAsync(new GoogleApi.Entities.Maps.Geocoding.Location.Request.LocationGeocodeRequest
             {
+                Location = new GoogleApi.Entities.Common.Coordinate(location.Latitude, location.Longitude),
+                Key = Constants.googleMapsApiKey
+            });
+
+            if (response != null)
+            {
+                var firstResult = response.Results.FirstOrDefault();
+
+                //Create current location object
+                CurrentLocation = new LocationWithAddress
+                {
+                    Location = new Models.Location()
+                    {
+                        latitude = location.Latitude,
+                        longitude = location.Longitude
+                    },
+                    FormattedAddress = firstResult.FormattedAddress
+                };
+
                 var cameraUpdate = CameraUpdateFactory.NewLatLngZoom(new(CurrentLocation.Location.latitude, CurrentLocation.Location.longitude), 15);
 
                 await MoveCamera(cameraUpdate);
@@ -67,7 +90,6 @@ public partial class HomePageViewModel : BaseViewModel
         if (IsBusy)
             return;
 
-        //TODO: Send current location/place
         if (CurrentLocation is not null)
         {
             await Shell.Current.GoToAsync(nameof(SearchPage), true, new Dictionary<string, object>

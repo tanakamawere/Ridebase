@@ -2,14 +2,10 @@
 using CommunityToolkit.Mvvm.Input;
 using GoogleApi;
 using GoogleApi.Entities.Places.Common;
-using Microsoft.IdentityModel.Tokens;
-using MPowerKit.GoogleMaps;
-using Ridebase.Models;
 using Ridebase.Pages;
 using Ridebase.Pages.Rider;
-using Ridebase.Services.Geocoding;
+using Ridebase.Services;
 using System.Collections.ObjectModel;
-using Location = Ridebase.Models.Location;
 
 namespace Ridebase.ViewModels.Rider;
 
@@ -97,7 +93,7 @@ public partial class SearchPageViewModel : BaseViewModel
         }
         cts = new CancellationTokenSource();
 
-        await Task.Delay(500, cts.Token);
+        await Task.Delay(00, cts.Token);
 
         if (cts.IsCancellationRequested)
             return;

@@ -8,9 +8,6 @@ using Mopups.Hosting;
 using MPowerKit.GoogleMaps;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
-using Ridebase.Services.Directions;
-using Ridebase.Services.Geocoding;
-using Ridebase.Services.Places;
 using Ridebase.Services.RestService;
 using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
@@ -84,11 +81,7 @@ namespace Ridebase
 
             builder.Services.AddScoped<IApiClient, ApiClient>();
             builder.Services.AddScoped<WebSocketClient>();
-            builder.Services.AddSingleton<IGeocodeGoogle, GeocodingGoogle>();
             builder.Services.AddSingleton<IRideService, RideService>();
-            builder.Services.AddSingleton<IDirections, DirectionsService>();
-            builder.Services.AddTransient<IPlaces, PlacesService>();
-
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
 #if DEBUG
