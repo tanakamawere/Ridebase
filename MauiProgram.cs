@@ -15,6 +15,8 @@ using Ridebase.ViewModels.Rider;
 using System.Reflection;
 using GoogleApi;
 using GoogleApi.Extensions;
+using Ridebase.ViewModels.Driver;
+using Ridebase.Pages.Driver;
 
 namespace Ridebase
 {
@@ -78,6 +80,16 @@ namespace Ridebase
             builder.Services.AddTransient<RideHistoryPage>();
             builder.Services.AddScoped<RideProgressPage>();
             builder.Services.AddTransient<ProfilePage>();
+
+            //DRIVER'S SIDE
+            builder.Services.AddSingleton<DriverDashboardViewModel>();
+            builder.Services.AddTransient<DriverProfileViewModel>();
+            builder.Services.AddScoped<DriverRideProgressViewModel>();
+            builder.Services.AddSingleton<DriverShellViewModel>();
+            //pages
+            builder.Services.AddSingleton<DriverDashboardPage>();
+            builder.Services.AddTransient<DriverProfilePage>();
+            builder.Services.AddScoped<DriverRideProgressPage>();
 
             builder.Services.AddScoped<IApiClient, ApiClient>();
             builder.Services.AddScoped<WebSocketClient>();

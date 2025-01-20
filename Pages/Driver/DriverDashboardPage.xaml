@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Driver.DriverDashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    Title="Driver Dashboard"
+    x:DataType="vm:DriverDashboardViewModel">
+
+    <ContentPage.Content>
+        <ScrollView>
+            <Grid
+                Padding="10"
+                ColumnDefinitions="*, *"
+                RowDefinitions="Auto, Auto, Auto, *">
+
+                <!--  Ride Requests Summary  -->
+                <!--
+                <StackLayout
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Large"
+                        Text="Ride Requests" />
+                    <CollectionView ItemsSource="{Binding RideRequests}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:RideRequest">
+                                <Border
+                                    Margin="0,5"
+                                    Padding="10"
+                                    BackgroundColor="LightGray">
+                                    <StackLayout>
+                                        <Label FontSize="Medium" Text="{Binding RequestSummary}" />
+                                        <Label
+                                            FontSize="Small"
+                                            Text="{Binding RequestTime}"
+                                            TextColor="Gray" />
+                                    </StackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+
+                -->
+                <!--  Earnings Summary  -->
+                <!--
+                <StackLayout
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Large"
+                        Text="Earnings Summary" />
+                    <StackLayout Spacing="5">
+                        <Label FontSize="Medium" Text="Daily: ${Binding DailyEarnings}" />
+                        <Label FontSize="Medium" Text="Weekly: ${Binding WeeklyEarnings}" />
+                        <Label FontSize="Medium" Text="Monthly: ${Binding MonthlyEarnings}" />
+                    </StackLayout>
+                </StackLayout>
+
+                -->
+                <!--  Performance Metrics  -->
+                <!--
+                <StackLayout
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Large"
+                        Text="Performance Metrics" />
+                    <StackLayout Spacing="5">
+                        <Label FontSize="Medium" Text="Ratings: {Binding Ratings}" />
+                        <Label FontSize="Medium" Text="Completed Rides: {Binding CompletedRides}" />
+                    </StackLayout>
+                </StackLayout>-->
+
+                <!--  Go Online/Offline Button  -->
+                <StackLayout
+                    Grid.Row="2"
+                    Grid.ColumnSpan="2"
+                    Margin="0,20,0,0"
+                    HorizontalOptions="Center">
+                    <Button Command="{Binding ToggleOnlineStatusCommand}" Text="{Binding OnlineStatusText}" />
+                </StackLayout>
+            </Grid>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
