@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using GoogleApi;
 using GoogleApi.Entities.Places.Common;
+using GoogleApi.Entities.Places.Search.NearBy.Request;
 using Ridebase.Pages;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
@@ -45,13 +46,17 @@ public partial class SearchPageViewModel : BaseViewModel
         Places.Clear();
         try
         {
-            var nearbySearchResponse = await nearBySearchApi.QueryAsync(new GoogleApi.Entities.Places.Search.NearBy.Request.PlacesNearBySearchRequest
+            PlacesNearBySearchRequest placesNearBySearchRequest = new ()
             {
                 Location = new GoogleApi.Entities.Common.Coordinate(CurrentLocation.Location.latitude, CurrentLocation.Location.longitude),
                 Radius = 50000,
                 Key = "AIzaSyArmqo-1_M4O-UoP08k339M6wHN8-AAPa8",
                 Keyword = keyword
-            });
+            };
+
+            var nearbySearchResponse = await nearBySearchApi.QueryAsync(placesNearBySearchRequest);
+
+            string something = nearbySearchResponse.ErrorMessage;
 
             if (nearbySearchResponse.Status.Equals(GoogleApi.Entities.Common.Enums.Status.Ok))
             {
@@ -61,9 +66,10 @@ public partial class SearchPageViewModel : BaseViewModel
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            //Display error message
+            await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
         }
         finally
         {

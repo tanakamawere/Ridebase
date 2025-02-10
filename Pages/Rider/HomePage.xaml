@@ -49,13 +49,12 @@
 
                 <Grid
                     Padding="5"
+                    ColumnDefinitions="Auto,*, Auto"
+                    ColumnSpacing="2"
                     HorizontalOptions="CenterAndExpand"
                     IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                     VerticalOptions="CenterAndExpand">
-                    <Image
-                        Grid.Column="0"
-                        HeightRequest="20"
-                        HorizontalOptions="Start">
+                    <Image Grid.Column="0" HeightRequest="20">
                         <Image.Source>
                             <FontImageSource
                                 FontFamily="fasolid"
@@ -73,10 +72,7 @@
                         Text="{Binding CurrentLocation.FormattedAddress}"
                         TextColor="{AppThemeBinding Light={StaticResource OffBlack},
                                                     Dark={StaticResource White}}" />
-                    <Border
-                        Grid.Column="2"
-                        HorizontalOptions="End"
-                        Style="{StaticResource BubbleBorder}">
+                    <Border Grid.Column="2" Style="{StaticResource BubbleBorder}">
                         <Label
                             FontSize="Caption"
                             HorizontalOptions="CenterAndExpand"

@@ -18,6 +18,7 @@ namespace Ridebase.Pages
             Routing.RegisterRoute(nameof(RideHistoryPage), typeof(RideHistoryPage));
             Routing.RegisterRoute(nameof(RideProgressPage), typeof(RideProgressPage));
             Routing.RegisterRoute(nameof(SearchPage), typeof(SearchPage));
+            Routing.RegisterRoute(nameof(RideSelectionPage), typeof(RideSelectionPage));
         }
     }
 }

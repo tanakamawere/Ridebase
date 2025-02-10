@@ -76,6 +76,7 @@ namespace Ridebase
             builder.Services.AddTransient<SearchPageViewModel>();
             builder.Services.AddTransient<RideDetailsViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
+            builder.Services.AddSingleton<RideSelectionViewModel>();
 
             //Rider Pages registration
             builder.Services.AddSingleton<HomePage>();
@@ -85,6 +86,7 @@ namespace Ridebase
             builder.Services.AddTransient<RideHistoryPage>();
             builder.Services.AddScoped<RideProgressPage>();
             builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<RideSelectionPage>();
 
             //DRIVER'S SIDE
             builder.Services.AddSingleton<DriverDashboardViewModel>();
@@ -100,6 +102,7 @@ namespace Ridebase
             builder.Services.AddScoped<WebSocketClient>();
             builder.Services.AddTransient<IAuthenticationClient, AuthenticationApiClient>();
             builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+            builder.Services.AddSingleton<IStorageService, StorageService>();
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
 #if DEBUG

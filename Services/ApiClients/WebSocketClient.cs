@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Ridebase.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Ridebase.Services.ApiClients;
@@ -11,15 +13,22 @@ public class WebSocketClient
 {
     private ClientWebSocket _clientWebSocket;
     private CancellationTokenSource _cancellationTokenSource;
-    private string _serverUri;
+    private Uri _serverUri;
 
     public event Action<string> OnMessageReceived;
     public event Action OnConnected;
     public event Action OnDisconnected;
 
+    private readonly IStorageService storageService;
+
     private bool _isReconnecting;
 
-    public async Task ConnectAsync(string uri)
+    public WebSocketClient(IStorageService _storage)
+    {
+        storageService = _storage;
+    }
+
+    public async Task ConnectAsync(Uri uri)
     {
         _serverUri = uri; // Save the URI for reconnection
         _cancellationTokenSource = new CancellationTokenSource();
@@ -27,7 +36,11 @@ public class WebSocketClient
         try
         {
             _clientWebSocket = new ClientWebSocket();
-            await _clientWebSocket.ConnectAsync(new Uri(uri), CancellationToken.None);
+
+            //Set the WebSocket options (Auth token)
+            _clientWebSocket.Options.SetRequestHeader("Authorization", "Bearer " + await storageService.GetAuthTokenAsync());
+
+            await _clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
             OnConnected?.Invoke(); // Notify that the connection is established
 
@@ -54,11 +67,13 @@ public class WebSocketClient
         OnDisconnected?.Invoke(); // Notify that the connection is closed
     }
 
-    public async Task SendMessageAsync(string message)
+
+    public async Task SendMessageAsync<T>(T message)
     {
         if (_clientWebSocket?.State == WebSocketState.Open)
         {
-            var messageBytes = Encoding.UTF8.GetBytes(message);
+            var messageJson = JsonSerializer.Serialize(message);
+            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
             var segment = new ArraySegment<byte>(messageBytes);
             await _clientWebSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
         }
@@ -93,7 +108,7 @@ public class WebSocketClient
 
     private async Task AttemptReconnect()
     {
-        if (_isReconnecting || string.IsNullOrEmpty(_serverUri))
+        if (_isReconnecting || string.IsNullOrEmpty(_serverUri.ToString()))
             return;
 
         _isReconnecting = true;
@@ -103,7 +118,7 @@ public class WebSocketClient
         {
             try
             {
-                await Task.Delay(5000); // Wait for 5 seconds before retrying
+                await Task.Delay(2000); // Wait for 5 seconds before retrying
                 await ConnectAsync(_serverUri); // Retry connection
                 _isReconnecting = false; // Stop reconnection attempts once successful
             }

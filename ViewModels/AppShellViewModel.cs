@@ -9,12 +9,10 @@ namespace Ridebase.ViewModels;
 
 public partial class AppShellViewModel: BaseViewModel
 {
-    private readonly Auth0Client auth0Client;
     private readonly IAuthenticationClient authenticationClient;
 
     public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient)
     {
-        auth0Client = client;
         authenticationClient = _authClient;
     }
 
@@ -22,28 +20,28 @@ public partial class AppShellViewModel: BaseViewModel
     [RelayCommand]
     private async Task Login()
     {
-        var loginResult = await auth0Client.LoginAsync();
+        var loginResult = await authenticationClient.LoginAsync();
 
         //If login is successful
-        if (!loginResult.IsError)
+        if (!loginResult.IsSuccess)
         {
             IsLoggedIn = true;
 
             //Set the user details
             RidebaseUser = new User
             {
-                UserId = loginResult.User.FindFirst("sub")?.Value,
-                UserName = loginResult.User.FindFirst("name")?.Value,
-                Email = loginResult.User.FindFirst("email")?.Value,
-                AccessToken = loginResult.AccessToken
+                UserId = loginResult.Data.User.FindFirst("sub")?.Value,
+                UserName = loginResult.Data.User.FindFirst("name")?.Value,
+                Email = loginResult.Data.User.FindFirst("email")?.Value,
+                AccessToken = loginResult.Data.AccessToken
             };
 
             //Save access token locally & rider id
-            await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
+            await SecureStorage.SetAsync("auth_token", loginResult.Data.AccessToken);
             await SecureStorage.SetAsync("userId", RidebaseUser.UserId);            
 
             //Send access token to server
-            var response = await authenticationClient.GetUserInfo(loginResult.AccessToken);
+            var response = await authenticationClient.GetUserInfo(loginResult.Data.AccessToken);
 
             if (response.IsSuccess)
             {
@@ -58,13 +56,13 @@ public partial class AppShellViewModel: BaseViewModel
         }
         else
         {
-            await AppShell.Current.DisplayAlert("Error", loginResult.Error, "OK");
+            await AppShell.Current.DisplayAlert("Error", loginResult.ErrorMessage, "OK");
         }
 
-        Console.WriteLine("Login Result: " + loginResult.AccessToken);
+        Console.WriteLine("Login Result: " + loginResult.Data.AccessToken);
 
-        if (loginResult.IsError)
-            await AppShell.Current.DisplayAlert("Error", loginResult.Error, "OK");
+        if (!loginResult.IsSuccess)
+            await AppShell.Current.DisplayAlert("Error", loginResult.ErrorMessage, "OK");
     }
 
     [RelayCommand]

@@ -15,6 +15,13 @@
     x:DataType="vm:RideDetailsViewModel"
     Shell.NavBarIsVisible="False">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
     <Grid RowDefinitions="5*, 3*">
         <!--  Map covering the top 5/8 of the screen  -->
         <gm:GoogleMap
@@ -47,6 +54,13 @@
                 </Label.FormattedText>
             </Label>
 
+            <!--  For when pinging the backend for rides  -->
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{AppThemeBinding Light={StaticResource Primary},
+                                        Dark={StaticResource White}}" />
+
             <!--  Ride option section  -->
             <Border
                 Padding="10"
@@ -56,6 +70,7 @@
                                                   Light={StaticResource Gray100},
                                                   Default={StaticResource White}}"
                 HeightRequest="100"
+                IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                 StrokeShape="RoundRectangle 20">
 
                 <Grid
@@ -126,6 +141,7 @@
                 FontSize="20"
                 HeightRequest="60"
                 HorizontalOptions="FillAndExpand"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                 Text="Find Driver"
                 TextColor="White" />
         </VerticalStackLayout>

@@ -1,4 +1,5 @@
-﻿using Ridebase.Models;
+﻿using IdentityModel.OidcClient;
+using Ridebase.Models;
 using Ridebase.Services.RestService;
 
 namespace Ridebase.Services.Interfaces;
@@ -10,4 +11,6 @@ public interface IAuthenticationClient
 
     // Get user info
     public Task<ApiResponse<User>> GetUserInfo(string userId);
+    public Task<ApiResponse<LoginResult>> LoginAsync();
+    public Task LogoutAsync();
 }

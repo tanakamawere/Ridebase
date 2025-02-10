@@ -44,6 +44,9 @@
     <MauiXaml Update="Pages\Rider\RideProgressPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Pages\Rider\RideSelectionPage.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Pages\Rider\SearchPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

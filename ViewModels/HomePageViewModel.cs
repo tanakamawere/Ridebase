@@ -91,6 +91,13 @@ public partial class HomePageViewModel : BaseViewModel
         if (IsBusy)
             return;
 
+        //If user is not logged in, redirect to Auth0
+        if (!IsLoggedIn)
+        {
+            await popupNavigation.ShowPopupAsync<Auth0PopupPage>();
+            return;
+        }
+
         if (CurrentLocation is not null)
         {
             await Shell.Current.GoToAsync(nameof(SearchPage), true, new Dictionary<string, object>

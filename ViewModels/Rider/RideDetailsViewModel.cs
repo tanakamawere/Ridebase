@@ -9,6 +9,8 @@ using MPowerKit.GoogleMaps;
 using Ridebase.Helpers;
 using Ridebase.Models;
 using Ridebase.Models.Ride;
+using Ridebase.Pages;
+using Ridebase.Pages.Rider;
 using Ridebase.Services.Interfaces;
 using System.Collections.ObjectModel;
 
@@ -42,7 +44,7 @@ public partial class RideDetailsViewModel : BaseViewModel
     {
         Title = "Ride Details";
         directionsApi = _routesDirectionsApi;
-        rideService = _rideService;
+        rideApiClient = _rideService;
     }
 
     [RelayCommand]
@@ -121,6 +123,7 @@ public partial class RideDetailsViewModel : BaseViewModel
     [RelayCommand]
     public async Task FindDriverAsync()
     {
+        IsBusy = true;
         if (!IsLoggedIn)
         {
             //TODO: Open dialog to inform user they need to be logged in to make a ride request
@@ -138,12 +141,27 @@ public partial class RideDetailsViewModel : BaseViewModel
             Comments = "Nothing entered"
         };
 
-        var response = await rideService.RequestRide(rideRequest);
-
-        if (response.IsSuccess)
+        try
         {
-            //TODO: open popup for driver found
+            var response = await rideApiClient.RequestRide(rideRequest);
 
+            if (response.IsSuccess)
+            {
+                //TODO: open popup for driver found
+                await Shell.Current.GoToAsync(nameof(RideSelectionPage), true, new Dictionary<string, object> 
+                {
+                    {"rideRequest", rideRequest }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            // Display alert
+            await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Ridebase.Models;
+using Ridebase.Models.Ride;
 using Ridebase.Services.Interfaces;
 
 namespace Ridebase.Services.ApiClients;

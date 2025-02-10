@@ -21,10 +21,12 @@ public partial class BaseViewModel : ObservableObject
     private string userId;
     //Services
     public IPopupNavigation popupNavigation;
-    public IRideApiClient rideService;
+    public IRideApiClient rideApiClient;
+    public ISecureStorage secureStorage;
 
     public BaseViewModel()
     {
+        //Get user details from secure storage
         AuthToken = SecureStorage.GetAsync("auth_token").Result;
         UserId = SecureStorage.GetAsync("userId").Result;
 

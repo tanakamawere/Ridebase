@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Rider.RideSelectionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+    xmlns:dxco="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
+    xmlns:gm="clr-namespace:MPowerKit.GoogleMaps;assembly=MPowerKit.GoogleMaps"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:models="clr-namespace:Ridebase.Models.Ride"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
+    xmlns:wits="http://what.is.this.sheet/schemas/controls"
+    x:DataType="vm:RideSelectionViewModel"
+    Shell.NavBarIsVisible="False">
+
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <VerticalStackLayout>
+        <CollectionView
+            EmptyView="No drivers available"
+            IsVisible="{Binding IsBusy, Converter={StaticResource Key=InvertedBoolConverter}}"
+            ItemsSource="{Binding DriversList}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:DriverModel">
+                    <Grid Padding="10" RowDefinitions="*, Auto, *">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            HeightRequest="20">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.User}"
+                                    Size="10"
+                                    Color="{AppThemeBinding Dark={StaticResource White},
+                                                            Light={StaticResource Primary}}" />
+                            </Image.Source>
+                        </Image>
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="Large"
+                                Text="{Binding Name}" />
+                            <Label Text="{Binding Vehicle}" />
+                        </StackLayout>
+                        <BoxView
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Margin="0,5,0,0"
+                            BackgroundColor="{StaticResource Gray100}"
+                            HeightRequest="1" />
+                        <Button
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RideSelectionViewModel}}, Path=SelectDriverCommand}"
+                            CommandParameter="{Binding .}"
+                            Text="Accept" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>
