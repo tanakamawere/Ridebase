@@ -6,8 +6,10 @@ using GoogleApi.Entities.Maps.Common;
 using GoogleApi.Entities.Places.Common;
 using Microsoft.Maui.Controls.Shapes;
 using MPowerKit.GoogleMaps;
-using Ridebase.Services;
-using Ridebase.Services.RideService;
+using Ridebase.Helpers;
+using Ridebase.Models;
+using Ridebase.Models.Ride;
+using Ridebase.Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace Ridebase.ViewModels.Rider;
@@ -36,7 +38,7 @@ public partial class RideDetailsViewModel : BaseViewModel
 
     private readonly GoogleMaps.DirectionsApi directionsApi;
 
-    public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi, IRideService _rideService)
+    public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi, IRideApiClient _rideService)
     {
         Title = "Ride Details";
         directionsApi = _routesDirectionsApi;
@@ -126,12 +128,12 @@ public partial class RideDetailsViewModel : BaseViewModel
         }
 
 
-        RideRequest rideRequest = new()
+        RideRequestModel rideRequest = new()
         {
             RideGuid = Guid.NewGuid(),
             RiderId = RidebaseUser.UserId,
-            StartLocation = new(StartPlace.Geometry.Location.Latitude, StartPlace.Geometry.Location.Longitude),
-            DestinationLocation = new(DestinationPlace.Geometry.Location.Latitude, DestinationPlace.Geometry.Location.Longitude),
+            StartLocation = new() { latitude = StartPlace.Geometry.Location.Latitude, longitude = StartPlace.Geometry.Location.Longitude },
+            DestinationLocation = new() { latitude = DestinationPlace.Geometry.Location.Latitude, longitude = DestinationPlace.Geometry.Location.Longitude },
             OfferAmount = 0,
             Comments = "Nothing entered"
         };

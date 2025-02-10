@@ -1,4 +1,4 @@
-﻿namespace Ridebase.Services;
+﻿namespace Ridebase.Helpers;
 
 public class Constants
 {

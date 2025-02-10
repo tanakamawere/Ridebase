@@ -1,7 +1,6 @@
 ﻿using Auth0.OidcClient;
 using CommunityToolkit.Maui;
 using DevExpress.Maui;
-using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
@@ -9,7 +8,6 @@ using MPowerKit.GoogleMaps;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
 using Ridebase.Services.RestService;
-using Ridebase.Services.RideService;
 using Ridebase.ViewModels;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
@@ -17,6 +15,8 @@ using GoogleApi;
 using GoogleApi.Extensions;
 using Ridebase.ViewModels.Driver;
 using Ridebase.Pages.Driver;
+using Ridebase.Services.Interfaces;
+using Ridebase.Services.ApiClients;
 
 namespace Ridebase
 {
@@ -35,11 +35,6 @@ namespace Ridebase
 #endif
                 )
                 .ConfigureMopups()
-#if ANDROID
-                .UseGoogleMaps()
-#elif IOS
-                .UseGoogleMaps("AIzaSyC9E6Ot4Ui240f88-BGAzUFM-IhPEzT98Y")
-#endif
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("fasolid.otf", "fasolid");
@@ -47,18 +42,28 @@ namespace Ridebase
                     fonts.AddFont("fabrands.otf", "fabrands");
                     fonts.AddFont("rubik.ttf", "rubik");
                 });
+
+
+            //Getting App Settings.json
+            var executingAssembly = Assembly.GetExecutingAssembly();
+            using var stream = executingAssembly.GetManifestResourceStream("Ridebase.appsettings.json");
+
+            var configuration = new ConfigurationBuilder().AddJsonStream(stream)
+                .Build();
+
             builder.Services.AddSingleton(Connectivity.Current);
 
             //HttpClient Registration
             builder.Services.AddHttpClient<IApiClient, ApiClient>("RidebaseClient", client =>
             {
-                var baseAddress = builder.Configuration["RidebaseEndpoint"];
+                var baseAddress = configuration["RidebaseEndpoint"];
                 if (string.IsNullOrEmpty(baseAddress))
                 {
                     throw new ArgumentNullException(nameof(baseAddress), "Ridebase Endpoint configuration is missing or empty.");
                 }
                 client.BaseAddress = new Uri(baseAddress);
-            });
+            })
+                .AddHttpMessageHandler<AuthHeaderHandler>();
 
 #if ANDROID
             builder.Services.AddSingleton<IKeyboardService, Platforms.Android.KeyboardService>();
@@ -91,20 +96,15 @@ namespace Ridebase
             builder.Services.AddTransient<DriverProfilePage>();
             builder.Services.AddScoped<DriverRideProgressPage>();
 
-            builder.Services.AddScoped<IApiClient, ApiClient>();
+            builder.Services.AddTransient<AuthHeaderHandler>(); // Inject Custom Handler
             builder.Services.AddScoped<WebSocketClient>();
-            builder.Services.AddSingleton<IRideService, RideService>();
+            builder.Services.AddTransient<IAuthenticationClient, AuthenticationApiClient>();
+            builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-            //Getting App Settings.json
-            var executingAssembly = Assembly.GetExecutingAssembly();
-            using var stream = executingAssembly.GetManifestResourceStream("Ridebase.appsettings.json");
-
-            var configuration = new ConfigurationBuilder().AddJsonStream(stream)
-                .Build();
 
             builder.Services.AddSingleton(new Auth0Client(new()
             {

@@ -1,6 +1,6 @@
-﻿using Ridebase.Services.RideService;
+﻿using Ridebase.Models.Ride;
 
-namespace Ridebase.Services.DriverServices;
+namespace Ridebase.Models;
 
 public class DriverModels
 {
@@ -12,7 +12,7 @@ public class DriverRideRequest
     public Guid RideRequestId { get; set; }
 
     // Information about the rider making the request
-    public Rider? Rider { get; set; }
+    public RiderModel? Rider { get; set; }
     // Amount offered by the rider for the ride
     public decimal OfferAmount { get; set; }
     // Distances between the two locations

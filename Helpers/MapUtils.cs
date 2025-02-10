@@ -1,12 +1,7 @@
 ﻿using GoogleApi.Entities.Common;
 using MPowerKit.GoogleMaps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Ridebase.Services;
+namespace Ridebase.Helpers;
 
 public static class MapUtils
 {

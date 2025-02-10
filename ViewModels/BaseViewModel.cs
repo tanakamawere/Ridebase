@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Mopups.Interfaces;
 using Ridebase.Models;
-using Ridebase.Services.RideService;
+using Ridebase.Services.Interfaces;
 
 namespace Ridebase.ViewModels;
 
@@ -21,7 +21,7 @@ public partial class BaseViewModel : ObservableObject
     private string userId;
     //Services
     public IPopupNavigation popupNavigation;
-    public IRideService rideService;
+    public IRideApiClient rideService;
 
     public BaseViewModel()
     {

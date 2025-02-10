@@ -5,7 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ridebase.Services.RideService;
+namespace Ridebase.Services.ApiClients;
 
 public class WebSocketClient
 {

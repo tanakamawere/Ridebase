@@ -1,6 +1,8 @@
-﻿namespace Ridebase.Services.DriverServices;
+﻿using Ridebase.Models;
 
-public interface IDriverService
+namespace Ridebase.Services.Interfaces;
+
+public interface IDriverApiClient
 {
     //Method to listen for ride request from nearby riders
     public Task<DriverRideRequest> DriverRideRequestListener();

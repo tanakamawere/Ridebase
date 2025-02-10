@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Ridebase.Services.RideService;
+using Ridebase.Models;
+using Ridebase.Models.Ride;
 using System.Collections.ObjectModel;
 
 namespace Ridebase.ViewModels.Driver;
@@ -12,7 +13,7 @@ public partial class DriverDashboardViewModel : BaseViewModel
     }
 
     [ObservableProperty]
-    private ObservableCollection<RideRequest> rideRequests;
+    private ObservableCollection<RideRequestModel> rideRequests;
 
     [ObservableProperty]
     private bool isOnline;

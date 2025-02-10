@@ -13,7 +13,7 @@
 		<ApplicationTitle>Ridebase</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.tanakamawere.ridebase</ApplicationId>
+		<ApplicationId>com.companyname.ridebase</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -51,18 +51,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Auth0.OidcClient.MAUI" Version="1.1.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="11.0.0" />
+		<PackageReference Include="Auth0.OidcClient.MAUI" Version="1.0.1" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="10.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="DevExpress.Maui.Controls" Version="23.2.5" />
 		<PackageReference Include="DevExpress.Maui.Core" Version="23.2.5" />
-		<PackageReference Include="GoogleApi" Version="5.7.6" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.1" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.30" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.30" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
+		<PackageReference Include="GoogleApi" Version="5.7.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.21" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.21" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Mopups" Version="1.3.2" />
-		<PackageReference Include="MPowerKit.GoogleMaps" Version="3.0.0" />
+		<PackageReference Include="MPowerKit.GoogleMaps" Version="1.0.3" />
+		<PackageReference Include="Onion.Maui.GoogleMaps" Version="6.1.0" />
 		<PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
 		<PackageReference Include="WhatIsThisSheet" Version="1.0.6" />
 	</ItemGroup>
@@ -95,6 +96,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Driver\DriverProfilePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fleet\FleetPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Rider\Dialogs\RideOptionsPopup.xaml">

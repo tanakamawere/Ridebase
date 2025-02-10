@@ -3,18 +3,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
 using Ridebase.Pages;
-using Ridebase.Services.RideService;
+using Ridebase.Services.Interfaces;
 
 namespace Ridebase.ViewModels;
 
 public partial class AppShellViewModel: BaseViewModel
 {
     private readonly Auth0Client auth0Client;
+    private readonly IAuthenticationClient authenticationClient;
 
-    public AppShellViewModel(Auth0Client client, IRideService rideService)
+    public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient)
     {
         auth0Client = client;
-        this.rideService = rideService;
+        authenticationClient = _authClient;
     }
 
     //Login Command
@@ -39,13 +40,21 @@ public partial class AppShellViewModel: BaseViewModel
 
             //Save access token locally & rider id
             await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
-            await SecureStorage.SetAsync("userId", RidebaseUser.UserId);
+            await SecureStorage.SetAsync("userId", RidebaseUser.UserId);            
 
             //Send access token to server
-            var response = await rideService.PostAccessToken(loginResult.AccessToken);
+            var response = await authenticationClient.GetUserInfo(loginResult.AccessToken);
 
-            //Get user information
-            await AppShell.Current.DisplayAlert("Success", response.ToString(), "OK");
+            if (response.IsSuccess)
+            {
+                //Get user information
+                await AppShell.Current.DisplayAlert("Success", response.ToString(), "OK");
+            }
+            else
+            {
+                //Display error message
+                await AppShell.Current.DisplayAlert("Error", response.ErrorMessage, "OK");
+            }
         }
         else
         {
@@ -56,5 +65,16 @@ public partial class AppShellViewModel: BaseViewModel
 
         if (loginResult.IsError)
             await AppShell.Current.DisplayAlert("Error", loginResult.Error, "OK");
+    }
+
+    [RelayCommand]
+    public void ChangeToDriverShellAsync()
+    {
+        Application.Current.OpenWindow(new Window(new DriverShell()));
+    }
+    [RelayCommand]
+    public void GoToFleetPages()
+    {
+
     }
 }

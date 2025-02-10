@@ -1,14 +1,13 @@
 ﻿using Ridebase.Models;
+using Ridebase.Models.Ride;
 using Ridebase.Services.RestService;
 
-namespace Ridebase.Services.RideService;
+namespace Ridebase.Services.Interfaces;
 
-public interface IRideService
+public interface IRideApiClient
 {
-    Task<ApiResponse<string>> PostAccessToken(string accessToken);
-    Task<ApiResponse<User>> GetUserInfo();
     //Request ride
-    Task<ApiResponse<RideRequestResponse>> RequestRide(RideRequest rideRequest);
+    Task<ApiResponse<RideRequestResponseModel>> RequestRide(RideRequestModel rideRequest);
     //Cancel ride
     Task<ApiResponse<string>> CancelRide();
     //Get ride details

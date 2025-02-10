@@ -4,6 +4,7 @@ using DevExpress.Xpo.DB;
 using GoogleApi;
 using Mopups.Interfaces;
 using MPowerKit.GoogleMaps;
+using Ridebase.Helpers;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
 

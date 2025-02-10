@@ -8,7 +8,7 @@ public interface IApiClient
     /// <typeparam name="T">The type of the response data.</typeparam>
     /// <param name="url">The endpoint URL.</param>
     /// <returns>An ApiResponse containing the result.</returns>
-    Task<ApiResponse<T>> GetAsync<T>(string url, IEnumerable<KeyValuePair<string, string>> headers = null);
+    Task<ApiResponse<T>> GetAsync<T>(string url);
 
     /// <summary>
     /// Sends a POST request with data to the specified URL and returns the response.
@@ -17,7 +17,7 @@ public interface IApiClient
     /// <param name="url">The endpoint URL.</param>
     /// <param name="data">The data to be sent in the request body.</param>
     /// <returns>An ApiResponse containing the result.</returns>
-    Task<ApiResponse<T>> PostAsync<T>(string url, object data, IEnumerable<KeyValuePair<string, string>> headers = null);
+    Task<ApiResponse<T>> PostAsync<T>(string url, object data);
 
     /// <summary>
     /// Sends a PUT request with data to the specified URL and returns the response.
