@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Driver.DriverStatsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:models="clr-namespace:Ridebase.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    xmlns:wits="http://what.is.this.sheet/schemas/controls"
+    Title="Stats"
+    x:DataType="vm:DriverStatsViewModel">
+    <ScrollView>
+        <StackLayout Padding="10" Spacing="10">
+            <!--  Earnings Report  -->
+            <Border Padding="10">
+                <StackLayout>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Daily Weekly Earnings Report" />
+                    <Label Text="Daily Earnings: $100.00" />
+                    <Label Text="Weekly Earnings: $700.00" />
+                </StackLayout>
+            </Border>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

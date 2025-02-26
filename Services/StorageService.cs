@@ -14,6 +14,11 @@ internal class StorageService : IStorageService
         return await SecureStorage.GetAsync("user_id");
     }
 
+    public async Task<bool> IsLoggedInAsync()
+    {
+        return !string.IsNullOrEmpty(await SecureStorage.GetAsync("auth_token"));
+    }
+
     public async Task SetAuthTokenAsync(string authToken)
     {
         await SecureStorage.SetAsync("auth_token", authToken);

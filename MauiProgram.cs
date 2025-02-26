@@ -90,13 +90,15 @@ namespace Ridebase
 
             //DRIVER'S SIDE
             builder.Services.AddSingleton<DriverDashboardViewModel>();
-            builder.Services.AddTransient<DriverProfileViewModel>();
-            builder.Services.AddScoped<DriverRideProgressViewModel>();
+            builder.Services.AddSingleton<DriverProfileViewModel>();
+            builder.Services.AddTransient<DriverRideProgressViewModel>();
             builder.Services.AddSingleton<DriverShellViewModel>();
+            builder.Services.AddSingleton<DriverStatsViewModel>();
             //pages
             builder.Services.AddSingleton<DriverDashboardPage>();
-            builder.Services.AddTransient<DriverProfilePage>();
-            builder.Services.AddScoped<DriverRideProgressPage>();
+            builder.Services.AddSingleton<DriverProfilePage>();
+            builder.Services.AddTransient<DriverRideProgressPage>();
+            builder.Services.AddSingleton<DriverStatsPage>();
 
             builder.Services.AddTransient<AuthHeaderHandler>(); // Inject Custom Handler
             builder.Services.AddScoped<WebSocketClient>();

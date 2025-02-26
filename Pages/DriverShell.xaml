@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     Title="Driver Shell">
     <TabBar>
-        <Tab>
+        <Tab Title="Home">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="fasolid"
@@ -23,19 +23,33 @@
                 ContentTemplate="{DataTemplate pages:DriverDashboardPage}"
                 Route="Home" />
         </Tab>
-        <Tab>
+        <Tab Title="Stats">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="fasolid"
-                    Glyph="{x:Static icons:Fasolid.User}"
+                    Glyph="{x:Static icons:Fasolid.MoneyBill}"
                     Size="5"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />
             </Tab.Icon>
             <ShellContent
-                Title="Home"
+                Title="Stats"
+                ContentTemplate="{DataTemplate pages:DriverStatsPage}"
+                Route="Stats" />
+        </Tab>
+        <Tab Title="Profile">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="fasolid"
+                    Glyph="{x:Static icons:Fasolid.Wrench}"
+                    Size="5"
+                    Color="{AppThemeBinding Dark={StaticResource White},
+                                            Light={StaticResource Primary}}" />
+            </Tab.Icon>
+            <ShellContent
+                Title="Profile"
                 ContentTemplate="{DataTemplate pages:DriverProfilePage}"
-                Route="Home" />
+                Route="Profile" />
         </Tab>
     </TabBar>
 </Shell>

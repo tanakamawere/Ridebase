@@ -2,28 +2,37 @@
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
 using Ridebase.Models.Ride;
+using Ridebase.Pages.Driver;
 using System.Collections.ObjectModel;
 
 namespace Ridebase.ViewModels.Driver;
 
 public partial class DriverDashboardViewModel : BaseViewModel
 {
-    public DriverDashboardViewModel()
-    {
-    }
 
     [ObservableProperty]
     private ObservableCollection<RideRequestModel> rideRequests;
 
     [ObservableProperty]
-    private bool isOnline;
+    private bool isOnline = false;
     [ObservableProperty]
-    private string onlineStatusText;
+    private string onlineStatusText = "You are offline";
 
-    [RelayCommand]
-    private void ToggleOnlineStatus()
+    public DriverDashboardViewModel()
     {
-        IsOnline = !IsOnline;
-        OnlineStatusText = IsOnline ? "Go Offline" : "Go Online";
+    }
+    partial void OnIsOnlineChanged(bool oldValue, bool newValue)
+    {
+        OnlineStatusText = newValue ? "Currently Online" : "You are offline";
+    }
+
+    //Method to go to ride in progress page
+    [RelayCommand]
+    public async Task GoToRideInProgress()
+    {
+        await Shell.Current.GoToAsync(nameof(DriverRideProgressPage), true, new Dictionary<string, object>
+            {
+                {"currentLocation", "something" }
+            });
     }
 }

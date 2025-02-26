@@ -3,11 +3,61 @@
     x:Class="Ridebase.Pages.Driver.DriverRideProgressPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="DriverRideProgressPage">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
+    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:models="clr-namespace:Ridebase.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    xmlns:wits="http://what.is.this.sheet/schemas/controls"
+    Title="Ride Progress"
+    x:DataType="vm:DriverRideProgressViewModel"
+    Shell.TabBarIsVisible="False">
+    <ScrollView>
+        <StackLayout Padding="10" Spacing="10">
+            <!--  Live Navigation  -->
+            <Border Padding="10">
+                <StackLayout>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Live Navigation" />
+                    <Label FontSize="Small" Text="Displaying navigation for Google Maps or built-in navigation." />
+                    <!--  You can integrate a WebView or Map control here for real navigation  -->
+                </StackLayout>
+            </Border>
+
+            <!--  Trip Status  -->
+            <Border Padding="10">
+                <StackLayout>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Trip Status" />
+                    <Button x:Name="TripStatusButton" Text="Start Trip" />
+                </StackLayout>
+            </Border>
+
+            <!--  ETA Updates  -->
+            <Border Padding="10">
+                <StackLayout>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="ETA Updates" />
+                    <Label x:Name="EtaLabel" Text="ETA: Calculating..." />
+                </StackLayout>
+            </Border>
+
+            <!--  SOS Button  -->
+            <Border Margin="0,10" Padding="10">
+                <StackLayout>
+                    <Button
+                        BackgroundColor="Red"
+                        Text="SOS"
+                        TextColor="White" />
+                </StackLayout>
+            </Border>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

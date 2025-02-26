@@ -27,15 +27,40 @@
             <Button
                 Margin="20"
                 Command="{Binding LoginCommand}"
+                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
                 Text="Login" />
 
-            <StackLayout Padding="20" IsVisible="{Binding IsLoggedIn}">
+            <Grid
+                Padding="20"
+                ColumnDefinitions="80, *"
+                ColumnSpacing="20"
+                IsVisible="{Binding IsLoggedIn}"
+                RowDefinitions="Auto, Auto">
+                <Border
+                    Grid.RowSpan="2"
+                    Grid.Column="0"
+                    HeightRequest="80"
+                    Stroke="Gray"
+                    StrokeShape="RoundRectangle 40"
+                    StrokeThickness="1"
+                    WidthRequest="80">
+                    <Image
+                        Aspect="AspectFit"
+                        HeightRequest="150"
+                        Source="{Binding RidebaseUser.ImageUrl}"
+                        WidthRequest="150" />
+                </Border>
                 <Label
+                    Grid.Row="0"
+                    Grid.Column="1"
                     FontAttributes="Bold"
                     FontSize="Large"
                     Text="{Binding RidebaseUser.UserName}" />
-                <Label Text="{Binding RidebaseUser.Email}" />
-            </StackLayout>
+                <Label
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Text="{Binding RidebaseUser.UserId}" />
+            </Grid>
         </StackLayout>
     </Shell.FlyoutHeader>
 
@@ -56,15 +81,15 @@
         </ShellContent>
     </FlyoutItem>
 
-    <!--  FAQ Option  -->
+    <!--  Fleet Management Option  -->
     <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
 
-        <ShellContent Title="FAQ">
+        <ShellContent Title="Fleet Management">
             <ShellContent.Icon>
                 <FontImageSource
                     FontFamily="fasolid"
-                    Glyph="{x:Static icons:Fasolid.CircleQuestion}"
-                    Size="10"
+                    Glyph="{x:Static icons:Fasolid.Car}"
+                    Size="5"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />
             </ShellContent.Icon>
@@ -79,7 +104,7 @@
                 <FontImageSource
                     FontFamily="fasolid"
                     Glyph="{x:Static icons:Fasolid.Phone}"
-                    Size="10"
+                    Size="5"
                     Color="{AppThemeBinding Dark={StaticResource White},
                                             Light={StaticResource Primary}}" />
             </ShellContent.Icon>
@@ -88,17 +113,13 @@
 
     <!--  Flyout Footer  -->
     <Shell.FlyoutFooter>
-
-        <VerticalStackLayout>
+        <VerticalStackLayout Padding="10" Spacing="10">
+            <Button Command="{Binding ChangeToDriverShellAsyncCommand}" Text="Driver mode" />
             <Button
-                Margin="20"
-                Command="{Binding}"
-                Text="Driver mode" />
-
-            <Button
-                Margin="20"
-                Command="{Binding ChangeToDriverShellAsyncCommand}"
-                Text="Driver mode" />
+                BackgroundColor="Red"
+                Command="{Binding LogoutUserCommand}"
+                IsVisible="{Binding IsLoggedIn}"
+                Text="Logout" />
         </VerticalStackLayout>
     </Shell.FlyoutFooter>
 

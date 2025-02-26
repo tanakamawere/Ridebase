@@ -3,20 +3,76 @@
     x:Class="Ridebase.Pages.Driver.DriverProfilePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:icons="clr-namespace:Ridebase.Services.FontsCode"
-    xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:models="clr-namespace:Ridebase.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
     xmlns:wits="http://what.is.this.sheet/schemas/controls"
-    Title="{Binding Title}"
+    Title="Profile Management"
     x:DataType="vm:DriverProfileViewModel">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-        <Button Command="{Binding GoToRiderPagesCommand}" Text="Rider's Side" />
-    </VerticalStackLayout>
+    <ScrollView>
+
+        <VerticalStackLayout Padding="10" Spacing="10">
+            <!--  Profile Management  -->
+            <Border Padding="10">
+                <StackLayout Spacing="5">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Profile Management" />
+                    <Entry x:Name="NameEntry" Placeholder="Enter your name" />
+                    <Entry
+                        x:Name="PhoneEntry"
+                        Keyboard="Telephone"
+                        Placeholder="Enter your phone number" />
+                    <Entry x:Name="VehicleInfoEntry" Placeholder="Enter your vehicle information" />
+                    <Button Text="Update Profile" />
+                </StackLayout>
+            </Border>
+
+            <!--  Banking Info  -->
+            <Border Padding="10">
+                <StackLayout Spacing="5">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Banking Info" />
+                    <Entry
+                        x:Name="BankAccountEntry"
+                        Keyboard="Numeric"
+                        Placeholder="Enter bank account number" />
+                    <Entry
+                        x:Name="BankRoutingEntry"
+                        Keyboard="Numeric"
+                        Placeholder="Enter routing number" />
+                    <Button Text="Update Banking Info" />
+                </StackLayout>
+            </Border>
+
+            <!--  Notification Preferences  -->
+            <Border Padding="10">
+                <StackLayout Orientation="Horizontal" VerticalOptions="Center">
+                    <Label Text="Enable Alerts" VerticalOptions="Center" />
+                    <Switch x:Name="NotificationSwitch" />
+                </StackLayout>
+            </Border>
+
+            <!--  Support & Help  -->
+            <Border Padding="10">
+                <StackLayout Spacing="5">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Support" />
+                    <Button Text="Contact Customer Service" />
+                    <Button Command="{Binding GoToRiderPagesCommand}" Text="Rider's Side" />
+                    <Button
+                        BackgroundColor="Red"
+                        FontAttributes="Bold"
+                        Text="Log Out" />
+                </StackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

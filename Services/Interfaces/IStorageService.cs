@@ -7,4 +7,7 @@ public interface IStorageService
 
     Task SetAuthTokenAsync(string authToken);
     Task SetUserIdAsync(string userId);
+
+    //Check if user is logged in
+    Task<bool> IsLoggedInAsync();
 }

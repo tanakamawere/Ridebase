@@ -13,5 +13,6 @@ public partial class DriverShell : Shell
 		Routing.RegisterRoute(nameof(DriverDashboardPage), typeof(DriverDashboardPage));
         Routing.RegisterRoute(nameof(DriverProfilePage), typeof(DriverProfilePage));
         Routing.RegisterRoute(nameof(DriverRideProgressPage), typeof(DriverRideProgressPage));
+        Routing.RegisterRoute(nameof(DriverStatsPage), typeof(DriverStatsPage));
     }
 }

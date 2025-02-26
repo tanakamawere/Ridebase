@@ -51,9 +51,9 @@ public class AuthenticationApiClient : IAuthenticationClient
         }
     }
 
-    public Task LogoutAsync()
+    public async Task LogoutAsync()
     {
-        throw new NotImplementedException();
+        var logout = await auth0Client.LogoutAsync();
     }
 
     public async Task<ApiResponse<string>> SendToken(string token)

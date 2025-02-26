@@ -40,11 +40,14 @@ public partial class RideDetailsViewModel : BaseViewModel
 
     private readonly GoogleMaps.DirectionsApi directionsApi;
 
-    public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi, IRideApiClient _rideService)
+    public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi
+                            , IRideApiClient _rideService
+                            , IStorageService storage)
     {
         Title = "Ride Details";
         directionsApi = _routesDirectionsApi;
         rideApiClient = _rideService;
+        storageService = storage;
     }
 
     [RelayCommand]
@@ -124,17 +127,17 @@ public partial class RideDetailsViewModel : BaseViewModel
     public async Task FindDriverAsync()
     {
         IsBusy = true;
-        if (!IsLoggedIn)
-        {
-            //TODO: Open dialog to inform user they need to be logged in to make a ride request
-            return;
-        }
+        //if (!await storageService.IsLoggedInAsync())
+        //{
+        //    //TODO: Open dialog to inform user they need to be logged in to make a ride request
+        //    return;
+        //}
 
 
         RideRequestModel rideRequest = new()
         {
             RideGuid = Guid.NewGuid(),
-            RiderId = RidebaseUser.UserId,
+            RiderId = "RidebaseUser.UserId",
             StartLocation = new() { latitude = StartPlace.Geometry.Location.Latitude, longitude = StartPlace.Geometry.Location.Longitude },
             DestinationLocation = new() { latitude = DestinationPlace.Geometry.Location.Latitude, longitude = DestinationPlace.Geometry.Location.Longitude },
             OfferAmount = 0,

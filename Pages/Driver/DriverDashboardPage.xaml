@@ -3,91 +3,138 @@
     x:Class="Ridebase.Pages.Driver.DriverDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:models="clr-namespace:Ridebase.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    xmlns:wits="http://what.is.this.sheet/schemas/controls"
     Title="Driver Dashboard"
     x:DataType="vm:DriverDashboardViewModel">
 
     <ContentPage.Content>
         <ScrollView>
-            <Grid
-                Padding="10"
-                ColumnDefinitions="*, *"
-                RowDefinitions="Auto, Auto, Auto, *">
-
-                <!--  Ride Requests Summary  -->
-                <!--
-                <StackLayout
-                    Grid.Row="0"
-                    Grid.ColumnSpan="2"
-                    Spacing="10">
+            <StackLayout Padding="10">
+                <!--  Live Status  -->
+                <StackLayout HorizontalOptions="Center" Orientation="Horizontal">
+                    <Switch x:Name="LiveStatusSwitch" IsToggled="{Binding IsOnline}" />
                     <Label
-                        FontAttributes="Bold"
-                        FontSize="Large"
-                        Text="Ride Requests" />
-                    <CollectionView ItemsSource="{Binding RideRequests}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:RideRequest">
-                                <Border
-                                    Margin="0,5"
-                                    Padding="10"
-                                    BackgroundColor="LightGray">
-                                    <StackLayout>
-                                        <Label FontSize="Medium" Text="{Binding RequestSummary}" />
-                                        <Label
-                                            FontSize="Small"
-                                            Text="{Binding RequestTime}"
-                                            TextColor="Gray" />
-                                    </StackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        x:Name="LiveStatusLabel"
+                        Text="{Binding OnlineStatusText}"
+                        VerticalOptions="Center" />
                 </StackLayout>
 
-                -->
                 <!--  Earnings Summary  -->
-                <!--
-                <StackLayout
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Large"
-                        Text="Earnings Summary" />
-                    <StackLayout Spacing="5">
-                        <Label FontSize="Medium" Text="Daily: ${Binding DailyEarnings}" />
-                        <Label FontSize="Medium" Text="Weekly: ${Binding WeeklyEarnings}" />
-                        <Label FontSize="Medium" Text="Monthly: ${Binding MonthlyEarnings}" />
+                <Border Margin="0,10" Padding="10">
+                    <StackLayout>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            Text="Earnings Summary" />
+                        <Label Text="Daily Earnings: $XXX.XX" />
+                        <Label Text="Weekly Earnings: $XXX.XX" />
                     </StackLayout>
-                </StackLayout>
+                </Border>
 
-                -->
-                <!--  Performance Metrics  -->
-                <!--
-                <StackLayout
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Large"
-                        Text="Performance Metrics" />
-                    <StackLayout Spacing="5">
-                        <Label FontSize="Medium" Text="Ratings: {Binding Ratings}" />
-                        <Label FontSize="Medium" Text="Completed Rides: {Binding CompletedRides}" />
+                <!--  Ride Requests  -->
+                <Border
+                    Margin="0,10"
+                    Padding="10"
+                    Stroke="#cccccc"
+                    StrokeThickness="1">
+                    <StackLayout>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            Text="Ride Requests" />
+                        <CollectionView EmptyView="There are no current riders near you.">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <!--  Example Request  -->
+                                    <Border
+                                        Margin="0,5"
+                                        Padding="10"
+                                        Stroke="#cccccc"
+                                        StrokeThickness="1">
+                                        <StackLayout>
+                                            <Label Text="Passenger: John Doe" />
+                                            <Label Text="Pickup: 123 Main St" />
+                                            <Label Text="Drop-off: 456 Elm St" />
+                                            <StackLayout
+                                                HorizontalOptions="Center"
+                                                Orientation="Horizontal"
+                                                Spacing="5">
+                                                <Button Text="View" />
+                                                <Button Text="Reject" />
+                                            </StackLayout>
+                                        </StackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <!--  Add more requests as needed  -->
                     </StackLayout>
-                </StackLayout>-->
+                </Border>
 
-                <!--  Go Online/Offline Button  -->
-                <StackLayout
-                    Grid.Row="2"
-                    Grid.ColumnSpan="2"
-                    Margin="0,20,0,0"
-                    HorizontalOptions="Center">
-                    <Button Command="{Binding ToggleOnlineStatusCommand}" Text="{Binding OnlineStatusText}" />
-                </StackLayout>
-            </Grid>
+                <!--  Navigation Shortcuts  -->
+                <Border
+                    Margin="0,10"
+                    Padding="10"
+                    Stroke="#cccccc"
+                    StrokeThickness="1">
+                    <StackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            Text="Navigation Shortcuts" />
+                        <Button Clicked="Button_Clicked" Text="Open Google Maps" />
+                    </StackLayout>
+                </Border>
+
+                <dxc:BottomSheet x:Name="bottomSheet" State="FullExpanded">
+                    <ScrollView>
+                        <StackLayout Padding="10" Spacing="10">
+                            <!--  Passenger Info  -->
+                            <Border Padding="10" StrokeThickness="1">
+                                <StackLayout Spacing="5">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Medium"
+                                        Text="Passenger Info" />
+                                    <Label Text="Name: Jane Smith" />
+                                    <Label Text="Pickup: 789 Pine St" />
+                                    <Label Text="Drop-off: 321 Oak Ave" />
+                                </StackLayout>
+                            </Border>
+
+                            <!--  Trip Details  -->
+                            <Border Padding="10" StrokeThickness="1">
+                                <StackLayout Spacing="5">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Medium"
+                                        Text="Trip Details" />
+                                    <Label Text="Distance: 5.2 miles" />
+                                    <Label Text="Estimated Fare: $12.50" />
+                                </StackLayout>
+                            </Border>
+
+                            <!--  Accept/Decline Buttons  -->
+                            <StackLayout
+                                HorizontalOptions="Center"
+                                Orientation="Horizontal"
+                                Spacing="20">
+                                <Button
+                                    x:Name="AcceptButton"
+                                    Command="{Binding GoToRideInProgressCommand}"
+                                    Text="Accept" />
+                                <Button x:Name="DeclineButton" Text="Decline" />
+                            </StackLayout>
+                        </StackLayout>
+                    </ScrollView>
+                </dxc:BottomSheet>
+            </StackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

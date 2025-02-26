@@ -7,6 +7,7 @@ using MPowerKit.GoogleMaps;
 using Ridebase.Helpers;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
+using Ridebase.Services.Interfaces;
 
 namespace Ridebase.ViewModels;
 
@@ -24,11 +25,12 @@ public partial class HomePageViewModel : BaseViewModel
     private Func<CameraUpdate, int, Task> _animateCameraFunc;
     private readonly GoogleMaps.Geocode.LocationGeocodeApi geolocationGoogle;
 
-    public HomePageViewModel(IPopupNavigation navigation, GoogleMaps.Geocode.LocationGeocodeApi locationGeocodeApi)
+    public HomePageViewModel(IPopupNavigation navigation, GoogleMaps.Geocode.LocationGeocodeApi locationGeocodeApi, IStorageService _storage)
     {
         Title = "Map Page";
         geolocationGoogle = locationGeocodeApi;
         popupNavigation = navigation;
+        storageService = _storage;
 
         GetCurrentLocation();
     }
@@ -92,9 +94,9 @@ public partial class HomePageViewModel : BaseViewModel
             return;
 
         //If user is not logged in, redirect to Auth0
-        if (!IsLoggedIn)
+        if (!await storageService.IsLoggedInAsync())
         {
-            await popupNavigation.ShowPopupAsync<Auth0PopupPage>();
+            await App.Current.MainPage.DisplayAlert("Log in", "First login in the sidebar", "Ok");
             return;
         }
 
