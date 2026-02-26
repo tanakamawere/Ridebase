@@ -1,5 +1,4 @@
-﻿using Auth0.OidcClient;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
 using Ridebase.Pages;
@@ -9,7 +8,7 @@ namespace Ridebase.ViewModels;
 
 public partial class AppShellViewModel: BaseViewModel
 {
-    public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient)
+    public AppShellViewModel(IAuthenticationClient _authClient)
     {
         authenticationClient = _authClient;
     }
