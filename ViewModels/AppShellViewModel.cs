@@ -9,9 +9,10 @@ namespace Ridebase.ViewModels;
 
 public partial class AppShellViewModel: BaseViewModel
 {
-    public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient)
+    public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient, IOnboardingApiClient _onboardingApiClient)
     {
         authenticationClient = _authClient;
+        onboardingApiClient = _onboardingApiClient;
     }
 
     [RelayCommand]

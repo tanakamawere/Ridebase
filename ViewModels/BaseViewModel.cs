@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Mopups.Interfaces;
 using Ridebase.Models;
 using Ridebase.Pages;
+using Ridebase.Pages.Onboarding;
 using Ridebase.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -27,6 +28,7 @@ public partial class BaseViewModel : ObservableObject
     public IRideApiClient rideApiClient;
     public IStorageService storageService;
     public IAuthenticationClient authenticationClient;
+    public IOnboardingApiClient onboardingApiClient;
 
     public BaseViewModel()
     {
@@ -65,6 +67,16 @@ public partial class BaseViewModel : ObservableObject
                 var response = await authenticationClient.GetUserInfo(loginResult.Data.AccessToken);
 
                 IsLoggedIn = true;
+
+                // Check if the user has completed onboarding
+                if (onboardingApiClient != null)
+                {
+                    var onboardingStatus = await onboardingApiClient.CheckOnboardingStatusAsync(RidebaseUser.UserId);
+                    if (!onboardingStatus.IsSuccess || !onboardingStatus.Data)
+                    {
+                        await Shell.Current.GoToAsync(nameof(OnboardingProfilePage));
+                    }
+                }
             }
             catch (Exception ex)
             {
