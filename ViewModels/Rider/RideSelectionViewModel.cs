@@ -84,6 +84,27 @@ public partial class RideSelectionViewModel : BaseViewModel
         DriversList.Remove(driver);
     }
 
+    [RelayCommand]
+    public async Task CancelRide()
+    {
+        try
+        {
+            Logger.LogInformation("Cancelling ride from selection screen");
+            await rideRealtimeService.StopAsync();
+
+            if (RideRequest?.RideGuid != Guid.Empty)
+            {
+                await rideApiClient.CancelRide(RideRequest!.RideGuid.ToString("N"));
+            }
+
+            await Shell.Current.GoToAsync("..");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error cancelling ride from selection screen");
+        }
+    }
+
     private async Task<RideSessionModel> CreateRideSession(DriverOfferSelectionModel selectedOffer)
     {
         var session = await userSessionService.GetStateAsync();

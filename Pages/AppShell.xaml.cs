@@ -15,12 +15,13 @@ namespace Ridebase.Pages
 
             Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
             Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
-            Routing.RegisterRoute(nameof(RideDetailsPage), typeof(RideDetailsPage));
             Routing.RegisterRoute(nameof(RideEndedPage), typeof(RideEndedPage));
             Routing.RegisterRoute(nameof(RideHistoryPage), typeof(RideHistoryPage));
             Routing.RegisterRoute(nameof(RideProgressPage), typeof(RideProgressPage));
-            Routing.RegisterRoute(nameof(SearchPage), typeof(SearchPage));
             Routing.RegisterRoute(nameof(RideSelectionPage), typeof(RideSelectionPage));
+
+            // Support route
+            Routing.RegisterRoute(nameof(SupportPage), typeof(SupportPage));
 
             // Onboarding routes
             Routing.RegisterRoute(nameof(OnboardingProfilePage), typeof(OnboardingProfilePage));

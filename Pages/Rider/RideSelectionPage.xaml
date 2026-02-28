@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <VerticalStackLayout>
+    <VerticalStackLayout Spacing="16">
         <CollectionView
             EmptyView="No drivers available"
             IsVisible="{Binding IsBusy, Converter={StaticResource Key=InvertedBoolConverter}}"
@@ -79,5 +79,17 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!--  Cancel ride button  -->
+        <Button
+            Margin="16,0"
+            BackgroundColor="Transparent"
+            BorderColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}"
+            BorderWidth="1.5"
+            Command="{Binding CancelRideCommand}"
+            CornerRadius="28"
+            HeightRequest="48"
+            Text="Cancel Search"
+            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
     </VerticalStackLayout>
 </ContentPage>

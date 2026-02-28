@@ -3,93 +3,724 @@
     x:Class="Ridebase.Pages.Rider.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:Ridebase.Converters"
     xmlns:gm="clr-namespace:MPowerKit.GoogleMaps;assembly=MPowerKit.GoogleMaps"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
-    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:models="clr-namespace:Ridebase.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
-    xmlns:wits="http://what.is.this.sheet/schemas/controls"
     Title="{Binding Title}"
+    Shell.NavBarIsVisible="False"
     x:DataType="vm:HomePageViewModel">
-
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:SearchStateEqualConverter x:Key="SearchStateEquals" />
+            <converters:SearchStateNotEqualConverter x:Key="SearchStateNotEqual" />
+            <converters:SearchFieldEqualConverter x:Key="SearchFieldEquals" />
+            <converters:SearchFieldToStrokeColorConverter x:Key="SearchFieldToStroke" />
+
+            <!--  Shadow for elevated elements  -->
+            <Shadow x:Key="CardShadow">
+                <Shadow.Brush>
+                    <SolidColorBrush Color="{AppThemeBinding Light=#40000000, Dark=#60000000}" />
+                </Shadow.Brush>
+                <Shadow.Offset>0,4</Shadow.Offset>
+                <Shadow.Radius>12</Shadow.Radius>
+                <Shadow.Opacity>0.3</Shadow.Opacity>
+            </Shadow>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <AbsoluteLayout IgnoreSafeArea="True">
-        <gm:GoogleMap
-            AbsoluteLayout.LayoutBounds="0,0,1,1"
-            AbsoluteLayout.LayoutFlags="All"
-            AnimateCameraFunc="{Binding AnimateCameraFunc, Mode=OneWayToSource}"
-            InitialCameraPosition="{Binding InitialCameraPosition}"
-            MoveCameraAction="{Binding MoveCameraAction, Mode=OneWayToSource}"
-            MyLocationButtonEnabled="True"
-            MyLocationEnabled="True" />
+    <!--  Main Grid: Row 0 = Map area, Row 1 = Bottom sheet  -->
+    <Grid RowDefinitions="*,Auto">
 
+        <!--  ═══════════════════════════════════════════════════  -->
+        <!--  ROW 0 — Map + floating overlays                     -->
+        <!--  ═══════════════════════════════════════════════════  -->
+        <Grid Grid.Row="0">
+            <!--  Google Map fills available space above the sheet  -->
+            <gm:GoogleMap
+                AnimateCameraFunc="{Binding AnimateCameraFunc, Mode=OneWayToSource}"
+                InitialCameraPosition="{Binding InitialCameraPosition}"
+                MoveCameraAction="{Binding MoveCameraAction, Mode=OneWayToSource}"
+                MyLocationButtonEnabled="True"
+                MyLocationEnabled="True"
+                Polylines="{Binding Polylines}" />
 
-        <Border
-            Padding="5"
-            AbsoluteLayout.LayoutBounds="0.5, 0.9, 0.9, 1"
-            AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
-            BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
-                                              Light={StaticResource White},
-                                              Default={StaticResource White}}"
-            HeightRequest="60"
-            StrokeShape="RoundRectangle 20">
-            <!--  On click to go back to edit the locations  -->
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding GoToSearchPageCommand}" />
-            </Border.GestureRecognizers>
+            <!--  Floating Hamburger (Idle only)  -->
+            <Border
+                Margin="20,52,0,0"
+                HeightRequest="48"
+                HorizontalOptions="Start"
+                IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
+                Shadow="{StaticResource CardShadow}"
+                Style="{StaticResource FloatingCircleButton}"
+                VerticalOptions="Start"
+                WidthRequest="48">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenFlyoutCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="22"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="22">
+                    <Image.Source>
+                        <FontImageSource
+                            FontFamily="fasolid"
+                            Glyph="{x:Static icons:Fasolid.Bars}"
+                            Size="18"
+                            Color="{AppThemeBinding Dark={StaticResource White},
+                                                    Light={StaticResource OffBlack}}" />
+                    </Image.Source>
+                </Image>
+            </Border>
 
-            <StackLayout>
+            <!--  Top Search Bar (Idle only)  -->
+            <Border
+                Padding="16,12"
+                Margin="76,52,20,0"
+                BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
+                                                  Light={StaticResource White}}"
+                HeightRequest="48"
+                HorizontalOptions="Fill"
+                IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
+                Shadow="{StaticResource CardShadow}"
+                StrokeShape="RoundRectangle 24"
+                StrokeThickness="0"
+                VerticalOptions="Start">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenSearchCommand}" />
+                </Border.GestureRecognizers>
 
-                <Grid
-                    Padding="5"
-                    ColumnDefinitions="Auto,*, Auto"
-                    ColumnSpacing="2"
-                    HorizontalOptions="CenterAndExpand"
-                    IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                    VerticalOptions="CenterAndExpand">
-                    <Image Grid.Column="0" HeightRequest="20">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Image Grid.Column="0" HeightRequest="22" WidthRequest="22">
                         <Image.Source>
                             <FontImageSource
                                 FontFamily="fasolid"
-                                Glyph="{x:Static icons:Fasolid.LocationCrosshairs}"
-                                Size="20"
-                                Color="{AppThemeBinding Dark={StaticResource Secondary},
-                                                        Light={StaticResource Primary}}" />
+                                Glyph="{x:Static icons:Fasolid.MagnifyingGlass}"
+                                Size="18"
+                                Color="{AppThemeBinding Dark={StaticResource Gray400},
+                                                        Light={StaticResource Gray500}}" />
                         </Image.Source>
                     </Image>
+
                     <Label
                         Grid.Column="1"
-                        FontAttributes="Bold"
-                        FontSize="Body"
-                        HorizontalOptions="CenterAndExpand"
-                        Text="{Binding CurrentLocation.FormattedAddress}"
-                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
-                                                    Dark={StaticResource White}}" />
-                    <Border Grid.Column="2" Style="{StaticResource BubbleBorder}">
-                        <Label
-                            FontSize="Caption"
-                            HorizontalOptions="CenterAndExpand"
-                            Text="Start"
-                            TextColor="{AppThemeBinding Light={StaticResource Primary},
-                                                        Dark={StaticResource OffBlack}}"
-                            VerticalOptions="CenterAndExpand" />
+                        FontSize="15"
+                        Text="Where to?"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}"
+                        VerticalOptions="Center" />
+
+                    <Border
+                        Grid.Column="2"
+                        Padding="8,5"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                          Dark={StaticResource Gray600}}"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.Clock}"
+                                    Size="14"
+                                    Color="{AppThemeBinding Dark={StaticResource White},
+                                                            Light={StaticResource OffBlack}}" />
+                            </Image.Source>
+                        </Image>
                     </Border>
                 </Grid>
+            </Border>
+        </Grid>
 
+        <!--  ═══════════════════════════════════════════════════  -->
+        <!--  ROW 1 — BOTTOM SHEET (non-overlapping, multi-state) -->
+        <!--  ═══════════════════════════════════════════════════  -->
+        <Border
+            x:Name="BottomSheet"
+            Grid.Row="1"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
+                                              Light={StaticResource White}}"
+            StrokeShape="RoundRectangle 32,32,0,0"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="{AppThemeBinding Light=#60000000,
+                                            Dark=#80000000}"
+                    Offset="0,-4"
+                    Opacity="0.3"
+                    Radius="16" />
+            </Border.Shadow>
 
-                <ActivityIndicator
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}"
-                    Color="{AppThemeBinding Light={StaticResource Primary},
-                                            Dark={StaticResource White}}" />
-            </StackLayout>
+            <VerticalStackLayout Padding="24,16,24,40" Spacing="16">
+
+                <!--  ═══════════════════════════════════════  -->
+                <!--  STATE: IDLE                              -->
+                <!--  ═══════════════════════════════════════  -->
+                <VerticalStackLayout
+                    IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
+                    Spacing="20">
+
+                    <!--  Drag Handle  -->
+                    <BoxView
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray300},
+                                                          Dark={StaticResource Gray600}}"
+                        CornerRadius="2"
+                        HeightRequest="4"
+                        HorizontalOptions="Center"
+                        WidthRequest="40" />
+
+                    <!--  Current Location Display  -->
+                    <Grid
+                        ColumnDefinitions="Auto,*"
+                        ColumnSpacing="16"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        RowDefinitions="Auto,Auto"
+                        RowSpacing="8">
+
+                        <Border
+                            Grid.Row="0"
+                            Grid.RowSpan="2"
+                            Grid.Column="0"
+                            Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Secondary},
+                                                              Dark={StaticResource Primary}}"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 26"
+                            StrokeThickness="0"
+                            VerticalOptions="Start"
+                            WidthRequest="52">
+                            <Image>
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.LocationDot}"
+                                        Size="24"
+                                        Color="{AppThemeBinding Dark={StaticResource White},
+                                                                Light={StaticResource Primary}}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Your Location"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                        Dark={StaticResource Gray400}}"
+                            VerticalOptions="End" />
+
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            FontSize="16"
+                            LineBreakMode="TailTruncation"
+                            MaxLines="2"
+                            Text="{Binding CurrentLocation.FormattedAddress}"
+                            TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                        Dark={StaticResource White}}"
+                            VerticalOptions="Start" />
+                    </Grid>
+
+                    <!--  Loading State  -->
+                    <HorizontalStackLayout
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding IsBusy}"
+                        Spacing="12">
+                        <ActivityIndicator
+                            IsRunning="{Binding IsBusy}"
+                            Color="{StaticResource Primary}" />
+                        <Label
+                            FontSize="14"
+                            Text="Finding your location..."
+                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                        Dark={StaticResource Gray400}}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!--  ═══════════════════════════════════════  -->
+                <!--  STATE: PICKING DESTINATION               -->
+                <!--  ═══════════════════════════════════════  -->
+                <VerticalStackLayout
+                    IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=PickingDestination}"
+                    Spacing="16">
+
+                    <!--  Header: Back + Title  -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border Grid.Column="0" Style="{StaticResource BackArrowButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.ArrowLeft}"
+                                        Size="16"
+                                        Color="{AppThemeBinding Dark={StaticResource White},
+                                                                Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                        <Label
+                            Grid.Column="1"
+                            Style="{StaticResource SheetHeaderLabel}"
+                            Text="Plan your trip" />
+                    </Grid>
+
+                    <!--  ─── Dual Input Fields ──────────────  -->
+                    <Grid ColumnDefinitions="28,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto" RowSpacing="0">
+
+                        <!--  Pickup dot (green)  -->
+                        <Ellipse
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Fill="#34C759"
+                            HeightRequest="14"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            WidthRequest="14" />
+
+                        <!--  Pickup Entry  -->
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Stroke="{Binding ActiveSearchField, Converter={StaticResource SearchFieldToStroke}, ConverterParameter=Pickup}"
+                            Style="{StaticResource InactiveSearchEntryBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnPickupBorderTapped" />
+                            </Border.GestureRecognizers>
+                            <Entry
+                                x:Name="PickupEntry"
+                                BackgroundColor="Transparent"
+                                FontSize="15"
+                                Placeholder="Pickup location"
+                                Text="{Binding PickupSearchQuery}"
+                                TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                            Dark={StaticResource White}}"
+                                Focused="OnSearchEntryFocused"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <!--  Connector line between dots  -->
+                        <BoxView
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            HeightRequest="20"
+                            HorizontalOptions="Center"
+                            WidthRequest="2" />
+
+                        <!--  Spacer  -->
+                        <BoxView
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            HeightRequest="8"
+                            Color="Transparent" />
+
+                        <!--  Destination dot (primary)  -->
+                        <Ellipse
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Fill="{StaticResource Primary}"
+                            HeightRequest="14"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            WidthRequest="14" />
+
+                        <!--  Destination Entry  -->
+                        <Border
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Stroke="{Binding ActiveSearchField, Converter={StaticResource SearchFieldToStroke}, ConverterParameter=Destination}"
+                            Style="{StaticResource InactiveSearchEntryBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDestinationBorderTapped" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Entry
+                                    Grid.Column="0"
+                                    x:Name="DestinationEntry"
+                                    BackgroundColor="Transparent"
+                                    FontSize="15"
+                                    Placeholder="Where to?"
+                                    Text="{Binding DestinationSearchQuery}"
+                                    TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                                Dark={StaticResource White}}"
+                                    Focused="OnSearchEntryFocused"
+                                    VerticalOptions="Center" />
+
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="18"
+                                    IsVisible="{Binding IsSearching}"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Source>
+                                        <FontImageSource
+                                            FontFamily="fasolid"
+                                            Glyph="{x:Static icons:Fasolid.Spinner}"
+                                            Size="14"
+                                            Color="{StaticResource Primary}" />
+                                    </Image.Source>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!--  Autocomplete results  -->
+                    <CollectionView
+                        HeightRequest="300"
+                        ItemsSource="{Binding Predictions}">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout
+                                HorizontalOptions="Center"
+                                Spacing="8"
+                                VerticalOptions="Center">
+                                <Image HeightRequest="28" WidthRequest="28" HorizontalOptions="Center">
+                                    <Image.Source>
+                                        <FontImageSource
+                                            FontFamily="fasolid"
+                                            Glyph="{x:Static icons:Fasolid.MagnifyingGlass}"
+                                            Size="22"
+                                            Color="{AppThemeBinding Light={StaticResource Gray300},
+                                                                    Dark={StaticResource Gray600}}" />
+                                    </Image.Source>
+                                </Image>
+                                <Label
+                                    FontSize="14"
+                                    HorizontalOptions="Center"
+                                    Text="Type to search for a place"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray400},
+                                                                Dark={StaticResource Gray500}}" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:PlacePrediction">
+                                <Border Style="{StaticResource PredictionRowBorder}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomePageViewModel}}, Path=SelectPredictionCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                                        <!--  Location pin icon  -->
+                                        <Border
+                                            Grid.Column="0"
+                                            Padding="8"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                              Dark={StaticResource Gray600}}"
+                                            HeightRequest="40"
+                                            StrokeShape="RoundRectangle 20"
+                                            StrokeThickness="0"
+                                            WidthRequest="40">
+                                            <Image
+                                                HeightRequest="18"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                WidthRequest="18">
+                                                <Image.Source>
+                                                    <FontImageSource
+                                                        FontFamily="fasolid"
+                                                        Glyph="{x:Static icons:Fasolid.LocationPin}"
+                                                        Size="14"
+                                                        Color="{AppThemeBinding Dark={StaticResource White},
+                                                                                Light={StaticResource Primary}}" />
+                                                </Image.Source>
+                                            </Image>
+                                        </Border>
+
+                                        <!--  Text  -->
+                                        <VerticalStackLayout
+                                            Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalOptions="Center">
+                                            <Label Style="{StaticResource PredictionMainLabel}" Text="{Binding MainText}" />
+                                            <Label Style="{StaticResource PredictionSecondaryLabel}" Text="{Binding SecondaryText}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!--  Searching indicator  -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsSearching}"
+                        IsVisible="{Binding IsSearching}"
+                        Color="{StaticResource Primary}" />
+                </VerticalStackLayout>
+
+                <!--  ═══════════════════════════════════════  -->
+                <!--  STATE: ROUTE PREVIEW                     -->
+                <!--  ═══════════════════════════════════════  -->
+                <VerticalStackLayout
+                    IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=RoutePreview}"
+                    Spacing="20">
+
+                    <!--  Header: Back + Destination name  -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border Grid.Column="0" Style="{StaticResource BackArrowButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.ArrowLeft}"
+                                        Size="16"
+                                        Color="{AppThemeBinding Dark={StaticResource White},
+                                                                Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                        <Label
+                            Grid.Column="1"
+                            Style="{StaticResource SheetHeaderLabel}"
+                            Text="Ride Details" />
+                    </Grid>
+
+                    <!--  Destination card  -->
+                    <Border Padding="16" Style="{StaticResource ElevatedCard}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <Border
+                                Grid.Column="0"
+                                Padding="10"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Secondary},
+                                                                  Dark={StaticResource Primary}}"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image HeightRequest="20" WidthRequest="20">
+                                    <Image.Source>
+                                        <FontImageSource
+                                            FontFamily="fasolid"
+                                            Glyph="{x:Static icons:Fasolid.FlagCheckered}"
+                                            Size="16"
+                                            Color="{AppThemeBinding Dark={StaticResource White},
+                                                                    Light={StaticResource Primary}}" />
+                                    </Image.Source>
+                                </Image>
+                            </Border>
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="2"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="13"
+                                    Text="DESTINATION"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                                Dark={StaticResource Gray400}}" />
+                                <Label
+                                    FontSize="16"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="2"
+                                    Text="{Binding SelectedDestination.FormattedAddress}"
+                                    TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                                Dark={StaticResource White}}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <!--  Distance + ETA stats  -->
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="0">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Style="{StaticResource RouteStatValue}" Text="{Binding EstimatedDistanceKm, StringFormat='{0:F1} km'}" />
+                            <Label Style="{StaticResource RouteStatCaption}" Text="Distance" />
+                        </VerticalStackLayout>
+
+                        <BoxView
+                            Grid.Column="1"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                              Dark={StaticResource Gray600}}"
+                            HeightRequest="40"
+                            VerticalOptions="Center"
+                            WidthRequest="1" />
+
+                        <VerticalStackLayout Grid.Column="2" Spacing="4">
+                            <Label Style="{StaticResource RouteStatValue}" Text="{Binding EstimatedMinutes, StringFormat='{0} min'}" />
+                            <Label Style="{StaticResource RouteStatCaption}" Text="ETA" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!--  Fare section  -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            HorizontalOptions="Center"
+                            Text="YOUR OFFER"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                        Dark={StaticResource Gray400}}" />
+
+                        <Grid
+                            ColumnDefinitions="Auto,*,Auto"
+                            ColumnSpacing="16"
+                            HorizontalOptions="Center">
+                            <!--  Decrease  -->
+                            <Border Grid.Column="0" Style="{StaticResource FareAdjustButton}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding DecreaseFareCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    HorizontalOptions="Center"
+                                    Text="−"
+                                    TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                                Dark={StaticResource White}}"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <!--  Amount  -->
+                            <Label
+                                Grid.Column="1"
+                                Style="{StaticResource FareDisplayLabel}"
+                                Text="{Binding OfferAmount, StringFormat='${0:F2}'}" />
+
+                            <!--  Increase  -->
+                            <Border Grid.Column="2" Style="{StaticResource FareAdjustButton}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IncreaseFareCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    HorizontalOptions="Center"
+                                    Text="+"
+                                    TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                                Dark={StaticResource White}}"
+                                    VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+
+                        <Label
+                            FontSize="12"
+                            HorizontalOptions="Center"
+                            Text="{Binding RecommendedFare, StringFormat='Recommended: ${0:F2}'}"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                    </VerticalStackLayout>
+
+                    <!--  Find Driver CTA  -->
+                    <Border Shadow="{StaticResource CardShadow}" Style="{StaticResource PrimaryActionButton}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FindDriverCommand}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid
+                            Padding="24,16"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="12">
+                            <Label
+                                Grid.Column="0"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalOptions="Center"
+                                Text="Find Driver"
+                                TextColor="{StaticResource White}"
+                                VerticalOptions="Center" />
+
+                            <Border
+                                Grid.Column="1"
+                                Padding="8"
+                                BackgroundColor="#40FFFFFF"
+                                StrokeShape="RoundRectangle 20"
+                                StrokeThickness="0">
+                                <Image HeightRequest="24" WidthRequest="24">
+                                    <Image.Source>
+                                        <FontImageSource
+                                            FontFamily="fasolid"
+                                            Glyph="{x:Static icons:Fasolid.MagnifyingGlass}"
+                                            Size="16"
+                                            Color="{StaticResource White}" />
+                                    </Image.Source>
+                                </Image>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  ═══════════════════════════════════════  -->
+                <!--  STATE: FINDING DRIVER                    -->
+                <!--  ═══════════════════════════════════════  -->
+                <VerticalStackLayout
+                    IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=FindingDriver}"
+                    Spacing="20">
+
+                    <BoxView
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray300},
+                                                          Dark={StaticResource Gray600}}"
+                        CornerRadius="2"
+                        HeightRequest="4"
+                        HorizontalOptions="Center"
+                        WidthRequest="40" />
+
+                    <ActivityIndicator
+                        HeightRequest="48"
+                        HorizontalOptions="Center"
+                        IsRunning="True"
+                        WidthRequest="48"
+                        Color="{StaticResource Primary}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        HorizontalOptions="Center"
+                        Text="Finding your driver..."
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                    Dark={StaticResource White}}" />
+
+                    <Label
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="Hang tight, we're matching you"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+
+                    <!--  Cancel button  -->
+                    <Border Style="{StaticResource CancelActionButton}" HorizontalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelSearchCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Image HeightRequest="16" WidthRequest="16" VerticalOptions="Center">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.Xmark}"
+                                        Size="14"
+                                        Color="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label
+                                Text="Cancel"
+                                FontSize="15"
+                                VerticalOptions="Center"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
         </Border>
-    </AbsoluteLayout>
+    </Grid>
 </ContentPage>

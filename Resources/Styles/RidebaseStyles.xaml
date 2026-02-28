@@ -4,6 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:wits="http://what.is.this.sheet/schemas/controls">
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Bubble styles (existing)                 -->
+    <!--  ════════════════════════════════════════  -->
     <Style x:Key="BubbleBorder" TargetType="Border">
         <Setter Property="Padding" Value="20,1" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource White}}" />
@@ -16,4 +20,262 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontAttributes" Value="Bold" />
     </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Flyout / Menu item styles                -->
+    <!--  ════════════════════════════════════════  -->
+
+    <!--  Transparent tappable row used in flyout menus  -->
+    <Style x:Key="FlyoutMenuItemBorder" TargetType="Border">
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+    </Style>
+
+    <!--  Icon inside a flyout menu row  -->
+    <Style x:Key="FlyoutMenuIcon" TargetType="Image">
+        <Setter Property="HeightRequest" Value="22" />
+        <Setter Property="WidthRequest" Value="22" />
+    </Style>
+
+    <!--  Label inside a flyout menu row  -->
+    <Style x:Key="FlyoutMenuLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  Uppercase section header (MENU, SWITCH MODE, etc.)  -->
+    <Style x:Key="FlyoutSectionHeader" TargetType="Label">
+        <Setter Property="Padding" Value="12,0,0,8" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+    </Style>
+
+    <!--  Horizontal divider line  -->
+    <Style x:Key="FlyoutDivider" TargetType="BoxView">
+        <Setter Property="Margin" Value="16,8" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+        <Setter Property="HeightRequest" Value="1" />
+    </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Card / elevated surface styles           -->
+    <!--  ════════════════════════════════════════  -->
+
+    <!--  Elevated card used on map overlays  -->
+    <Style x:Key="ElevatedCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource OffBlack}, Light={StaticResource White}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+    </Style>
+
+    <!--  Round icon container (48×48 circle)  -->
+    <Style x:Key="QuickActionIconContainer" TargetType="Border">
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="WidthRequest" Value="48" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+    </Style>
+
+    <!--  Small label below a quick-action icon  -->
+    <Style x:Key="QuickActionLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Primary action button (pill-shaped CTA)  -->
+    <!--  ════════════════════════════════════════  -->
+    <Style x:Key="PrimaryActionButton" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+        <Setter Property="StrokeThickness" Value="0" />
+    </Style>
+
+    <!--  Floating circular button (hamburger, FAB, etc.)  -->
+    <Style x:Key="FloatingCircleButton" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource OffBlack}, Light={StaticResource White}}" />
+    </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Search / inline bottom sheet styles      -->
+    <!--  ════════════════════════════════════════  -->
+
+    <!--  Rounded search input container  -->
+    <Style x:Key="SearchEntryBorder" TargetType="Border">
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="HeightRequest" Value="52" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 26" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource OffBlack}, Light={StaticResource White}}" />
+    </Style>
+
+    <!--  Autocomplete prediction row  -->
+    <Style x:Key="PredictionRowBorder" TargetType="Border">
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+    </Style>
+
+    <!--  Primary text in prediction row  -->
+    <Style x:Key="PredictionMainLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  Secondary text in prediction row  -->
+    <Style x:Key="PredictionSecondaryLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+    </Style>
+
+    <!--  Route summary stat label (distance / ETA)  -->
+    <Style x:Key="RouteStatValue" TargetType="Label">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  Route summary stat caption  -->
+    <Style x:Key="RouteStatCaption" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+    </Style>
+
+    <!--  Secondary action (outlined / text-only button)  -->
+    <Style x:Key="SecondaryActionButton" TargetType="Border">
+        <Setter Property="Padding" Value="20,12" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+    </Style>
+
+    <!--  Circular back arrow button  -->
+    <Style x:Key="BackArrowButton" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray100}}" />
+    </Style>
+
+    <!--  Sheet header title  -->
+    <Style x:Key="SheetHeaderLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  Fare display label (large currency)  -->
+    <Style x:Key="FareDisplayLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+    </Style>
+
+    <!--  Fare adjust button (+ / -)  -->
+    <Style x:Key="FareAdjustButton" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Support page styles                      -->
+    <!--  ════════════════════════════════════════  -->
+
+    <!--  Support topic card (tappable row with icon)  -->
+    <Style x:Key="SupportTopicCard" TargetType="Border">
+        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+    </Style>
+
+    <!--  Round icon container for support items (40×40)  -->
+    <Style x:Key="SupportIconContainer" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <!--  Title label in a support topic row  -->
+    <Style x:Key="SupportTopicTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+    </Style>
+
+    <!--  Subtitle label in a support topic row  -->
+    <Style x:Key="SupportTopicSubtitle" TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+    </Style>
+
+    <!--  Section header on the support page  -->
+    <Style x:Key="SupportSectionHeader" TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Padding" Value="4,8,0,4" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+    </Style>
+
+    <!--  ════════════════════════════════════════  -->
+    <!--  Dual-input search field styles           -->
+    <!--  ════════════════════════════════════════  -->
+
+    <!--  Active search input border (thicker Primary stroke)  -->
+    <Style x:Key="ActiveSearchEntryBorder" TargetType="Border">
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="Stroke" Value="{StaticResource Primary}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource OffBlack}, Light={StaticResource White}}" />
+    </Style>
+
+    <!--  Inactive search input border (subtle stroke)  -->
+    <Style x:Key="InactiveSearchEntryBorder" TargetType="Border">
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource OffBlack}, Light={StaticResource White}}" />
+    </Style>
+
+    <!--  Cancel / outlined action button  -->
+    <Style x:Key="CancelActionButton" TargetType="Border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+    </Style>
+
 </ResourceDictionary>

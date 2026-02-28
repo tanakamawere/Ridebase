@@ -10,7 +10,9 @@
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     Title="Ridebase"
     x:DataType="vm:AppShellViewModel"
-    Shell.FlyoutBehavior="Flyout">
+    FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
+    Shell.FlyoutBehavior="Flyout"
+    Shell.NavBarIsVisible="True">
 
     <Shell.Behaviors>
         <toolkit:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
@@ -23,48 +25,136 @@
     </Shell.Resources>
 
     <Shell.FlyoutHeader>
-        <StackLayout>
-            <Button
-                Margin="20"
-                Command="{Binding LoginCommand}"
-                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
-                Text="Login" />
+        <!--  Single purple container — no rounded corners visible  -->
+        <VerticalStackLayout
+            Padding="24,60,24,24"
+            BackgroundColor="{StaticResource Primary}"
+            Spacing="16">
 
-            <Grid
-                Padding="20"
-                ColumnDefinitions="80, *"
-                ColumnSpacing="20"
-                IsVisible="{Binding IsLoggedIn}"
-                RowDefinitions="Auto, Auto">
+            <!--  Logged-out state  -->
+            <VerticalStackLayout
+                IsVisible="{Binding IsLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+                Spacing="16">
                 <Border
-                    Grid.RowSpan="2"
+                    Padding="16"
+                    BackgroundColor="#40FFFFFF"
+                    HeightRequest="72"
+                    HorizontalOptions="Start"
+                    StrokeShape="RoundRectangle 36"
+                    StrokeThickness="0"
+                    WidthRequest="72">
+                    <Image>
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.CircleUser}"
+                                Size="36"
+                                Color="White" />
+                        </Image.Source>
+                    </Image>
+                </Border>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    Text="Welcome to Ridebase"
+                    TextColor="White" />
+                <Label
+                    FontSize="14"
+                    Opacity="0.85"
+                    Text="Sign in to get started"
+                    TextColor="White" />
+                <Border
+                    Padding="16,12"
+                    BackgroundColor="White"
+                    HorizontalOptions="Start"
+                    StrokeShape="RoundRectangle 24"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LoginCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="10">
+                        <Image HeightRequest="20" WidthRequest="20">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.RightToBracket}"
+                                    Size="16"
+                                    Color="{StaticResource Primary}" />
+                            </Image.Source>
+                        </Image>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="Sign In"
+                            TextColor="{StaticResource Primary}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!--  Logged-in user info  -->
+            <Grid
+                ColumnDefinitions="64,*"
+                ColumnSpacing="16"
+                IsVisible="{Binding IsLoggedIn}"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="4">
+                <Border
+                    Grid.RowSpan="3"
                     Grid.Column="0"
-                    HeightRequest="80"
-                    Stroke="Gray"
-                    StrokeShape="RoundRectangle 40"
-                    StrokeThickness="1"
-                    WidthRequest="80">
+                    BackgroundColor="#40FFFFFF"
+                    HeightRequest="64"
+                    StrokeShape="RoundRectangle 32"
+                    StrokeThickness="0"
+                    VerticalOptions="Start"
+                    WidthRequest="64">
                     <Image
-                        Aspect="AspectFit"
-                        HeightRequest="150"
-                        Source="{Binding RidebaseUser.ImageUrl}"
-                        WidthRequest="150" />
+                        Aspect="AspectFill"
+                        HeightRequest="64"
+                        WidthRequest="64">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.CircleUser}"
+                                Size="32"
+                                Color="White" />
+                        </Image.Source>
+                    </Image>
                 </Border>
                 <Label
                     Grid.Row="0"
                     Grid.Column="1"
                     FontAttributes="Bold"
-                    FontSize="Large"
-                    Text="{Binding RidebaseUser.UserName}" />
+                    FontSize="18"
+                    Text="{Binding RidebaseUser.UserName}"
+                    TextColor="White" />
                 <Label
                     Grid.Row="1"
                     Grid.Column="1"
-                    Text="{Binding RidebaseUser.UserId}" />
+                    FontSize="13"
+                    IsVisible="{Binding HasEmail}"
+                    Opacity="0.85"
+                    Text="{Binding RidebaseUser.Email}"
+                    TextColor="White" />
+                <Border
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Margin="0,6,0,0"
+                    Padding="10,4"
+                    BackgroundColor="#40FFFFFF"
+                    HorizontalOptions="Start"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="0">
+                    <Label
+                        FontSize="11"
+                        Text="{Binding CurrentModeLabel}"
+                        TextColor="White" />
+                </Border>
             </Grid>
-        </StackLayout>
+        </VerticalStackLayout>
     </Shell.FlyoutHeader>
 
-    <FlyoutItem IsVisible="{Binding IsRiderMode}">
+    <FlyoutItem FlyoutItemIsVisible="False" IsVisible="{Binding IsRiderMode}">
         <ShellContent
             Title="Home"
             ContentTemplate="{DataTemplate pages:HomePage}"
@@ -79,7 +169,7 @@
         </ShellContent>
     </FlyoutItem>
 
-    <FlyoutItem IsVisible="{Binding IsDriverMode}">
+    <FlyoutItem FlyoutItemIsVisible="False" IsVisible="{Binding IsDriverMode}">
         <ShellContent
             Title="Driver Home"
             ContentTemplate="{DataTemplate driverPages:DriverDashboardPage}"
@@ -102,16 +192,157 @@
             Route="DriverProfile" />
     </FlyoutItem>
 
-    <Shell.FlyoutFooter>
-        <VerticalStackLayout Padding="10" Spacing="10">
-            <Button Command="{Binding SwitchToDriverModeAsyncCommand}" Text="Driver mode" />
-            <Button Command="{Binding SwitchToRiderModeAsyncCommand}" Text="Rider mode" />
-            <Button
-                BackgroundColor="Red"
-                Command="{Binding LogoutUserCommand}"
-                IsVisible="{Binding IsLoggedIn}"
-                Text="Logout" />
-        </VerticalStackLayout>
-    </Shell.FlyoutFooter>
+    <Shell.FlyoutContent>
+        <ScrollView>
+            <VerticalStackLayout Padding="0" Spacing="0">
+
+                <!--  Menu Section  -->
+                <VerticalStackLayout Padding="16,24,16,8" Spacing="4">
+                    <Label Style="{StaticResource FlyoutSectionHeader}" Text="MENU" />
+
+                    <!--  Home item  -->
+                    <Border Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToHomeCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.House}"
+                                        Size="18"
+                                        Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label Style="{StaticResource FlyoutMenuLabel}" Text="Home" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!--  Ride History  -->
+                    <Border IsVisible="{Binding IsLoggedIn}" Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToRideHistoryCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.ClockRotateLeft}"
+                                        Size="18"
+                                        Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label Style="{StaticResource FlyoutMenuLabel}" Text="Ride History" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!--  Support  -->
+                    <Border Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToSupportCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.CircleQuestion}"
+                                        Size="18"
+                                        Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label Style="{StaticResource FlyoutMenuLabel}" Text="Support" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <BoxView Style="{StaticResource FlyoutDivider}" />
+
+                <!--  Switch Mode Section  -->
+                <VerticalStackLayout
+                    Padding="16,8,16,8"
+                    IsVisible="{Binding IsLoggedIn}"
+                    Spacing="4">
+                    <Label Style="{StaticResource FlyoutSectionHeader}" Text="SWITCH MODE" />
+
+                    <!--  Switch to Driver — only visible in Rider mode  -->
+                    <Border IsVisible="{Binding IsRiderMode}" Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SwitchToDriverModeAsyncCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.Car}"
+                                        Size="18"
+                                        Color="{StaticResource Primary}" />
+                                </Image.Source>
+                            </Image>
+                            <Label
+                                Style="{StaticResource FlyoutMenuLabel}"
+                                Text="Switch to Driver"
+                                TextColor="{StaticResource Primary}" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!--  Switch to Rider — only visible in Driver mode  -->
+                    <Border IsVisible="{Binding IsDriverMode}" Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SwitchToRiderModeAsyncCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.User}"
+                                        Size="18"
+                                        Color="{StaticResource Primary}" />
+                                </Image.Source>
+                            </Image>
+                            <Label
+                                Style="{StaticResource FlyoutMenuLabel}"
+                                Text="Switch to Rider"
+                                TextColor="{StaticResource Primary}" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <BoxView IsVisible="{Binding IsLoggedIn}" Style="{StaticResource FlyoutDivider}" />
+
+                <!--  Logout  -->
+                <VerticalStackLayout
+                    Padding="16,8,16,24"
+                    IsVisible="{Binding IsLoggedIn}"
+                    Spacing="4">
+                    <Border Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LogoutUserCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.RightFromBracket}"
+                                        Size="18"
+                                        Color="#E53935" />
+                                </Image.Source>
+                            </Image>
+                            <Label
+                                Style="{StaticResource FlyoutMenuLabel}"
+                                Text="Sign Out"
+                                TextColor="#E53935" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Shell.FlyoutContent>
 
 </Shell>

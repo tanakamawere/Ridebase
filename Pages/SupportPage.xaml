@@ -1,12 +1,532 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Ridebase.Pages.SupportPage"
-             Title="SupportPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+<ContentPage
+    x:Class="Ridebase.Pages.SupportPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    Title="Help &amp; Support"
+    Shell.NavBarIsVisible="True">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="8">
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  Header                               -->
+            <!--  ═══════════════════════════════════  -->
+            <Label
+                FontAttributes="Bold"
+                FontSize="26"
+                Text="How can we help?"
+                TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                            Dark={StaticResource White}}" />
+            <Label
+                Margin="0,0,0,8"
+                FontSize="14"
+                Text="Find answers, report issues, or get in touch with our team."
+                TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                            Dark={StaticResource Gray400}}" />
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  RIDE ISSUES                          -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="RIDE ISSUES" />
+
+            <!--  Report a ride problem  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRideProblemTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#FFF0F0,
+                                                          Dark=#3D2020}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.TriangleExclamation}"
+                                    Size="16"
+                                    Color="#E74C3C" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="Report a ride problem" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Wrong route, driver issue, or vehicle concern" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  I was involved in an accident  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAccidentTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#FFF5E6,
+                                                          Dark=#3D3020}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.CarOn}"
+                                    Size="16"
+                                    Color="#E67E22" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="I was involved in an accident" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Report a crash or safety incident" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  I lost an item  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLostItemTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#EEF0FF,
+                                                          Dark=#202040}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.MapLocationDot}"
+                                    Size="16"
+                                    Color="#5B6AE0" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="I lost an item" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Contact your driver about a forgotten item" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  PAYMENTS & PRICING                   -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="PAYMENTS &amp; PRICING" />
+
+            <!--  I was overcharged  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnOverchargedTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#E8F8F0,
+                                                          Dark=#1A3D2A}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.Receipt}"
+                                    Size="16"
+                                    Color="#27AE60" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="I was overcharged" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Dispute a fare or request a refund" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  Payment method issues  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnPaymentIssueTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#E8F8F0,
+                                                          Dark=#1A3D2A}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.CreditCard}"
+                                    Size="16"
+                                    Color="#27AE60" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="Payment method issues" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Card declined, wallet top-up, or payment errors" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  ACCOUNT & SAFETY                     -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="ACCOUNT &amp; SAFETY" />
+
+            <!--  Account &amp; login issues  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAccountIssueTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#F0EAFF,
+                                                          Dark=#2A2040}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.UserShield}"
+                                    Size="16"
+                                    Color="{StaticResource Primary}" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="Account &amp; login issues" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Can't log in, change number, or delete account" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  Safety concern  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSafetyConcernTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light=#F0EAFF,
+                                                          Dark=#2A2040}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.ShieldHalved}"
+                                    Size="16"
+                                    Color="{StaticResource Primary}" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="Safety concern" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Report harassment, unsafe driving, or threats" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  GENERAL                              -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="GENERAL" />
+
+            <!--  How Ridebase works  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnHowItWorksTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                          Dark={StaticResource Gray600}}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.CircleInfo}"
+                                    Size="16"
+                                    Color="{AppThemeBinding Light={StaticResource Gray600},
+                                                            Dark={StaticResource Gray300}}" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="How Ridebase works" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Booking, fare negotiation, and ride flow" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  Legal & policies  -->
+            <Border Style="{StaticResource SupportTopicCard}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLegalTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                          Dark={StaticResource Gray600}}"
+                        Style="{StaticResource SupportIconContainer}">
+                        <Image HeightRequest="18" WidthRequest="18">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="fasolid"
+                                    Glyph="{x:Static icons:Fasolid.FileContract}"
+                                    Size="16"
+                                    Color="{AppThemeBinding Light={StaticResource Gray600},
+                                                            Dark={StaticResource Gray300}}" />
+                            </Image.Source>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource SupportTopicTitle}" Text="Legal &amp; policies" />
+                        <Label Style="{StaticResource SupportTopicSubtitle}" Text="Terms of service, privacy, and community guidelines" />
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" HeightRequest="14" WidthRequest="14" VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="fasolid"
+                                Glyph="{x:Static icons:Fasolid.ChevronRight}"
+                                Size="12"
+                                Color="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  CONTACT US                           -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="CONTACT US" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <!--  Live chat  -->
+                <Border Grid.Column="0" Style="{StaticResource SupportTopicCard}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLiveChatTapped" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <Border
+                            HorizontalOptions="Center"
+                            BackgroundColor="{AppThemeBinding Light=#F0EAFF,
+                                                              Dark=#2A2040}"
+                            Style="{StaticResource SupportIconContainer}">
+                            <Image HeightRequest="18" WidthRequest="18">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.Headset}"
+                                        Size="16"
+                                        Color="{StaticResource Primary}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            Text="Live Chat"
+                            TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                        Dark={StaticResource White}}" />
+                        <Label
+                            FontSize="12"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            Text="Chat with support"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                        Dark={StaticResource Gray400}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Email us  -->
+                <Border Grid.Column="1" Style="{StaticResource SupportTopicCard}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnEmailUsTapped" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <Border
+                            HorizontalOptions="Center"
+                            BackgroundColor="{AppThemeBinding Light=#F0EAFF,
+                                                              Dark=#2A2040}"
+                            Style="{StaticResource SupportIconContainer}">
+                            <Image HeightRequest="18" WidthRequest="18">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.Envelope}"
+                                        Size="16"
+                                        Color="{StaticResource Primary}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            Text="Email Us"
+                            TextColor="{AppThemeBinding Light={StaticResource OffBlack},
+                                                        Dark={StaticResource White}}" />
+                        <Label
+                            FontSize="12"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            Text="We'll reply within 24h"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                        Dark={StaticResource Gray400}}" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!--  ═══════════════════════════════════  -->
+            <!--  FAQ Expandables                      -->
+            <!--  ═══════════════════════════════════  -->
+            <Label Style="{StaticResource SupportSectionHeader}" Text="FREQUENTLY ASKED QUESTIONS" />
+
+            <Border Style="{StaticResource SupportTopicCard}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource SupportTopicTitle}" Text="How do I negotiate a fare?" />
+                    <Label
+                        FontSize="13"
+                        Text="After entering your destination, you'll see a suggested fare. You can adjust the amount up or down before requesting a ride. Drivers nearby will see your offer and can accept or counter."
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource SupportTopicCard}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource SupportTopicTitle}" Text="How do I cancel a ride?" />
+                    <Label
+                        FontSize="13"
+                        Text="You can cancel a ride from the ride tracking screen before the driver arrives. Free cancellation is available within 2 minutes of booking. After that, a cancellation fee may apply."
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource SupportTopicCard}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource SupportTopicTitle}" Text="What payment methods are supported?" />
+                    <Label
+                        FontSize="13"
+                        Text="Ridebase supports cash payments and mobile money. You can manage your preferred payment methods from your profile settings."
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource SupportTopicCard}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource SupportTopicTitle}" Text="How is my safety ensured?" />
+                    <Label
+                        FontSize="13"
+                        Text="All drivers are verified before joining Ridebase. You can share your live trip with trusted contacts, and our support team is available around the clock for emergencies."
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource SupportTopicCard}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource SupportTopicTitle}" Text="How do I become a driver?" />
+                    <Label
+                        FontSize="13"
+                        Text="Switch to driver mode from the side menu and complete the onboarding process. You'll need to provide your driver's licence, vehicle details, and a profile photo for verification."
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                                    Dark={StaticResource Gray400}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Bottom spacing  -->
+            <BoxView HeightRequest="20" Color="Transparent" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
