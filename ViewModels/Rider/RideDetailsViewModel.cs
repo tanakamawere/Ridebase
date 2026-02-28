@@ -37,6 +37,15 @@ public partial class RideDetailsViewModel : BaseViewModel
     private decimal offerAmount = 2;
 
     [ObservableProperty]
+    private decimal recommendedFare;
+
+    [ObservableProperty]
+    private double estimatedDistanceKm;
+
+    [ObservableProperty]
+    private int estimatedMinutes;
+
+    [ObservableProperty]
     private Func<CameraUpdate, int, Task> _animateCameraFunc;
 
     private readonly GoogleMaps.DirectionsApi directionsApi;
@@ -44,6 +53,9 @@ public partial class RideDetailsViewModel : BaseViewModel
     public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi
                             , IRideApiClient _rideService
                             , IStorageService storage
+                            , IUserSessionService _userSessionService
+                            , IRideRealtimeService _rideRealtimeService
+                            , IRideStateStore _rideStateStore
                             , ILogger<RideDetailsViewModel> logger)
     {
         Title = "Ride Details";
@@ -51,6 +63,9 @@ public partial class RideDetailsViewModel : BaseViewModel
         directionsApi = _routesDirectionsApi;
         rideApiClient = _rideService;
         storageService = storage;
+        userSessionService = _userSessionService;
+        rideRealtimeService = _rideRealtimeService;
+        rideStateStore = _rideStateStore;
     }
 
     [RelayCommand]
@@ -77,6 +92,13 @@ public partial class RideDetailsViewModel : BaseViewModel
 
                 Logger.LogInformation("Directions retrieved successfully, drawing route on map");
                 await DrawRouteAndZoomAsync(response.OverviewPath.Line, response.Bounds);
+                EstimatedDistanceKm = response.Legs.FirstOrDefault()?.Distance?.Value / 1000d ?? 0;
+                EstimatedMinutes = (int)Math.Ceiling((response.Legs.FirstOrDefault()?.Duration?.Value ?? 0) / 60d);
+                RecommendedFare = CalculateRecommendedFare(EstimatedDistanceKm, EstimatedMinutes);
+                if (OfferAmount <= 0)
+                {
+                    OfferAmount = RecommendedFare;
+                }
             }
             else
             {
@@ -127,6 +149,11 @@ public partial class RideDetailsViewModel : BaseViewModel
     // Animate and zoom onto the map
     private async Task MoveCamera(CameraUpdate newPosition)
     {
+        if (AnimateCameraFunc is null)
+        {
+            Logger.LogWarning("AnimateCameraFunc not bound yet — skipping camera animation");
+            return;
+        }
         await AnimateCameraFunc(newPosition, 2000);
     }
 
@@ -146,10 +173,10 @@ public partial class RideDetailsViewModel : BaseViewModel
         RideRequestModel rideRequest = new()
         {
             RideGuid = Guid.NewGuid(),
-            RiderId = "RidebaseUser.UserId",
+            RiderId = await storageService.GetUserIdAsync() ?? string.Empty,
             StartLocation = new() { latitude = StartPlace.Geometry.Location.Latitude, longitude = StartPlace.Geometry.Location.Longitude },
             DestinationLocation = new() { latitude = DestinationPlace.Geometry.Location.Latitude, longitude = DestinationPlace.Geometry.Location.Longitude },
-            OfferAmount = 0,
+            OfferAmount = OfferAmount,
             Comments = "Nothing entered"
         };
 
@@ -162,6 +189,7 @@ public partial class RideDetailsViewModel : BaseViewModel
             if (response.IsSuccess)
             {
                 Logger.LogInformation("Ride request successful, navigating to ride selection page");
+                await rideRealtimeService.StartRiderMatchingAsync(rideRequest);
                 //TODO: open popup for driver found
                 await Shell.Current.GoToAsync(nameof(RideSelectionPage), true, new Dictionary<string, object> 
                 {
@@ -183,5 +211,15 @@ public partial class RideDetailsViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private decimal CalculateRecommendedFare(double distanceKm, int etaMinutes)
+    {
+        var baseFare = 1.50m;
+        var distanceComponent = (decimal)distanceKm * 0.75m;
+        var durationComponent = etaMinutes * 0.09m;
+        var hour = DateTime.Now.Hour;
+        var multiplier = hour is >= 17 and <= 20 ? 1.15m : 1m;
+        return decimal.Round((baseFare + distanceComponent + durationComponent) * multiplier, 2);
     }
 }

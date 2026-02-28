@@ -54,6 +54,9 @@
                 </Label.FormattedText>
             </Label>
 
+            <Label Text="{Binding EstimatedDistanceKm, StringFormat='Distance: {0:F1} km'}" />
+            <Label Text="{Binding EstimatedMinutes, StringFormat='Estimated time: {0} min'}" />
+
             <!--  For when pinging the backend for rides  -->
             <ActivityIndicator
                 IsRunning="{Binding IsBusy}"
@@ -100,7 +103,8 @@
                             FontAttributes="Bold"
                             FontSize="20"
                             HorizontalTextAlignment="Center"
-                            Placeholder="Amount" />
+                            Placeholder="Amount"
+                            Text="{Binding OfferAmount}" />
                         <Label
                             FontAttributes="Bold"
                             FontSize="Caption"
@@ -112,7 +116,7 @@
                             FontAttributes="Bold"
                             FontSize="Small"
                             HorizontalOptions="Center"
-                            Text="Recommended Price"
+                            Text="{Binding RecommendedFare, StringFormat='Recommended: USD$ {0:F2}'}"
                             TextColor="{AppThemeBinding Light={StaticResource Primary},
                                                         Dark={StaticResource Secondary}}" />
                     </StackLayout>

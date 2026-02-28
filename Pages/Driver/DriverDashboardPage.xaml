@@ -6,7 +6,7 @@
     xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-    xmlns:models="clr-namespace:Ridebase.Models"
+    xmlns:models="clr-namespace:Ridebase.Models.Ride"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
     xmlns:wits="http://what.is.this.sheet/schemas/controls"
@@ -18,12 +18,13 @@
             <StackLayout Padding="10">
                 <!--  Live Status  -->
                 <StackLayout HorizontalOptions="Center" Orientation="Horizontal">
-                    <Switch x:Name="LiveStatusSwitch" IsToggled="{Binding IsOnline}" />
+                    <Switch x:Name="LiveStatusSwitch" IsEnabled="{Binding CanGoOnline}" IsToggled="{Binding IsOnline}" />
                     <Label
                         x:Name="LiveStatusLabel"
                         Text="{Binding OnlineStatusText}"
                         VerticalOptions="Center" />
                 </StackLayout>
+                <Label Text="{Binding SubscriptionMessage}" />
 
                 <!--  Earnings Summary  -->
                 <Border Margin="0,10" Padding="10">
@@ -48,9 +49,9 @@
                             FontAttributes="Bold"
                             FontSize="Medium"
                             Text="Ride Requests" />
-                        <CollectionView EmptyView="There are no current riders near you.">
+                        <CollectionView EmptyView="There are no current riders near you." ItemsSource="{Binding RideRequests}">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:RideRequestModel">
                                     <!--  Example Request  -->
                                     <Border
                                         Margin="0,5"
@@ -58,14 +59,18 @@
                                         Stroke="#cccccc"
                                         StrokeThickness="1">
                                         <StackLayout>
-                                            <Label Text="Passenger: John Doe" />
-                                            <Label Text="Pickup: 123 Main St" />
-                                            <Label Text="Drop-off: 456 Elm St" />
+                                            <Label Text="{Binding RiderId, StringFormat='Passenger: {0}'}" />
+                                            <Label Text="{Binding OfferAmount, StringFormat='Offer: USD$ {0:F2}'}" />
+                                            <Label Text="Pickup: Location available" />
+                                            <Label Text="Drop-off: Location available" />
                                             <StackLayout
                                                 HorizontalOptions="Center"
                                                 Orientation="Horizontal"
                                                 Spacing="5">
-                                                <Button Text="View" />
+                                                <Button
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=GoToRideInProgressCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    Text="Accept" />
                                                 <Button Text="Reject" />
                                             </StackLayout>
                                         </StackLayout>

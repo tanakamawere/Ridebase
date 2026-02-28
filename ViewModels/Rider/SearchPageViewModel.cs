@@ -15,23 +15,23 @@ namespace Ridebase.ViewModels.Rider;
 public partial class SearchPageViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private LocationWithAddress currentLocation;
+    private LocationWithAddress? currentLocation;
     //Start place
     [ObservableProperty]
-    private PlaceResult startPlace;
+    private PlaceResult? startPlace;
     [ObservableProperty]
-    private PlaceResult destinationPlace;
+    private PlaceResult? destinationPlace;
     [ObservableProperty]
-    private string startLocation;
+    private string startLocation = string.Empty;
     [ObservableProperty]
-    private string startSearchQuery;
+    private string startSearchQuery = string.Empty;
     [ObservableProperty]
-    private string destinationSearchQuery;
+    private string destinationSearchQuery = string.Empty;
     [ObservableProperty]
     public ObservableCollection<PlaceResult> places = [];
     //Used for determining which place, start or destination is to be set
     private LocationType locationType = LocationType.Destination;
-    private CancellationTokenSource cts;
+    private CancellationTokenSource? cts;
 
     private readonly GooglePlaces.Search.NearBySearchApi nearBySearchApi;
 

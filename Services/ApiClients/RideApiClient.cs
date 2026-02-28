@@ -13,17 +13,17 @@ public class RideApiClient : IRideApiClient
         apiClient = _apiClient;
     }
 
-    public async Task<ApiResponse<string>> CancelRide()
+    public async Task<ApiResponse<string>> CancelRide(string rideId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ApiResponse<string>> GetRideDetails()
+    public async Task<ApiResponse<RideSessionModel>> GetRideDetails(string rideId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ApiResponse<string>> GetRideStatus()
+    public async Task<ApiResponse<RideStatus>> GetRideStatus(string rideId)
     {
         throw new NotImplementedException();
     }
@@ -33,7 +33,7 @@ public class RideApiClient : IRideApiClient
         return await apiClient.PostAsync<RideRequestResponseModel>("api/rides/request", rideRequest);
     }
 
-    public async Task<ApiResponse<string>> TrackRide()
+    public async Task<ApiResponse<Ridebase.Models.Location>> TrackRide(string rideId)
     {
         throw new NotImplementedException();
     }

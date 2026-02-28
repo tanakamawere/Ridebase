@@ -1,13 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ridebase.Models;
-using Ridebase.Pages;
 using Ridebase.Services.Interfaces;
 
 namespace Ridebase.ViewModels.Onboarding;
 
 public partial class OnboardingDriverViewModel : BaseViewModel
 {
+    [ObservableProperty]
+    private string fullName;
+
+    [ObservableProperty]
+    private string phoneNumber;
+
     [ObservableProperty]
     private string carMake;
 
@@ -21,18 +26,27 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     private string licensePlate;
 
     [ObservableProperty]
+    private string driverLicenseNumber;
+
+    [ObservableProperty]
+    private bool isAvailable = true;
+
+    [ObservableProperty]
+    private bool hasActiveSubscription = true;
+
+    [ObservableProperty]
     private string driverLicenseStatus = "No file selected";
 
-    public OnboardingDriverViewModel(IOnboardingApiClient _onboardingApiClient)
+    public OnboardingDriverViewModel(IOnboardingApiClient _onboardingApiClient, IUserSessionService _userSessionService)
     {
         onboardingApiClient = _onboardingApiClient;
+        userSessionService = _userSessionService;
         Title = "Vehicle Details";
     }
 
     [RelayCommand]
     public async Task UploadLicenseAsync()
     {
-        // Placeholder: driver's license upload will be wired to a file/camera picker
         DriverLicenseStatus = "License uploaded (placeholder)";
         await Shell.Current.DisplayAlert("Upload", "Driver's license upload will be available soon.", "OK");
     }
@@ -40,12 +54,15 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     [RelayCommand]
     public async Task CompleteOnboardingAsync()
     {
-        if (string.IsNullOrWhiteSpace(CarMake) ||
+        if (string.IsNullOrWhiteSpace(FullName) ||
+            string.IsNullOrWhiteSpace(PhoneNumber) ||
+            string.IsNullOrWhiteSpace(CarMake) ||
             string.IsNullOrWhiteSpace(CarModel) ||
             string.IsNullOrWhiteSpace(CarYear) ||
-            string.IsNullOrWhiteSpace(LicensePlate))
+            string.IsNullOrWhiteSpace(LicensePlate) ||
+            string.IsNullOrWhiteSpace(DriverLicenseNumber))
         {
-            await Shell.Current.DisplayAlert("Validation", "Please fill in all vehicle details.", "OK");
+            await Shell.Current.DisplayAlert("Validation", "Please fill in all required fields.", "OK");
             return;
         }
 
@@ -54,17 +71,23 @@ public partial class OnboardingDriverViewModel : BaseViewModel
         {
             var carDetails = new CarDetails
             {
+                DriverFullName = FullName,
+                DriverPhoneNumber = PhoneNumber,
                 Make = CarMake,
                 Model = CarModel,
                 Year = CarYear,
-                LicensePlate = LicensePlate
+                LicensePlate = LicensePlate,
+                DriverLicenseNumber = DriverLicenseNumber,
+                IsAvailable = IsAvailable
             };
 
             await onboardingApiClient.SubmitDriverDetailsAsync(carDetails);
+            await userSessionService.SetProfileAsync(FullName, PhoneNumber);
+            await userSessionService.SetRoleAsync(AppUserRole.Driver);
+            await userSessionService.SetOnboardedAsync(true);
+            await userSessionService.SetDriverSubscriptionAsync(HasActiveSubscription);
 
-            // Open the driver shell window and return to the main app
-            Application.Current.OpenWindow(new Window(new DriverShell()));
-            await Shell.Current.GoToAsync("//Home");
+            await Shell.Current.GoToAsync("//DriverHome");
         }
         finally
         {

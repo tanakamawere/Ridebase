@@ -14,10 +14,14 @@ public class RideRoot
 
 public enum RideStatus
 {
-    Pending,
-    InTransit,
-    Done,
+    Requested,
+    SearchingDrivers,
+    OfferCountered,
+    OfferAccepted,
+    DriverEnRoute,
+    DriverArrived,
+    TripStarted,
+    TripCompleted,
     Cancelled,
-    Offer_Accepted,
-    Offer_Rejected
+    OfferRejected
 }

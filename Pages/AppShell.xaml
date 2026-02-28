@@ -3,6 +3,7 @@
     x:Class="Ridebase.Pages.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:driverPages="clr-namespace:Ridebase.Pages.Driver"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
     xmlns:pages="clr-namespace:Ridebase.Pages.Rider"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
@@ -20,7 +21,6 @@
             <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
         </ResourceDictionary>
     </Shell.Resources>
-
 
     <Shell.FlyoutHeader>
         <StackLayout>
@@ -64,8 +64,7 @@
         </StackLayout>
     </Shell.FlyoutHeader>
 
-    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems" FlyoutIcon="{FontImageSource FontFamily=faregular, Glyph={x:Static icons:Fasolid.Message}, Color={AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}}">
-
+    <FlyoutItem IsVisible="{Binding IsRiderMode}">
         <ShellContent
             Title="Home"
             ContentTemplate="{DataTemplate pages:HomePage}"
@@ -75,46 +74,38 @@
                     FontFamily="fasolid"
                     Glyph="{x:Static icons:Fasolid.House}"
                     Size="5"
-                    Color="{AppThemeBinding Dark={StaticResource White},
-                                            Light={StaticResource Primary}}" />
+                    Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}" />
             </ShellContent.Icon>
         </ShellContent>
     </FlyoutItem>
 
-    <!--  Fleet Management Option  -->
-    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
-
-        <ShellContent Title="Fleet Management">
+    <FlyoutItem IsVisible="{Binding IsDriverMode}">
+        <ShellContent
+            Title="Driver Home"
+            ContentTemplate="{DataTemplate driverPages:DriverDashboardPage}"
+            Route="DriverHome">
             <ShellContent.Icon>
                 <FontImageSource
                     FontFamily="fasolid"
                     Glyph="{x:Static icons:Fasolid.Car}"
                     Size="5"
-                    Color="{AppThemeBinding Dark={StaticResource White},
-                                            Light={StaticResource Primary}}" />
+                    Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource Primary}}" />
             </ShellContent.Icon>
         </ShellContent>
+        <ShellContent
+            Title="Driver Stats"
+            ContentTemplate="{DataTemplate driverPages:DriverStatsPage}"
+            Route="DriverStats" />
+        <ShellContent
+            Title="Driver Profile"
+            ContentTemplate="{DataTemplate driverPages:DriverProfilePage}"
+            Route="DriverProfile" />
     </FlyoutItem>
 
-    <!--  Support Option  -->
-    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
-
-        <ShellContent Title="Support">
-            <ShellContent.Icon>
-                <FontImageSource
-                    FontFamily="fasolid"
-                    Glyph="{x:Static icons:Fasolid.Phone}"
-                    Size="5"
-                    Color="{AppThemeBinding Dark={StaticResource White},
-                                            Light={StaticResource Primary}}" />
-            </ShellContent.Icon>
-        </ShellContent>
-    </FlyoutItem>
-
-    <!--  Flyout Footer  -->
     <Shell.FlyoutFooter>
         <VerticalStackLayout Padding="10" Spacing="10">
-            <Button Command="{Binding ChangeToDriverShellAsyncCommand}" Text="Driver mode" />
+            <Button Command="{Binding SwitchToDriverModeAsyncCommand}" Text="Driver mode" />
+            <Button Command="{Binding SwitchToRiderModeAsyncCommand}" Text="Rider mode" />
             <Button
                 BackgroundColor="Red"
                 Command="{Binding LogoutUserCommand}"

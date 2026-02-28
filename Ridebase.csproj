@@ -50,9 +50,17 @@
 	  <None Remove="Resources\Fonts\rubik.ttf" />
 	</ItemGroup>
 
+	<!-- Prevent the SDK glob from pulling test-project sources into the MAUI build -->
+	<ItemGroup>
+	  <Compile Remove="Ridebase.Tests\**" />
+	  <EmbeddedResource Remove="Ridebase.Tests\**" />
+	  <None Remove="Ridebase.Tests\**" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="14.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="DevExpress.Maui.Controls" Version="25.2.4" />
 		<PackageReference Include="DevExpress.Maui.Core" Version="25.2.4" />

@@ -54,6 +54,9 @@ namespace Ridebase
             var configuration = new ConfigurationBuilder().AddJsonStream(stream)
                 .Build();
 
+            var useMockServices = configuration.GetValue<bool>("UseMockServices");
+
+            builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddSingleton(Connectivity.Current);
 
             //HttpClient Registration
@@ -80,6 +83,7 @@ namespace Ridebase
             builder.Services.AddTransient<RideDetailsViewModel>();
             builder.Services.AddSingleton<AppShellViewModel>();
             builder.Services.AddSingleton<RideSelectionViewModel>();
+            builder.Services.AddTransient<RideProgressViewModel>();
 
             //Onboarding ViewModels
             builder.Services.AddTransient<OnboardingProfileViewModel>();
@@ -92,7 +96,7 @@ namespace Ridebase
             builder.Services.AddTransient<RideDetailsPage>();
             builder.Services.AddTransient<RideEndedPage>();
             builder.Services.AddTransient<RideHistoryPage>();
-            builder.Services.AddScoped<RideProgressPage>();
+            builder.Services.AddTransient<RideProgressPage>();
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<RideSelectionPage>();
 
@@ -113,11 +117,36 @@ namespace Ridebase
             builder.Services.AddTransient<DriverRideProgressPage>();
             builder.Services.AddSingleton<DriverStatsPage>();
 
-            builder.Services.AddTransient<AuthHeaderHandler>(); // Inject Custom Handler
-            builder.Services.AddScoped<WebSocketClient>();
-            builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+            builder.Services.AddTransient<AuthHeaderHandler>();
             builder.Services.AddSingleton<IStorageService, StorageService>();
-            builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
+            builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
+            builder.Services.AddSingleton<IUserBootstrapService, MockUserBootstrapService>();
+            builder.Services.AddSingleton<IRideStateStore, RideStateStore>();
+
+            var realtimeTransport = configuration.GetValue<string>("RealtimeTransport") ?? "WebSocket";
+
+            if (useMockServices)
+            {
+                builder.Services.AddSingleton<IRideRealtimeService, MockRideRealtimeService>();
+                builder.Services.AddSingleton<IRideApiClient, MockRideApiClient>();
+                builder.Services.AddSingleton<IOnboardingApiClient, MockOnboardingApiClient>();
+                builder.Services.AddSingleton<IDriverApiClient, MockDriverApiClient>();
+            }
+            else
+            {
+                // Switch between raw WebSocket and SignalR hub via appsettings.json
+                // "RealtimeTransport": "WebSocket"  → WebSocketRideRealtimeService
+                // "RealtimeTransport": "SignalR"    → SignalRRideRealtimeService
+                if (realtimeTransport.Equals("SignalR", StringComparison.OrdinalIgnoreCase))
+                    builder.Services.AddSingleton<IRideRealtimeService, SignalRRideRealtimeService>();
+                else
+                    builder.Services.AddSingleton<IRideRealtimeService, WebSocketRideRealtimeService>();
+
+                builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+                builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
+                builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
+            }
+
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
 #if DEBUG

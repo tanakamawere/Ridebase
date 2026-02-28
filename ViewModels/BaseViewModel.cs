@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Mopups.Interfaces;
 using Ridebase.Models;
+using Ridebase.Models.Ride;
 using Ridebase.Pages;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Services.Interfaces;
@@ -20,18 +21,22 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     string title = string.Empty;
     [ObservableProperty]
-    User ridebaseUser;
+    User? ridebaseUser;
     [ObservableProperty]
-    private string authToken;
+    private string authToken = string.Empty;
     [ObservableProperty]
-    private string userId;
-    //Services
-    public IPopupNavigation popupNavigation;
-    public IRideApiClient rideApiClient;
-    public IStorageService storageService;
-    public Auth0Client authenticationClient;
-    protected ILogger Logger;
-    public IOnboardingApiClient onboardingApiClient;
+    private string userId = string.Empty;
+    //Services — set by derived-class constructors via DI; null! suppresses CS8618
+    public IPopupNavigation popupNavigation = null!;
+    public IRideApiClient rideApiClient = null!;
+    public IStorageService storageService = null!;
+    public Auth0Client authenticationClient = null!;
+    protected ILogger Logger = null!;
+    public IOnboardingApiClient onboardingApiClient = null!;
+    public IUserSessionService userSessionService = null!;
+    public IUserBootstrapService userBootstrapService = null!;
+    public IRideStateStore rideStateStore = null!;
+    public IRideRealtimeService rideRealtimeService = null!;
 
     public BaseViewModel()
     {

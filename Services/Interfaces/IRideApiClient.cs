@@ -9,11 +9,11 @@ public interface IRideApiClient
     //Request ride
     Task<ApiResponse<RideRequestResponseModel>> RequestRide(RideRequestModel rideRequest);
     //Cancel ride
-    Task<ApiResponse<string>> CancelRide();
+    Task<ApiResponse<string>> CancelRide(string rideId);
     //Get ride details
-    Task<ApiResponse<string>> GetRideDetails();
+    Task<ApiResponse<RideSessionModel>> GetRideDetails(string rideId);
     //Get Ride status
-    Task<ApiResponse<string>> GetRideStatus();
+    Task<ApiResponse<RideStatus>> GetRideStatus(string rideId);
     //Track ride of a driver or user
-    Task<ApiResponse<string>> TrackRide();
+    Task<ApiResponse<Ridebase.Models.Location>> TrackRide(string rideId);
 }

@@ -34,7 +34,10 @@
                         FontAttributes="Bold"
                         FontSize="Medium"
                         Text="Trip Status" />
-                    <Button x:Name="TripStatusButton" Text="Start Trip" />
+                    <Label Text="{Binding CurrentStatus}" />
+                    <Button Command="{Binding MarkArrivedCommand}" Text="Arrived" />
+                    <Button Command="{Binding StartTripCommand}" Text="Start Trip" />
+                    <Button Command="{Binding CompleteTripCommand}" Text="Complete Trip" />
                 </StackLayout>
             </Border>
 
@@ -44,8 +47,8 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="Medium"
-                        Text="ETA Updates" />
-                    <Label x:Name="EtaLabel" Text="ETA: Calculating..." />
+                        Text="Rider Contact" />
+                    <Label Text="{Binding RiderPhoneNumber}" />
                 </StackLayout>
             </Border>
 

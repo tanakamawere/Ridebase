@@ -40,6 +40,16 @@
                 SelectedItem="{Binding SelectedCity}"
                 Title="Select your city" />
 
+            <HorizontalStackLayout Spacing="8">
+                <CheckBox IsChecked="{Binding LocationPermissionGranted}" />
+                <Label Text="I allow default location permission for pickups." VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8">
+                <CheckBox IsChecked="{Binding ProfileConfirmed}" />
+                <Label Text="I confirm my profile details are correct." VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
             <Button
                 Margin="0,16,0,0"
                 Command="{Binding ContinueCommand}"

@@ -15,13 +15,24 @@
                 FontAttributes="Bold"
                 FontSize="Title"
                 HorizontalOptions="Center"
-                Text="Vehicle Details" />
+                Text="Driver Setup" />
 
             <Label
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
-                Text="Tell us about the vehicle you'll be driving."
+                Text="Complete your personal, vehicle and license information."
                 TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+            <Label Margin="0,8,0,0" Text="Full Name" />
+            <Entry
+                Placeholder="Enter your full name"
+                Text="{Binding FullName}" />
+
+            <Label Text="Phone Number" />
+            <Entry
+                Keyboard="Telephone"
+                Placeholder="e.g. +263 77 123 4567"
+                Text="{Binding PhoneNumber}" />
 
             <Label Margin="0,8,0,0" Text="Car Make" />
             <Entry
@@ -43,6 +54,21 @@
             <Entry
                 Placeholder="e.g. ABC 1234"
                 Text="{Binding LicensePlate}" />
+
+            <Label Text="Driver License Number" />
+            <Entry
+                Placeholder="e.g. DL-2026-00123"
+                Text="{Binding DriverLicenseNumber}" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Available now" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding IsAvailable}" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Active subscription" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding HasActiveSubscription}" />
+            </HorizontalStackLayout>
 
             <Label
                 Margin="0,8,0,0"

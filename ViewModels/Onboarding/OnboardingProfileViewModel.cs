@@ -17,6 +17,12 @@ public partial class OnboardingProfileViewModel : BaseViewModel
     [ObservableProperty]
     private string selectedCity;
 
+    [ObservableProperty]
+    private bool locationPermissionGranted;
+
+    [ObservableProperty]
+    private bool profileConfirmed;
+
     public List<string> ZimbabweCities { get; } =
     [
         "Harare", "Bulawayo", "Mutare", "Gweru", "Kwekwe", "Kadoma", "Masvingo",
@@ -24,9 +30,10 @@ public partial class OnboardingProfileViewModel : BaseViewModel
         "Beitbridge", "Hwange", "Victoria Falls", "Karoi", "Kariba", "Rusape", "Chiredzi"
     ];
 
-    public OnboardingProfileViewModel(IOnboardingApiClient _onboardingApiClient)
+    public OnboardingProfileViewModel(IOnboardingApiClient _onboardingApiClient, IUserSessionService _userSessionService)
     {
         onboardingApiClient = _onboardingApiClient;
+        userSessionService = _userSessionService;
         Title = "Complete Your Profile";
     }
 
@@ -35,9 +42,11 @@ public partial class OnboardingProfileViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(FullName) ||
             string.IsNullOrWhiteSpace(PhoneNumber) ||
-            string.IsNullOrWhiteSpace(SelectedCity))
+            string.IsNullOrWhiteSpace(SelectedCity) ||
+            !LocationPermissionGranted ||
+            !ProfileConfirmed)
         {
-            await Shell.Current.DisplayAlert("Validation", "Please fill in all fields.", "OK");
+            await Shell.Current.DisplayAlert("Validation", "Please complete all fields and confirmations.", "OK");
             return;
         }
 
@@ -48,10 +57,13 @@ public partial class OnboardingProfileViewModel : BaseViewModel
             {
                 FullName = FullName,
                 PhoneNumber = PhoneNumber,
-                City = SelectedCity
+                City = SelectedCity,
+                DefaultLocationPermissionGranted = LocationPermissionGranted,
+                ProfileConfirmed = ProfileConfirmed
             };
 
             await onboardingApiClient.SubmitProfileAsync(profile);
+            await userSessionService.SetProfileAsync(FullName, PhoneNumber);
             await Shell.Current.GoToAsync(nameof(OnboardingRolePage));
         }
         finally
