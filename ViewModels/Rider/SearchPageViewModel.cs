@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using GoogleApi;
 using GoogleApi.Entities.Places.Common;
 using GoogleApi.Entities.Places.Search.NearBy.Request;
+using Microsoft.Extensions.Logging;
 using Ridebase.Pages;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
@@ -34,14 +35,16 @@ public partial class SearchPageViewModel : BaseViewModel
 
     private readonly GooglePlaces.Search.NearBySearchApi nearBySearchApi;
 
-    public SearchPageViewModel(GooglePlaces.Search.NearBySearchApi _googlePlaces)
+    public SearchPageViewModel(GooglePlaces.Search.NearBySearchApi _googlePlaces, ILogger<SearchPageViewModel> logger)
     {
         Title = "Search";
+        Logger = logger;
         nearBySearchApi = _googlePlaces;
     }
 
     public async Task SearchPlaces(string keyword)
     {
+        Logger.LogInformation("Searching for places with keyword: {Keyword}", keyword);
         IsBusy = true;
         Places.Clear();
         try
@@ -60,14 +63,20 @@ public partial class SearchPageViewModel : BaseViewModel
 
             if (nearbySearchResponse.Status.Equals(GoogleApi.Entities.Common.Enums.Status.Ok))
             {
+                Logger.LogInformation("Found {Count} places for keyword: {Keyword}", nearbySearchResponse.Results.Count(), keyword);
                 foreach (var item in nearbySearchResponse.Results)
                 {
                     Places.Add(item);
                 }
             }
+            else
+            {
+                Logger.LogWarning("Places search returned status: {Status}, Error: {ErrorMessage}", nearbySearchResponse.Status, nearbySearchResponse.ErrorMessage);
+            }
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Error searching for places with keyword: {Keyword}", keyword);
             //Display error message
             await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
         }
@@ -119,19 +128,27 @@ public partial class SearchPageViewModel : BaseViewModel
     //Method to select the location from the collection view
     public async void SelectPlace(PlaceResult place)
     {
-        if (place == null) return;
+        if (place == null)
+        {
+            Logger.LogWarning("SelectPlace called with null place");
+            return;
+        }
+
+        Logger.LogInformation("Place selected: {PlaceName}, Type: {LocationType}", place.Name, locationType);
 
         switch (locationType)
         {
             case LocationType.Start:
                 StartPlace = place;
                 StartSearchQuery = place.Name;
+                Logger.LogInformation("Start location set to: {PlaceName}", place.Name);
                 break;
 
             case LocationType.Destination:
 
                 DestinationPlace = place;
                 DestinationSearchQuery = place.Name;
+                Logger.LogInformation("Destination location set to: {PlaceName}", place.Name);
                 //meaning if the user has already selected the start location
                 if (!StartPlace.Equals(null))
                 {
@@ -154,9 +171,12 @@ public partial class SearchPageViewModel : BaseViewModel
     {
         if (StartPlace == null || DestinationPlace == null)
         {
+            Logger.LogWarning("Cannot navigate to RideDetailsPage: StartPlace or DestinationPlace is null");
             await AppShell.Current.DisplayAlert("Error", "Please select both start and destination locations", "OK");
             return;
         }
+
+        Logger.LogInformation("Navigating to RideDetailsPage with Start: {StartPlace} and Destination: {DestinationPlace}", StartPlace.Name, DestinationPlace.Name);
         await Shell.Current.GoToAsync(nameof(RideDetailsPage), true, new Dictionary<string, object>
         {
             {"startPlace", StartPlace },

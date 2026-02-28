@@ -29,6 +29,7 @@ namespace Ridebase
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseDevExpress()
+                .UseDevExpressControls()
                 .UseMPowerKitGoogleMaps(
 #if IOS
                     "AIzaSyC9E6Ot4Ui240f88-BGAzUFM-IhPEzT98Y"
@@ -102,7 +103,6 @@ namespace Ridebase
 
             builder.Services.AddTransient<AuthHeaderHandler>(); // Inject Custom Handler
             builder.Services.AddScoped<WebSocketClient>();
-            builder.Services.AddTransient<IAuthenticationClient, AuthenticationApiClient>();
             builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
             builder.Services.AddSingleton<IStorageService, StorageService>();
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);

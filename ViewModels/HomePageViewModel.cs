@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using DevExpress.Xpo.DB;
 using GoogleApi;
+using Microsoft.Extensions.Logging;
 using Mopups.Interfaces;
 using MPowerKit.GoogleMaps;
 using Ridebase.Helpers;
@@ -25,9 +26,10 @@ public partial class HomePageViewModel : BaseViewModel
     private Func<CameraUpdate, int, Task> _animateCameraFunc;
     private readonly GoogleMaps.Geocode.LocationGeocodeApi geolocationGoogle;
 
-    public HomePageViewModel(IPopupNavigation navigation, GoogleMaps.Geocode.LocationGeocodeApi locationGeocodeApi, IStorageService _storage)
+    public HomePageViewModel(IPopupNavigation navigation, GoogleMaps.Geocode.LocationGeocodeApi locationGeocodeApi, IStorageService _storage, ILogger<HomePageViewModel> logger)
     {
         Title = "Map Page";
+        Logger = logger;
         geolocationGoogle = locationGeocodeApi;
         popupNavigation = navigation;
         storageService = _storage;
@@ -40,10 +42,13 @@ public partial class HomePageViewModel : BaseViewModel
     {
         try
         {
+            Logger.LogInformation("Getting current location");
             IsBusy = true;
 
             LocationService locationService = new LocationService();
             Location location = await locationService.GetCurrentLocationAsync();
+
+            Logger.LogInformation("Location retrieved: Latitude={Latitude}, Longitude={Longitude}", location.Latitude, location.Longitude);
 
             var response = await geolocationGoogle.QueryAsync(new GoogleApi.Entities.Maps.Geocoding.Location.Request.LocationGeocodeRequest
             {
@@ -66,6 +71,8 @@ public partial class HomePageViewModel : BaseViewModel
                     FormattedAddress = firstResult.FormattedAddress
                 };
 
+                Logger.LogInformation("Current location set: {FormattedAddress}", CurrentLocation.FormattedAddress);
+
                 var cameraUpdate = CameraUpdateFactory.NewLatLngZoom(new(CurrentLocation.Location.latitude, CurrentLocation.Location.longitude), 15);
 
                 await MoveCamera(cameraUpdate);
@@ -73,7 +80,8 @@ public partial class HomePageViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            throw ex;
+            Logger.LogError(ex, "Error getting current location");
+            throw;
         }
         finally
         {
@@ -91,21 +99,32 @@ public partial class HomePageViewModel : BaseViewModel
     public async Task GoToSearchPage()
     {
         if (IsBusy)
+        {
+            Logger.LogWarning("GoToSearchPage called while busy");
             return;
+        }
+
+        Logger.LogInformation("Navigating to search page");
 
         //If user is not logged in, redirect to Auth0
         if (!await storageService.IsLoggedInAsync())
         {
+            Logger.LogWarning("User not logged in, showing login prompt");
             await App.Current.MainPage.DisplayAlert("Log in", "First login in the sidebar", "Ok");
             return;
         }
 
         if (CurrentLocation is not null)
         {
+            Logger.LogInformation("Navigating to SearchPage with current location");
             await Shell.Current.GoToAsync(nameof(SearchPage), true, new Dictionary<string, object>
             {
                 {"currentLocation", CurrentLocation }
             });
+        }
+        else
+        {
+            Logger.LogWarning("Current location is null, cannot navigate to SearchPage");
         }
     }
 }

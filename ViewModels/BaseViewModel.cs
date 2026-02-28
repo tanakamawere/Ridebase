@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Auth0.OidcClient;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Mopups.Interfaces;
 using Ridebase.Models;
 using Ridebase.Pages;
@@ -26,8 +28,8 @@ public partial class BaseViewModel : ObservableObject
     public IPopupNavigation popupNavigation;
     public IRideApiClient rideApiClient;
     public IStorageService storageService;
-    public IAuthenticationClient authenticationClient;
-
+    public Auth0Client authenticationClient;
+    protected ILogger Logger;
     public BaseViewModel()
     {
         CheckAuthenticationState();
@@ -37,57 +39,53 @@ public partial class BaseViewModel : ObservableObject
     [RelayCommand]
     public async Task Login()
     {
-        var loginResult = await authenticationClient.LoginAsync();
-
-        //If login is successful
-        if (loginResult.IsSuccess)
+        Logger?.LogInformation("Starting login process");
+        // Use Auth0 
+        try
         {
-            try
+            var loginResult = await authenticationClient.LoginAsync();
+            if (loginResult.IsError)
             {
-                //Set the user details
-                RidebaseUser = new User
+                Logger?.LogWarning("Login failed: {ErrorDescription}", loginResult.ErrorDescription);
+                // Handle login error (e.g., show an error message) using the inbuilt shell
+                await Application.Current.MainPage.DisplayAlert("Login Failed", loginResult.ErrorDescription, "OK");
+            }
+            else
+            {
+                Logger?.LogInformation("Login successful for user");
+                // Store the token and user information securely
+                await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
+                await SecureStorage.SetAsync("userId", loginResult.User.FindFirst(c => c.Type == "sub")?.Value ?? string.Empty);
+                if (loginResult.RefreshToken != null)
                 {
-                    UserId = loginResult.Data.User.FindFirst("sub")?.Value,
-                    UserName = loginResult.Data.User.FindFirst("name")?.Value,
-                    Email = loginResult.Data.User.FindFirst("email")?.Value,
-                    ImageUrl = loginResult.Data.User.FindFirst("picture")?.Value,
-                    AccessToken = loginResult.Data.AccessToken
-                };
-
-                Console.WriteLine($"Print JWT: {loginResult.Data.AccessToken}");
-                Console.WriteLine($"Print JWT Expiration: {loginResult.Data.AccessTokenExpiration}");
-
-                //Save access token locally & rider id
-                await SecureStorage.SetAsync("auth_token", loginResult.Data.AccessToken);
-                await SecureStorage.SetAsync("userId", RidebaseUser.UserId);
-
-                //Send access token to server
-                var response = await authenticationClient.GetUserInfo(loginResult.Data.AccessToken);
+                    await SecureStorage.SetAsync("refresh_token", loginResult.RefreshToken);
+                }
 
                 IsLoggedIn = true;
             }
-            catch (Exception ex)
-            {
-                await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
-            }
         }
-        else
+        catch (Exception ex)
         {
-            await AppShell.Current.DisplayAlert("Error", loginResult.ErrorMessage, "OK");
+            Logger?.LogError(ex, "Error during login process");
+            // Handle exceptions (e.g., network issues) using the inbuilt shell
+            await Application.Current.MainPage.DisplayAlert("Login Error", ex.Message, "OK");
         }
     }
 
     private async void CheckAuthenticationState()
     {
+        Logger?.LogInformation("Checking authentication state");
         var token = await SecureStorage.GetAsync("auth_token");
 
         if (string.IsNullOrEmpty(token) || IsTokenExpired(token))
         {
+            Logger?.LogInformation("Token is invalid or expired, clearing storage");
             // Token is invalid or expired, clear storage
             ClearStorage();
         }
         else
         {
+            Logger?.LogInformation("User is authenticated");
             IsLoggedIn = true;
         }
     }
@@ -104,9 +102,18 @@ public partial class BaseViewModel : ObservableObject
     [RelayCommand]
     public async Task LogoutUser()
     {
-        await authenticationClient.LogoutAsync();
-
-        ClearStorage();
+        Logger?.LogInformation("Starting logout process");
+        try
+        {
+            await authenticationClient.LogoutAsync();
+            Logger?.LogInformation("Logout successful");
+            ClearStorage();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error during logout");
+            throw;
+        }
     }
 
     public void ClearStorage()
