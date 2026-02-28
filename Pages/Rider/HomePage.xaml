@@ -51,6 +51,7 @@
 
             <!--  Floating Hamburger (Idle only)  -->
             <Border
+                x:Name="FloatingHamburger"
                 Margin="20,52,0,0"
                 HeightRequest="48"
                 HorizontalOptions="Start"
@@ -80,6 +81,7 @@
 
             <!--  Top Search Bar (Idle only)  -->
             <Border
+                x:Name="FloatingSearchBar"
                 Padding="16,12"
                 Margin="76,52,20,0"
                 BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
@@ -162,6 +164,7 @@
                 <!--  STATE: IDLE                              -->
                 <!--  ═══════════════════════════════════════  -->
                 <VerticalStackLayout
+                    x:Name="IdleContent"
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
                     Spacing="20">
 
@@ -209,16 +212,16 @@
                         <Label
                             Grid.Row="0"
                             Grid.Column="1"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            Text="Your Location"
-                            TextColor="{AppThemeBinding Light={StaticResource Gray500},
-                                                        Dark={StaticResource Gray400}}"
+                            FontSize="12"
+                            Text="YOUR LOCATION"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400},
+                                                        Dark={StaticResource Gray500}}"
                             VerticalOptions="End" />
 
                         <Label
                             Grid.Row="1"
                             Grid.Column="1"
+                            FontAttributes="Bold"
                             FontSize="16"
                             LineBreakMode="TailTruncation"
                             MaxLines="2"
@@ -249,6 +252,7 @@
                 <!--  STATE: PICKING DESTINATION               -->
                 <!--  ═══════════════════════════════════════  -->
                 <VerticalStackLayout
+                    x:Name="PickingDestinationContent"
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=PickingDestination}"
                     Spacing="16">
 
@@ -326,7 +330,7 @@
                         <BoxView
                             Grid.Row="1"
                             Grid.Column="1"
-                            HeightRequest="8"
+                            HeightRequest="1"
                             Color="Transparent" />
 
                         <!--  Destination dot (primary)  -->
@@ -467,6 +471,7 @@
                 <!--  STATE: ROUTE PREVIEW                     -->
                 <!--  ═══════════════════════════════════════  -->
                 <VerticalStackLayout
+                    x:Name="RoutePreviewContent"
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=RoutePreview}"
                     Spacing="20">
 
@@ -664,6 +669,7 @@
                 <!--  STATE: FINDING DRIVER                    -->
                 <!--  ═══════════════════════════════════════  -->
                 <VerticalStackLayout
+                    x:Name="FindingDriverContent"
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=FindingDriver}"
                     Spacing="20">
 

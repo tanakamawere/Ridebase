@@ -34,6 +34,21 @@ public partial class HomePageViewModel : BaseViewModel
     [ObservableProperty]
     private Func<CameraUpdate, int, Task>? _animateCameraFunc;
 
+    /// <summary>
+    /// When the map control binds AnimateCameraFunc, if we already have a
+    /// location, immediately animate the camera there.
+    /// </summary>
+    partial void OnAnimateCameraFuncChanged(Func<CameraUpdate, int, Task>? value)
+    {
+        if (value is not null && CurrentLocation is not null)
+        {
+            _ = AnimateToLocation(
+                CurrentLocation.Location.latitude,
+                CurrentLocation.Location.longitude,
+                15);
+        }
+    }
+
     // ─── Pickup location (editable, defaults to GPS) ─────────────
     [ObservableProperty]
     private LocationWithAddress? pickupLocation;
@@ -182,7 +197,7 @@ public partial class HomePageViewModel : BaseViewModel
         }
     }
 
-    private void SetFallbackLocation()
+    private async void SetFallbackLocation()
     {
         if (!_useMockServices) return;
 
@@ -192,6 +207,8 @@ public partial class HomePageViewModel : BaseViewModel
             Location = new Models.Location { latitude = -17.8292, longitude = 31.0522 },
             FormattedAddress = "Harare, Zimbabwe (Mock)"
         };
+
+        await AnimateToLocation(-17.8292, 31.0522, 15);
     }
 
     // ═════════════════════════════════════════════════════════════
