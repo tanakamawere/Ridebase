@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Onboarding.OnboardingProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
+    Title="{Binding Title}"
+    x:DataType="vm:OnboardingProfileViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+
+            <Label
+                FontAttributes="Bold"
+                FontSize="Title"
+                HorizontalOptions="Center"
+                Text="Tell us about yourself" />
+
+            <Label
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="We need a few details to get you started."
+                TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+            <Label Margin="0,8,0,0" Text="Full Name" />
+            <Entry
+                Placeholder="Enter your full name"
+                Text="{Binding FullName}" />
+
+            <Label Text="Phone Number" />
+            <Entry
+                Keyboard="Telephone"
+                Placeholder="e.g. +263 77 123 4567"
+                Text="{Binding PhoneNumber}" />
+
+            <Label Text="City" />
+            <Picker
+                ItemsSource="{Binding ZimbabweCities}"
+                SelectedItem="{Binding SelectedCity}"
+                Title="Select your city" />
+
+            <Button
+                Margin="0,16,0,0"
+                Command="{Binding ContinueCommand}"
+                IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                Text="Continue" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

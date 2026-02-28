@@ -10,8 +10,11 @@ namespace Ridebase.ViewModels;
 
 public partial class AppShellViewModel: BaseViewModel
 {
+    public AppShellViewModel(Auth0Client client, IAuthenticationClient _authClient, IOnboardingApiClient _onboardingApiClient)
     public AppShellViewModel(Auth0Client authenticationClient, ILogger<AppShellViewModel> logger)
     {
+        authenticationClient = _authClient;
+        onboardingApiClient = _onboardingApiClient;
         Logger = logger;
         this.authenticationClient = authenticationClient;
     }

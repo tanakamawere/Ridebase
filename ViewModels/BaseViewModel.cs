@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Mopups.Interfaces;
 using Ridebase.Models;
 using Ridebase.Pages;
+using Ridebase.Pages.Onboarding;
 using Ridebase.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -30,6 +31,9 @@ public partial class BaseViewModel : ObservableObject
     public IStorageService storageService;
     public Auth0Client authenticationClient;
     protected ILogger Logger;
+    public IAuthenticationClient authenticationClient;
+    public IOnboardingApiClient onboardingApiClient;
+
     public BaseViewModel()
     {
         CheckAuthenticationState();
@@ -62,6 +66,16 @@ public partial class BaseViewModel : ObservableObject
                 }
 
                 IsLoggedIn = true;
+
+                // Check if the user has completed onboarding
+                if (onboardingApiClient != null)
+                {
+                    var onboardingStatus = await onboardingApiClient.CheckOnboardingStatusAsync(RidebaseUser.UserId);
+                    if (!onboardingStatus.IsSuccess || !onboardingStatus.Data)
+                    {
+                        await Shell.Current.GoToAsync(nameof(OnboardingProfilePage));
+                    }
+                }
             }
         }
         catch (Exception ex)

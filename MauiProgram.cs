@@ -5,10 +5,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using MPowerKit.GoogleMaps;
+using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
 using Ridebase.Services.RestService;
 using Ridebase.ViewModels;
+using Ridebase.ViewModels.Onboarding;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
 using GoogleApi;
@@ -79,6 +81,11 @@ namespace Ridebase
             builder.Services.AddSingleton<AppShellViewModel>();
             builder.Services.AddSingleton<RideSelectionViewModel>();
 
+            //Onboarding ViewModels
+            builder.Services.AddTransient<OnboardingProfileViewModel>();
+            builder.Services.AddTransient<OnboardingRoleViewModel>();
+            builder.Services.AddTransient<OnboardingDriverViewModel>();
+
             //Rider Pages registration
             builder.Services.AddSingleton<HomePage>();
             builder.Services.AddTransient<SearchPage>();
@@ -88,6 +95,11 @@ namespace Ridebase
             builder.Services.AddScoped<RideProgressPage>();
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<RideSelectionPage>();
+
+            //Onboarding Pages
+            builder.Services.AddTransient<OnboardingProfilePage>();
+            builder.Services.AddTransient<OnboardingRolePage>();
+            builder.Services.AddTransient<OnboardingDriverPage>();
 
             //DRIVER'S SIDE
             builder.Services.AddSingleton<DriverDashboardViewModel>();
@@ -105,6 +117,7 @@ namespace Ridebase
             builder.Services.AddScoped<WebSocketClient>();
             builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
             builder.Services.AddSingleton<IStorageService, StorageService>();
+            builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
 #if DEBUG
