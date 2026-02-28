@@ -1,4 +1,5 @@
-﻿using Ridebase.Pages.Rider;
+﻿using Ridebase.Pages.Onboarding;
+using Ridebase.Pages.Rider;
 using Ridebase.ViewModels;
 
 namespace Ridebase.Pages
@@ -19,6 +20,11 @@ namespace Ridebase.Pages
             Routing.RegisterRoute(nameof(RideProgressPage), typeof(RideProgressPage));
             Routing.RegisterRoute(nameof(SearchPage), typeof(SearchPage));
             Routing.RegisterRoute(nameof(RideSelectionPage), typeof(RideSelectionPage));
+
+            // Onboarding routes
+            Routing.RegisterRoute(nameof(OnboardingProfilePage), typeof(OnboardingProfilePage));
+            Routing.RegisterRoute(nameof(OnboardingRolePage), typeof(OnboardingRolePage));
+            Routing.RegisterRoute(nameof(OnboardingDriverPage), typeof(OnboardingDriverPage));
         }
     }
 }

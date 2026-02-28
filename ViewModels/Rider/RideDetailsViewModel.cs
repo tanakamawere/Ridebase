@@ -4,6 +4,7 @@ using GoogleApi;
 using GoogleApi.Entities.Common;
 using GoogleApi.Entities.Maps.Common;
 using GoogleApi.Entities.Places.Common;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 using MPowerKit.GoogleMaps;
 using Ridebase.Helpers;
@@ -42,9 +43,11 @@ public partial class RideDetailsViewModel : BaseViewModel
 
     public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi
                             , IRideApiClient _rideService
-                            , IStorageService storage)
+                            , IStorageService storage
+                            , ILogger<RideDetailsViewModel> logger)
     {
         Title = "Ride Details";
+        Logger = logger;
         directionsApi = _routesDirectionsApi;
         rideApiClient = _rideService;
         storageService = storage;
@@ -53,6 +56,7 @@ public partial class RideDetailsViewModel : BaseViewModel
     [RelayCommand]
     public async Task GetDirectionsAsync()
     {
+        Logger.LogInformation("Getting directions from {Start} to {Destination}", StartPlace?.Name, DestinationPlace?.Name);
         IsBusy = true;
         try
         {
@@ -71,13 +75,17 @@ public partial class RideDetailsViewModel : BaseViewModel
             {
                 var response = routesDirectionsApiResponse.Routes.FirstOrDefault();
 
-
+                Logger.LogInformation("Directions retrieved successfully, drawing route on map");
                 await DrawRouteAndZoomAsync(response.OverviewPath.Line, response.Bounds);
             }
+            else
+            {
+                Logger.LogWarning("Directions API returned status: {Status}", routesDirectionsApiResponse.Status);
+            }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            Logger.LogError(ex, "Error getting directions");
             throw;
         }
         finally
@@ -126,6 +134,7 @@ public partial class RideDetailsViewModel : BaseViewModel
     [RelayCommand]
     public async Task FindDriverAsync()
     {
+        Logger.LogInformation("Starting driver search");
         IsBusy = true;
         //if (!await storageService.IsLoggedInAsync())
         //{
@@ -144,21 +153,29 @@ public partial class RideDetailsViewModel : BaseViewModel
             Comments = "Nothing entered"
         };
 
+        Logger.LogInformation("Ride request created with ID: {RideId}", rideRequest.RideGuid);
+
         try
         {
             var response = await rideApiClient.RequestRide(rideRequest);
 
             if (response.IsSuccess)
             {
+                Logger.LogInformation("Ride request successful, navigating to ride selection page");
                 //TODO: open popup for driver found
                 await Shell.Current.GoToAsync(nameof(RideSelectionPage), true, new Dictionary<string, object> 
                 {
                     {"rideRequest", rideRequest }
                 });
             }
+            else
+            {
+                Logger.LogWarning("Ride request failed: {ErrorMessage}", response.ErrorMessage);
+            }
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Error requesting ride");
             // Display alert
             await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
         }

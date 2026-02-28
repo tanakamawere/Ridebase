@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Ridebase.Models;
 using Ridebase.Models.Ride;
 using Ridebase.Services.ApiClients;
@@ -18,8 +19,9 @@ public partial class RideSelectionViewModel : BaseViewModel
     [ObservableProperty]
     private RideRequestModel rideRequest;
 
-    public RideSelectionViewModel(WebSocketClient webSocket)
+    public RideSelectionViewModel(WebSocketClient webSocket, ILogger<RideSelectionViewModel> logger)
     {
+        Logger = logger;
         webSocketClient = webSocket;
         DriversList = new ObservableCollection<DriverOfferSelectionModel>();
 
@@ -32,17 +34,20 @@ public partial class RideSelectionViewModel : BaseViewModel
 
     private async void ConnectWebSocket()
     {
+        Logger.LogInformation("Connecting to WebSocket for ride selection");
         IsBusy = true;
 
         try
         {
             var uri = new Uri("ws://ridebase.app/ws/connect_rider?location=" + JsonSerializer.Serialize(RideRequest.StartLocation));
 
+            Logger.LogInformation("WebSocket URI: {Uri}", uri);
             await webSocketClient.ConnectAsync(uri);
+            Logger.LogInformation("WebSocket connected successfully");
         }
         catch (Exception ex)
         {
-            // Log error
+            Logger.LogError(ex, "Error connecting to WebSocket");
         }
         finally
         {
@@ -52,30 +57,49 @@ public partial class RideSelectionViewModel : BaseViewModel
 
     private void WebSocketClient_OnConnected()
     {
-        // Handle WebSocket connected event if needed
+        Logger.LogInformation("WebSocket connection established");
     }
 
     private void WebSocketClient_OnDisconnected()
     {
-        // Handle WebSocket disconnected event if needed
+        Logger.LogInformation("WebSocket disconnected");
     }
 
     private void HandleWebSocketMessage(string message)
     {
-        var driver = JsonSerializer.Deserialize<DriverOfferSelectionModel>(message);
-        if (driver != null)
+        Logger.LogInformation("Received WebSocket message: {Message}", message);
+        try
         {
-            // Update the Drivers collection on the UI thread
-            App.Current.Dispatcher.Dispatch(() => {
-                DriversList.Add(driver);
-            });
+            var driver = JsonSerializer.Deserialize<DriverOfferSelectionModel>(message);
+            if (driver != null)
+            {
+                Logger.LogInformation("Driver offer received: DriverId={DriverId}, OfferAmount={OfferAmount}", driver.Driver?.DriverId, driver.OfferAmount);
+                // Update the Drivers collection on the UI thread
+                App.Current.Dispatcher.Dispatch(() => {
+                    DriversList.Add(driver);
+                });
+            }
+            else
+            {
+                Logger.LogWarning("Failed to deserialize driver offer from message");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error handling WebSocket message");
         }
     }
 
     [RelayCommand]
     public async void SelectDriver(DriverOfferSelectionModel driver)
     {
-        if (driver == null) return;
+        if (driver == null)
+        {
+            Logger.LogWarning("SelectDriver called with null driver");
+            return;
+        }
+
+        Logger.LogInformation("Driver selected: DriverId={DriverId}, OfferAmount={OfferAmount}", driver.Driver?.DriverId, driver.OfferAmount);
 
         //Create Driver Accept Request Object
         var driverAcceptRequest = new RideAcceptRequest
@@ -89,7 +113,16 @@ public partial class RideSelectionViewModel : BaseViewModel
             DestinationLocation = RideRequest.DestinationLocation
         };
 
-        //Send message to API
-        await webSocketClient.SendMessageAsync(driverAcceptRequest);
+        try
+        {
+            //Send message to API
+            Logger.LogInformation("Sending driver accept request via WebSocket");
+            await webSocketClient.SendMessageAsync(driverAcceptRequest);
+            Logger.LogInformation("Driver accept request sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error sending driver accept request");
+        }
     }
 }

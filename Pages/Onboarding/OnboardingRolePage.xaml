@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Onboarding.OnboardingRolePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
+    Title="{Binding Title}"
+    x:DataType="vm:OnboardingRoleViewModel">
+
+    <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="Center">
+
+        <Label
+            FontAttributes="Bold"
+            FontSize="Title"
+            HorizontalOptions="Center"
+            Text="How will you use Ridebase?" />
+
+        <Label
+            HorizontalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Text="Choose the role that best describes you. You can always switch later."
+            TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+        <Border Padding="20" StrokeShape="RoundRectangle 12">
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="Medium"
+                    HorizontalOptions="Center"
+                    Text="&#xf4d8;  Rider" />
+                <Label
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    Text="Book rides and get to your destination quickly and safely." />
+                <Button
+                    Command="{Binding ChooseRiderCommand}"
+                    Text="I'm a Rider" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Border Padding="20" StrokeShape="RoundRectangle 12">
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="Medium"
+                    HorizontalOptions="Center"
+                    Text="&#xf5e4;  Driver" />
+                <Label
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    Text="Earn money by giving rides on your own schedule." />
+                <Button
+                    Command="{Binding ChooseDriverCommand}"
+                    Text="I'm a Driver" />
+            </VerticalStackLayout>
+        </Border>
+
+    </VerticalStackLayout>
+
+</ContentPage>

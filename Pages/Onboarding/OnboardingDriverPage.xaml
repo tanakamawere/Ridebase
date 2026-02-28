@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Onboarding.OnboardingDriverPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
+    Title="{Binding Title}"
+    x:DataType="vm:OnboardingDriverViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+
+            <Label
+                FontAttributes="Bold"
+                FontSize="Title"
+                HorizontalOptions="Center"
+                Text="Vehicle Details" />
+
+            <Label
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Tell us about the vehicle you'll be driving."
+                TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+            <Label Margin="0,8,0,0" Text="Car Make" />
+            <Entry
+                Placeholder="e.g. Toyota"
+                Text="{Binding CarMake}" />
+
+            <Label Text="Car Model" />
+            <Entry
+                Placeholder="e.g. Corolla"
+                Text="{Binding CarModel}" />
+
+            <Label Text="Year" />
+            <Entry
+                Keyboard="Numeric"
+                Placeholder="e.g. 2020"
+                Text="{Binding CarYear}" />
+
+            <Label Text="License Plate" />
+            <Entry
+                Placeholder="e.g. ABC 1234"
+                Text="{Binding LicensePlate}" />
+
+            <Label
+                Margin="0,8,0,0"
+                FontAttributes="Bold"
+                Text="Driver's License" />
+
+            <Border Padding="16" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding DriverLicenseStatus}"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <Button
+                        Command="{Binding UploadLicenseCommand}"
+                        Text="Upload Driver's License" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button
+                Margin="0,16,0,0"
+                Command="{Binding CompleteOnboardingCommand}"
+                IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                Text="Complete Setup" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
