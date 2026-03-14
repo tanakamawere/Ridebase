@@ -46,7 +46,7 @@
                 InitialCameraPosition="{Binding InitialCameraPosition}"
                 MoveCameraAction="{Binding MoveCameraAction, Mode=OneWayToSource}"
                 MyLocationButtonEnabled="True"
-                MyLocationEnabled="True"
+                MyLocationEnabled="{Binding LocationPermissionGranted}"
                 Polylines="{Binding Polylines}" />
 
             <!--  Floating Hamburger (Idle only)  -->

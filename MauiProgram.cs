@@ -13,12 +13,12 @@ using Ridebase.ViewModels;
 using Ridebase.ViewModels.Onboarding;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
-using GoogleApi;
 using GoogleApi.Extensions;
 using Ridebase.ViewModels.Driver;
 using Ridebase.Pages.Driver;
 using Ridebase.Services.Interfaces;
 using Ridebase.Services.ApiClients;
+using Duende.IdentityModel.OidcClient;
 
 namespace Ridebase
 {
@@ -153,12 +153,14 @@ namespace Ridebase
             builder.Logging.AddDebug();
 #endif
 
-            builder.Services.AddSingleton(new Auth0Client(new()
+            builder.Services.AddSingleton(new OidcClient(new()
             {
-                Domain = configuration["Auth0:Domain"],
-                ClientId = configuration["Auth0:ClientId"],
-                Scope = configuration["Auth0:Scopes"],
-                RedirectUri = configuration["Auth0:RedirectUri"],
+                Authority = configuration["Auth:Authority"],
+                ClientId = configuration["Auth:ClientId"],
+                Scope = configuration["Auth:Scopes"],
+                RedirectUri = configuration["Auth:RedirectUri"],
+
+                Browser = new MauiAuthenticationBrowser()
             }));
 
             return builder.Build();

@@ -1,4 +1,4 @@
-﻿namespace Ridebase.Services;
+﻿    namespace Ridebase.Services;
 
 public class LocationService
 {
@@ -9,6 +9,14 @@ public class LocationService
     {
         try
         {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                if (status != PermissionStatus.Granted)
+                    return null;
+            }
+
             // Request location with high accuracy
             _isCheckingLocation = true;
 

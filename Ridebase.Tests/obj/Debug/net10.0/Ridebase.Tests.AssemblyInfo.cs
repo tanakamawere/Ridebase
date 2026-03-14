@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ridebase.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+59c064eb37183b0d1f3075d8bb93612e4e932549")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+458964c4e67e658363c856875b89a5ad9aae67bf")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ridebase.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ridebase.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

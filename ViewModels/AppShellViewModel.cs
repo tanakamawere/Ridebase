@@ -1,6 +1,7 @@
 ﻿using Auth0.OidcClient;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;
 using Ridebase.Models;
 using Ridebase.Pages;
@@ -26,7 +27,7 @@ public partial class AppShellViewModel : BaseViewModel
     private string currentModeLabel = "Rider";
 
     public AppShellViewModel(
-        Auth0Client authClient,
+        OidcClient authClient,
         ILogger<AppShellViewModel> logger,
         IOnboardingApiClient _onboardingApiClient,
         IUserSessionService _userSessionService,

@@ -145,6 +145,9 @@ public partial class HomePageViewModel : BaseViewModel
     //  LOCATION
     // ═════════════════════════════════════════════════════════════
 
+    [ObservableProperty]
+    private bool locationPermissionGranted;
+
     public async Task GetCurrentLocation()
     {
         try
@@ -154,6 +157,8 @@ public partial class HomePageViewModel : BaseViewModel
 
             var locationService = new LocationService();
             var location = await locationService.GetCurrentLocationAsync();
+
+            LocationPermissionGranted = location != null;
 
             if (location is null)
             {
