@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using GoogleApi;
 using GoogleApi.Entities.Common;
 using GoogleApi.Entities.Maps.Common;
+using GoogleApi.Entities.Maps.Geocoding.Location.Request;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
@@ -103,7 +104,6 @@ public partial class HomePageViewModel : BaseViewModel
     private readonly GoogleMaps.Geocode.AddressGeocodeApi _addressGeocodeApi;
     private readonly GooglePlaces.AutoCompleteApi _autoCompleteApi;
     private readonly GoogleMaps.DirectionsApi _directionsApi;
-    private readonly bool _useMockServices;
     private CancellationTokenSource? _searchCts;
     private string? _pendingRideId;
 
@@ -136,8 +136,6 @@ public partial class HomePageViewModel : BaseViewModel
         rideStateStore = rideStore;
         userSessionService = userSession;
 
-        _useMockServices = configuration.GetValue<bool>("UseMockServices");
-
         GetCurrentLocation();
     }
 
@@ -163,18 +161,25 @@ public partial class HomePageViewModel : BaseViewModel
             if (location is null)
             {
                 Logger.LogWarning("Geolocation returned null");
-                SetFallbackLocation();
                 return;
             }
 
             Logger.LogInformation("Location: {Lat}, {Lng}", location.Latitude, location.Longitude);
 
-            var response = await _geocodeApi.QueryAsync(
-                new GoogleApi.Entities.Maps.Geocoding.Location.Request.LocationGeocodeRequest
-                {
-                    Location = new GoogleApi.Entities.Common.Coordinate(location.Latitude, location.Longitude),
-                    Key = Constants.googleMapsApiKey
-                });
+
+            var locationGeocodeRequest = new LocationGeocodeRequest
+            {
+                Location = new GoogleApi.Entities.Common.Coordinate(location.Latitude, location.Longitude),
+                Key = Constants.googleMapsApiKey
+            };
+
+            var response = await _geocodeApi.QueryAsync(locationGeocodeRequest);
+
+            if (response.Status != GoogleApi.Entities.Common.Enums.Status.Ok)
+            {
+                Logger.LogWarning("Location geocode response was null");
+                return;
+            }
 
             var firstResult = response?.Results?.FirstOrDefault();
 
@@ -194,26 +199,13 @@ public partial class HomePageViewModel : BaseViewModel
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error getting current location");
-            SetFallbackLocation();
+            // Alert user of failure to get location
+            await Shell.Current.DisplayAlertAsync("Location Error", "Unable to get current location. Please ensure location services are enabled and try again.", "OK");
         }
         finally
         {
             IsBusy = false;
         }
-    }
-
-    private async void SetFallbackLocation()
-    {
-        if (!_useMockServices) return;
-
-        Logger.LogWarning("Mock mode: using fallback location");
-        CurrentLocation = new LocationWithAddress
-        {
-            Location = new Models.Location { latitude = -17.8292, longitude = 31.0522 },
-            FormattedAddress = "Harare, Zimbabwe (Mock)"
-        };
-
-        await AnimateToLocation(-17.8292, 31.0522, 15);
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -277,17 +269,6 @@ public partial class HomePageViewModel : BaseViewModel
 
         try
         {
-            if (_useMockServices)
-            {
-                // Return mock predictions so the UI is testable without API keys
-                await Task.Delay(200, ct); // simulate network
-                Predictions.Add(new PlacePrediction { PlaceId = "mock_1", MainText = "Harare CBD", SecondaryText = "Harare, Zimbabwe", Description = "Harare CBD, Harare, Zimbabwe" });
-                Predictions.Add(new PlacePrediction { PlaceId = "mock_2", MainText = "Sam Levy's Village", SecondaryText = "Borrowdale, Harare", Description = "Sam Levy's Village, Borrowdale, Harare" });
-                Predictions.Add(new PlacePrediction { PlaceId = "mock_3", MainText = "Eastgate Mall", SecondaryText = "Robert Mugabe Rd, Harare", Description = "Eastgate Mall, Robert Mugabe Rd, Harare" });
-                Predictions.Add(new PlacePrediction { PlaceId = "mock_4", MainText = "Avondale Shopping Centre", SecondaryText = "King George Rd, Avondale", Description = "Avondale Shopping Centre, King George Rd, Avondale" });
-                return;
-            }
-
             var request = new GoogleApi.Entities.Places.AutoComplete.Request.PlacesAutoCompleteRequest
             {
                 Input = query,
@@ -338,12 +319,6 @@ public partial class HomePageViewModel : BaseViewModel
     [RelayCommand]
     public void OpenSearch()
     {
-        // If not logged in and not mock, block
-        if (!_useMockServices)
-        {
-            _ = CheckLoginAndOpenSearch();
-            return;
-        }
         TransitionToSearch();
     }
 
@@ -391,52 +366,30 @@ public partial class HomePageViewModel : BaseViewModel
         {
             // Geocode to get coordinates
             LocationWithAddress dest;
+            // Use address geocode API to forward-geocode the place description
+            var geocodeResponse = await _addressGeocodeApi.QueryAsync(
+                new GoogleApi.Entities.Maps.Geocoding.Address.Request.AddressGeocodeRequest
+                {
+                    Address = prediction.Description,
+                    Key = Constants.googleMapsApiKey
+                });
 
-            if (_useMockServices)
+            var result = geocodeResponse?.Results?.FirstOrDefault();
+            if (result is null)
             {
-                // Mock coordinates for each fake prediction
-                var mockCoords = prediction.PlaceId switch
-                {
-                    "mock_1" => (-17.8294, 31.0539),
-                    "mock_2" => (-17.7580, 31.0960),
-                    "mock_3" => (-17.8300, 31.0440),
-                    "mock_4" => (-17.7950, 31.0400),
-                    _ => (-17.8300, 31.0500)
-                };
-
-                dest = new LocationWithAddress
-                {
-                    Location = new Models.Location { latitude = mockCoords.Item1, longitude = mockCoords.Item2 },
-                    FormattedAddress = prediction.Description
-                };
+                Logger.LogWarning("Geocoding returned no results for {Place}", prediction.Description);
+                return;
             }
-            else
+
+            dest = new LocationWithAddress
             {
-                // Use address geocode API to forward-geocode the place description
-                var geocodeResponse = await _addressGeocodeApi.QueryAsync(
-                    new GoogleApi.Entities.Maps.Geocoding.Address.Request.AddressGeocodeRequest
-                    {
-                        Address = prediction.Description,
-                        Key = Constants.googleMapsApiKey
-                    });
-
-                var result = geocodeResponse?.Results?.FirstOrDefault();
-                if (result is null)
+                Location = new Models.Location
                 {
-                    Logger.LogWarning("Geocoding returned no results for {Place}", prediction.Description);
-                    return;
-                }
-
-                dest = new LocationWithAddress
-                {
-                    Location = new Models.Location
-                    {
-                        latitude = result.Geometry.Location.Latitude,
-                        longitude = result.Geometry.Location.Longitude
-                    },
-                    FormattedAddress = result.FormattedAddress
-                };
-            }
+                    latitude = result.Geometry.Location.Latitude,
+                    longitude = result.Geometry.Location.Longitude
+                },
+                FormattedAddress = result.FormattedAddress
+            };
 
             // Assign to the correct target based on active field
             if (ActiveSearchField == SearchField.Pickup)
@@ -455,29 +408,6 @@ public partial class HomePageViewModel : BaseViewModel
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to geocode/route for {Place}", prediction.MainText);
-
-            if (_useMockServices)
-            {
-                var mockDest = new LocationWithAddress
-                {
-                    Location = new Models.Location { latitude = -17.83, longitude = 31.05 },
-                    FormattedAddress = prediction.Description
-                };
-
-                if (ActiveSearchField == SearchField.Pickup)
-                {
-                    PickupLocation = mockDest;
-                    ActiveSearchField = SearchField.Destination;
-                    return;
-                }
-
-                SelectedDestination = mockDest;
-                EstimatedDistanceKm = 8.5;
-                EstimatedMinutes = 18;
-                RecommendedFare = CalculateRecommendedFare(8.5, 18);
-                OfferAmount = RecommendedFare;
-                CurrentSearchState = SearchState.RoutePreview;
-            }
         }
         finally
         {
@@ -577,41 +507,6 @@ public partial class HomePageViewModel : BaseViewModel
 
         try
         {
-            if (_useMockServices)
-            {
-                await Task.Delay(300);
-                EstimatedDistanceKm = 8.5;
-                EstimatedMinutes = 18;
-                RecommendedFare = CalculateRecommendedFare(EstimatedDistanceKm, EstimatedMinutes);
-                OfferAmount = RecommendedFare;
-
-                var startLat = origin.Location.latitude;
-                var startLng = origin.Location.longitude;
-                var endLat = SelectedDestination.Location.latitude;
-                var endLng = SelectedDestination.Location.longitude;
-
-                var points = new PointCollection
-                {
-                    new Point(startLat, startLng),
-                    new Point((startLat + endLat) / 2 + 0.005, (startLng + endLng) / 2 + 0.003),
-                    new Point(endLat, endLng)
-                };
-
-                RoadPolyline = new Polyline
-                {
-                    StrokeThickness = 5,
-                    StrokeLineJoin = PenLineJoin.Round,
-                    Points = points
-                };
-
-                Polylines.Clear();
-                Polylines.Add(RoadPolyline);
-
-                var bounds = MapUtils.CalculateBounds(points);
-                await AnimateToBounds(bounds);
-                return;
-            }
-
             var request = new GoogleApi.Entities.Maps.Directions.Request.DirectionsRequest
             {
                 Origin = new LocationEx(new CoordinateEx(

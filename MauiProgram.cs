@@ -1,24 +1,24 @@
-﻿using Auth0.OidcClient;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using DevExpress.Maui;
+using Duende.IdentityModel.Client;
+using Duende.IdentityModel.OidcClient;
+using GoogleApi.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using MPowerKit.GoogleMaps;
+using Ridebase.Pages.Driver;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
 using Ridebase.Services;
+using Ridebase.Services.ApiClients;
+using Ridebase.Services.Interfaces;
 using Ridebase.Services.RestService;
 using Ridebase.ViewModels;
+using Ridebase.ViewModels.Driver;
 using Ridebase.ViewModels.Onboarding;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
-using GoogleApi.Extensions;
-using Ridebase.ViewModels.Driver;
-using Ridebase.Pages.Driver;
-using Ridebase.Services.Interfaces;
-using Ridebase.Services.ApiClients;
-using Duende.IdentityModel.OidcClient;
 
 namespace Ridebase
 {
@@ -125,27 +125,18 @@ namespace Ridebase
 
             var realtimeTransport = configuration.GetValue<string>("RealtimeTransport") ?? "WebSocket";
 
-            if (useMockServices)
-            {
-                builder.Services.AddSingleton<IRideRealtimeService, MockRideRealtimeService>();
-                builder.Services.AddSingleton<IRideApiClient, MockRideApiClient>();
-                builder.Services.AddSingleton<IOnboardingApiClient, MockOnboardingApiClient>();
-                builder.Services.AddSingleton<IDriverApiClient, MockDriverApiClient>();
-            }
-            else
-            {
-                // Switch between raw WebSocket and SignalR hub via appsettings.json
-                // "RealtimeTransport": "WebSocket"  → WebSocketRideRealtimeService
-                // "RealtimeTransport": "SignalR"    → SignalRRideRealtimeService
-                if (realtimeTransport.Equals("SignalR", StringComparison.OrdinalIgnoreCase))
-                    builder.Services.AddSingleton<IRideRealtimeService, SignalRRideRealtimeService>();
-                else
-                    builder.Services.AddSingleton<IRideRealtimeService, WebSocketRideRealtimeService>();
 
-                builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
-                builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
-                builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
-            }
+            // Switch between raw WebSocket and SignalR hub via appsettings.json
+            // "RealtimeTransport": "WebSocket"  → WebSocketRideRealtimeService
+            // "RealtimeTransport": "SignalR"    → SignalRRideRealtimeService
+            if (realtimeTransport.Equals("SignalR", StringComparison.OrdinalIgnoreCase))
+                builder.Services.AddSingleton<IRideRealtimeService, SignalRRideRealtimeService>();
+            else
+                builder.Services.AddSingleton<IRideRealtimeService, WebSocketRideRealtimeService>();
+
+            builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+            builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
+            builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
 
             builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
             builder.Services.AddGoogleApiClients();
@@ -155,12 +146,22 @@ namespace Ridebase
 
             builder.Services.AddSingleton(new OidcClient(new()
             {
-                Authority = configuration["Auth:Authority"],
+                Authority = "https://auth.dev.uzuri.co.uk/application/o/my-csharp-app/",
                 ClientId = configuration["Auth:ClientId"],
                 Scope = configuration["Auth:Scopes"],
                 RedirectUri = configuration["Auth:RedirectUri"],
+                Browser = new MauiAuthenticationBrowser(),
 
-                Browser = new MauiAuthenticationBrowser()
+                Policy = new Policy
+                {
+                    Discovery = new DiscoveryPolicy
+                    {
+                        AdditionalEndpointBaseAddresses =
+                        {
+                            "https://auth.dev.uzuri.co.uk/application/o/"
+                        }
+                    }
+                }
             }));
 
             return builder.Build();

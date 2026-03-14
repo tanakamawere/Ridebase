@@ -1,5 +1,4 @@
-﻿using Auth0.OidcClient;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;

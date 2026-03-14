@@ -1,5 +1,4 @@
-﻿using Auth0.OidcClient;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;
@@ -144,19 +143,14 @@ public partial class AppShellViewModel : BaseViewModel
             HasEmail = !string.IsNullOrWhiteSpace(email);
             IsLoggedIn = true;
 
+            Shell.Current.FlyoutIsPresented = false;
+
             var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
             await NavigateByBootstrapState(bootstrap);
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Auth0 login failed, using local mock login fallback");
-            var fallbackUserId = Guid.NewGuid().ToString("N");
-            await SecureStorage.SetAsync("auth_token", $"mock_{fallbackUserId}");
-            await SecureStorage.SetAsync("user_id", fallbackUserId);
-            IsLoggedIn = true;
-
-            var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(fallbackUserId);
-            await NavigateByBootstrapState(bootstrap);
+            Logger?.LogError(ex, "Auth0 login failed");
         }
     }
 
