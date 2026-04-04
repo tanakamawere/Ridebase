@@ -16,6 +16,7 @@ public partial class DriverProfileViewModel : BaseViewModel
     private const string CheckoutCancelUrl = "https://ridebase.tech/subscription/cancel";
 
     private readonly IPaymentSubscriptionApiClient paymentSubscriptionApiClient;
+    private readonly IOnboardingApiClient onboardingApiClient;
 
     [ObservableProperty]
     private bool isSubscribed;
@@ -47,11 +48,13 @@ public partial class DriverProfileViewModel : BaseViewModel
     public DriverProfileViewModel(
         ILogger<DriverProfileViewModel> logger,
         IUserSessionService userSessionService,
-        IPaymentSubscriptionApiClient paymentSubscriptionApiClient)
+        IPaymentSubscriptionApiClient paymentSubscriptionApiClient,
+        IOnboardingApiClient onboardingApiClient)
     {
         Logger = logger;
         this.userSessionService = userSessionService;
         this.paymentSubscriptionApiClient = paymentSubscriptionApiClient;
+        this.onboardingApiClient = onboardingApiClient;
         ProfileShortcuts =
         [
             new DriverShortcutModel
@@ -173,8 +176,18 @@ public partial class DriverProfileViewModel : BaseViewModel
 
     private async Task RefreshSubscriptionStateAsync()
     {
+        var onboardingProfile = await onboardingApiClient.GetCurrentProfileAsync();
         var state = await userSessionService.GetStateAsync();
         var subscriptionResponse = await paymentSubscriptionApiClient.GetSubscriptionStatusAsync();
+
+        if (onboardingProfile.IsSuccess && onboardingProfile.Data is not null)
+        {
+            DriverName = onboardingProfile.Data.FullName;
+            MemberSinceText = string.IsNullOrWhiteSpace(onboardingProfile.Data.PhoneNumber)
+                ? "Verified partner"
+                : $"Verified partner • {onboardingProfile.Data.PhoneNumber}";
+            await userSessionService.SetProfileAsync(onboardingProfile.Data.FullName, onboardingProfile.Data.PhoneNumber);
+        }
 
         if (subscriptionResponse.IsSuccess && subscriptionResponse.Data is not null)
         {
@@ -183,10 +196,17 @@ public partial class DriverProfileViewModel : BaseViewModel
         }
 
         IsSubscribed = state.IsDriverSubscribed;
-        DriverName = string.IsNullOrWhiteSpace(state.FullName) ? "Kinetic Anchor" : state.FullName;
-        MemberSinceText = string.IsNullOrWhiteSpace(state.PhoneNumber)
-            ? "Verified partner"
-            : $"Verified partner • {state.PhoneNumber}";
+        if (string.IsNullOrWhiteSpace(DriverName))
+        {
+            DriverName = string.IsNullOrWhiteSpace(state.FullName) ? "Kinetic Anchor" : state.FullName;
+        }
+
+        if (string.IsNullOrWhiteSpace(MemberSinceText) || MemberSinceText == "Verified partner")
+        {
+            MemberSinceText = string.IsNullOrWhiteSpace(state.PhoneNumber)
+                ? "Verified partner"
+                : $"Verified partner • {state.PhoneNumber}";
+        }
         ActiveVehicleName = state.IsDriverSubscribed ? "White Toyota Corolla" : "Complete driver setup";
         ActiveVehiclePlate = state.IsDriverSubscribed ? "ABX-9082" : "Billing and vehicle details pending";
         SubscriptionStatusText = IsSubscribed ? "Subscription active" : "Subscription inactive";

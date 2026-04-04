@@ -34,6 +34,9 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     private string? driverLicenseStatus = "No file selected";
 
     [ObservableProperty]
+    private string? driverLicensePhotoPath;
+
+    [ObservableProperty]
     private string? fullName;
 
     [ObservableProperty]
@@ -56,8 +59,26 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     [RelayCommand]
     public async Task UploadLicenseAsync()
     {
-        DriverLicenseStatus = "License uploaded (placeholder)";
-        await Shell.Current.DisplayAlertAsync("Upload", "Driver's license upload will be available soon.", "OK");
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Select driver's license photo or PDF"
+            });
+
+            if (file is null)
+            {
+                return;
+            }
+
+            DriverLicensePhotoPath = file.FullPath;
+            DriverLicenseStatus = $"Selected: {file.FileName}";
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Failed to pick driver's license file");
+            await Shell.Current.DisplayAlertAsync("Upload", "Unable to select a license file right now.", "OK");
+        }
     }
 
     [RelayCommand]
@@ -81,9 +102,16 @@ public partial class OnboardingDriverViewModel : BaseViewModel
             string.IsNullOrWhiteSpace(CarModel) ||
             string.IsNullOrWhiteSpace(CarYear) ||
             string.IsNullOrWhiteSpace(LicensePlate) ||
-            string.IsNullOrWhiteSpace(DriverLicenseNumber))
+            string.IsNullOrWhiteSpace(DriverLicenseNumber) ||
+            string.IsNullOrWhiteSpace(DriverLicensePhotoPath))
         {
-            await Shell.Current.DisplayAlertAsync("Validation", "Please fill in all required fields.", "OK");
+            await Shell.Current.DisplayAlertAsync("Validation", "Please fill in all required fields and upload your driver's license.", "OK");
+            return;
+        }
+
+        if (!int.TryParse(CarYear, out var parsedYear) || parsedYear < 1900)
+        {
+            await Shell.Current.DisplayAlertAsync("Validation", "Please enter a valid vehicle year.", "OK");
             return;
         }
 
@@ -97,19 +125,33 @@ public partial class OnboardingDriverViewModel : BaseViewModel
                 DriverPhotoPath = DriverPhotoPath,
                 Make = CarMake,
                 Model = CarModel,
-                Year = CarYear,
+                Year = parsedYear.ToString(),
                 LicensePlate = LicensePlate,
                 DriverLicenseNumber = DriverLicenseNumber,
                 IsAvailable = IsAvailable
             };
 
-            await onboardingApiClient.SubmitDriverDetailsAsync(carDetails);
+            var submitResponse = await onboardingApiClient.SubmitDriverDetailsAsync(carDetails, DriverLicensePhotoPath);
+            if (!submitResponse.IsSuccess)
+            {
+                var error = string.IsNullOrWhiteSpace(submitResponse.ErrorMessage)
+                    ? "Unable to submit driver setup right now."
+                    : submitResponse.ErrorMessage;
+                await Shell.Current.DisplayAlertAsync("Driver setup", error, "OK");
+                return;
+            }
+
             await userSessionService.SetProfileAsync(FullName, PhoneNumber);
             await userSessionService.SetRoleAsync(AppUserRole.Driver);
             await userSessionService.SetOnboardedAsync(true);
             await userSessionService.ClearSubscriptionStateAsync();
 
             await Shell.Current.GoToAsync("//DriverHome");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Failed to complete driver onboarding");
+            await Shell.Current.DisplayAlertAsync("Driver setup", "Unable to complete driver setup right now. Please try again.", "OK");
         }
         finally
         {
@@ -120,6 +162,15 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     private async Task InitializeProfileAsync()
     {
         var state = await userSessionService.GetStateAsync();
+        var profileResponse = await onboardingApiClient.GetCurrentProfileAsync();
+
+        if (profileResponse.IsSuccess && profileResponse.Data is not null)
+        {
+            FullName = profileResponse.Data.FullName;
+            PhoneNumber = profileResponse.Data.PhoneNumber;
+            await userSessionService.SetProfileAsync(profileResponse.Data.FullName, profileResponse.Data.PhoneNumber);
+            return;
+        }
 
         if (string.IsNullOrWhiteSpace(FullName))
         {

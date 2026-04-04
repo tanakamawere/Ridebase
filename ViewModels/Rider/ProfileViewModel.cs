@@ -10,6 +10,8 @@ namespace Ridebase.ViewModels.Rider;
 
 public partial class ProfileViewModel : BaseViewModel
 {
+    private readonly IOnboardingApiClient onboardingApiClient;
+
     [ObservableProperty]
     private string riderName = "Vuka Transit";
 
@@ -48,9 +50,10 @@ public partial class ProfileViewModel : BaseViewModel
         }
     ];
 
-    public ProfileViewModel(IUserSessionService userSessionService)
+    public ProfileViewModel(IUserSessionService userSessionService, IOnboardingApiClient onboardingApiClient)
     {
         this.userSessionService = userSessionService;
+        this.onboardingApiClient = onboardingApiClient;
         _ = InitializeAsync();
     }
 
@@ -79,6 +82,16 @@ public partial class ProfileViewModel : BaseViewModel
     private async Task InitializeAsync()
     {
         var state = await userSessionService.GetStateAsync();
+        var profileResponse = await onboardingApiClient.GetCurrentProfileAsync();
+
+        if (profileResponse.IsSuccess && profileResponse.Data is not null)
+        {
+            RiderName = profileResponse.Data.FullName;
+            RiderContact = profileResponse.Data.PhoneNumber;
+            await userSessionService.SetProfileAsync(profileResponse.Data.FullName, profileResponse.Data.PhoneNumber);
+            return;
+        }
+
         if (!string.IsNullOrWhiteSpace(state.FullName))
         {
             RiderName = state.FullName;

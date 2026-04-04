@@ -152,7 +152,24 @@ public static class MauiProgram
 
             builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
         }
-        builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
+        if (useMockServices)
+        {
+            builder.Services.AddSingleton<IOnboardingApiClient, MockOnboardingApiClient>();
+        }
+        else
+        {
+            builder.Services.AddHttpClient<IOnboardingApiClient, OnboardingApiClient>("OnboardingServiceClient", client =>
+            {
+                var onboardingBaseAddress = configuration["OnboardingServiceEndpoint"];
+                if (string.IsNullOrEmpty(onboardingBaseAddress))
+                {
+                    throw new ArgumentNullException(nameof(onboardingBaseAddress), "Onboarding Service Endpoint configuration is missing or empty.");
+                }
+
+                client.BaseAddress = new Uri(onboardingBaseAddress);
+            })
+                .AddHttpMessageHandler<AuthHeaderHandler>();
+        }
         builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
         if (useMockServices)
         {

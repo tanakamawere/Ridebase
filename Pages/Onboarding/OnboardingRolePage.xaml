@@ -3,6 +3,7 @@
     x:Class="Ridebase.Pages.Onboarding.OnboardingRolePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
     Title="{Binding Title}"
     x:DataType="vm:OnboardingRoleViewModel">
@@ -56,6 +57,7 @@
                     <Label Style="{StaticResource KaMutedBodyLabel}" Text="Book rides, track drivers live, manage activity, and pay from your wallet." />
                     <Button
                         Command="{Binding ChooseRiderCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
                         Style="{StaticResource KaPrimaryButton}"
                         Text="Continue as Rider" />
                 </VerticalStackLayout>
@@ -82,10 +84,16 @@
                     <Label Style="{StaticResource KaMutedBodyLabel}" Text="Set up your vehicle, manage subscriptions, and earn through the driver workspace." />
                     <Button
                         Command="{Binding ChooseDriverCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
                         Style="{StaticResource KaSecondaryButton}"
                         Text="Continue as Driver" />
                 </VerticalStackLayout>
             </Border>
+
+            <ActivityIndicator
+                Color="{StaticResource KaPrimary}"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

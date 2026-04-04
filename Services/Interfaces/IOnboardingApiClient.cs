@@ -5,7 +5,8 @@ namespace Ridebase.Services.Interfaces;
 
 public interface IOnboardingApiClient
 {
+    Task<ApiResponse<OnboardingProfileResponse>> GetCurrentProfileAsync();
     Task<ApiResponse<bool>> CheckOnboardingStatusAsync(string userId);
-    Task<ApiResponse<string>> SubmitProfileAsync(OnboardingProfile profile);
-    Task<ApiResponse<string>> SubmitDriverDetailsAsync(CarDetails carDetails);
+    Task<ApiResponse<string>> SubmitProfileAsync(OnboardingProfile profile, AppUserRole role);
+    Task<ApiResponse<string>> SubmitDriverDetailsAsync(CarDetails carDetails, string licensePhotoPath);
 }
