@@ -327,35 +327,9 @@ public partial class DriverDashboardViewModel : BaseViewModel
             return;
         }
 
-        var session = await userSessionService.GetStateAsync();
-        var counterAmount = request.RecommendedAmount > 0
-            ? request.RecommendedAmount
-            : request.OfferAmount + 1.00m;
-
-        await rideRealtimeService.SubmitDriverOfferAsync(new DriverOfferSelectionModel
+        await Shell.Current.GoToAsync(nameof(DriverCounterOfferPage), true, new Dictionary<string, object>
         {
-            RideOfferId = Guid.NewGuid(),
-            RideId = request.RideGuid.ToString("N"),
-            OfferAmount = counterAmount,
-            RiderOfferAmount = request.OfferAmount,
-            RecommendedAmount = request.RecommendedAmount,
-            IsCounterOffer = true,
-            EtaToPickupMinutes = 5,
-            Distance = 2.3m,
-            PickupAddress = request.StartAddress,
-            DestinationAddress = request.DestinationAddress,
-            PickupLocation = request.StartLocation,
-            DestinationLocation = request.DestinationLocation,
-            OfferTime = DateTime.UtcNow,
-            Driver = new DriverModel
-            {
-                DriverId = Guid.TryParse(session.UserId, out var driverId) ? driverId : Guid.NewGuid(),
-                Name = string.IsNullOrWhiteSpace(session.FullName) ? DriverDisplayName : session.FullName,
-                PhoneNumber = session.PhoneNumber,
-                Rating = 4.8,
-                RidesCompleted = 487,
-                Vehicle = "Toyota Aqua"
-            }
+            { "rideRequest", request }
         });
     }
 

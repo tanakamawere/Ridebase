@@ -97,6 +97,16 @@ public class MockRideApiClient : IRideApiClient
         });
     }
 
+    public Task<ApiResponse<string>> SubmitDriverSos(DriverSosRequest sosRequest)
+    {
+        return Task.FromResult(new ApiResponse<string>
+        {
+            IsSuccess = true,
+            Data = sosRequest.RideId,
+            StatusCode = 200
+        });
+    }
+
     public Task<ApiResponse<string>> SubmitRating(RideRatingRequest ratingRequest)
     {
         return Task.FromResult(new ApiResponse<string>

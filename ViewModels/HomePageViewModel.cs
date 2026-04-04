@@ -25,6 +25,12 @@ public partial class HomePageViewModel : BaseViewModel
     [ObservableProperty]
     private LocationWithAddress? currentLocation;
 
+    [ObservableProperty]
+    private string locationStatusMessage = "Finding your location...";
+
+    [ObservableProperty]
+    private bool hasLocationError;
+
     // ─── Map bindings ────────────────────────────────────────────
     [ObservableProperty]
     private CameraUpdate? _initialCameraPosition;
@@ -34,6 +40,9 @@ public partial class HomePageViewModel : BaseViewModel
 
     [ObservableProperty]
     private Func<CameraUpdate, int, Task>? _animateCameraFunc;
+
+    [ObservableProperty]
+    private CameraPosition? currentCameraPosition;
 
     /// <summary>
     /// When the map control binds AnimateCameraFunc, if we already have a
@@ -76,6 +85,15 @@ public partial class HomePageViewModel : BaseViewModel
     [ObservableProperty]
     private bool isSearching;
 
+    [ObservableProperty]
+    private string mapSelectionPrompt = "Center the pin over the exact destination.";
+
+    [ObservableProperty]
+    private string mapSelectionHelperText = "Move the map until the marker is on the exact point, then confirm.";
+
+    [ObservableProperty]
+    private string searchFeedbackMessage = "Type to search for a place";
+
     // ─── Selected destination (after geocoding the prediction) ───
     [ObservableProperty]
     private LocationWithAddress? selectedDestination;
@@ -107,6 +125,9 @@ public partial class HomePageViewModel : BaseViewModel
     private readonly GoogleMaps.Geocode.AddressGeocodeApi _addressGeocodeApi;
     private readonly GooglePlaces.AutoCompleteApi _autoCompleteApi;
     private readonly GoogleMaps.DirectionsApi _directionsApi;
+    private readonly ILocationService _locationService;
+    private readonly string _googleMapsApiKey;
+    private readonly string _googlePlacesApiKey;
     private CancellationTokenSource? _searchCts;
     private string? _pendingRideId;
 
@@ -116,6 +137,7 @@ public partial class HomePageViewModel : BaseViewModel
         GoogleMaps.Geocode.AddressGeocodeApi addressGeocodeApi,
         GooglePlaces.AutoCompleteApi autoCompleteApi,
         GoogleMaps.DirectionsApi directionsApi,
+        ILocationService locationService,
         IStorageService storage,
         IRideApiClient rideApi,
         IRideRealtimeService realtimeService,
@@ -131,6 +153,9 @@ public partial class HomePageViewModel : BaseViewModel
         _addressGeocodeApi = addressGeocodeApi;
         _autoCompleteApi = autoCompleteApi;
         _directionsApi = directionsApi;
+        _locationService = locationService;
+        _googleMapsApiKey = configuration["GoogleKeys:MapsApiKey"] ?? string.Empty;
+        _googlePlacesApiKey = configuration["GoogleKeys:PlacesApiKey"] ?? string.Empty;
 
         popupNavigation = navigation;
         storageService = storage;
@@ -139,12 +164,17 @@ public partial class HomePageViewModel : BaseViewModel
         rideStateStore = rideStore;
         userSessionService = userSession;
 
-        GetCurrentLocation();
+        _ = GetCurrentLocation();
     }
 
     public string CurrentLocationHeadline => string.IsNullOrWhiteSpace(CurrentLocation?.FormattedAddress)
-        ? "Finding your location..."
+        ? LocationStatusMessage
         : CurrentLocation.FormattedAddress;
+
+    partial void OnCurrentLocationChanged(LocationWithAddress? value)
+    {
+        OnPropertyChanged(nameof(CurrentLocationHeadline));
+    }
 
     // ═════════════════════════════════════════════════════════════
     //  LOCATION
@@ -160,55 +190,45 @@ public partial class HomePageViewModel : BaseViewModel
             Logger.LogInformation("Getting current location");
             IsBusy = true;
 
-            var locationService = new LocationService();
-            var location = await locationService.GetCurrentLocationAsync();
+            var result = await _locationService.GetCurrentLocationAsync();
+            LocationPermissionGranted = result.Status == LocationAcquisitionStatus.Success;
 
-            LocationPermissionGranted = location != null;
-
-            if (location is null)
+            if (result.Status != LocationAcquisitionStatus.Success || result.DeviceLocation is null)
             {
-                Logger.LogWarning("Geolocation returned null");
-                return;
-            }
-
-            Logger.LogInformation("Location: {Lat}, {Lng}", location.Latitude, location.Longitude);
-
-
-            var locationGeocodeRequest = new LocationGeocodeRequest
-            {
-                Location = new GoogleApi.Entities.Common.Coordinate(location.Latitude, location.Longitude),
-                Key = Constants.googleMapsApiKey
-            };
-
-            var response = await _geocodeApi.QueryAsync(locationGeocodeRequest);
-
-            if (response.Status != GoogleApi.Entities.Common.Enums.Status.Ok)
-            {
-                Logger.LogWarning("Location geocode response was null");
-                return;
-            }
-
-            var firstResult = response?.Results?.FirstOrDefault();
-
-            CurrentLocation = new LocationWithAddress
-            {
-                Location = new Models.Location
+                HasLocationError = true;
+                LocationStatusMessage = result.Status switch
                 {
-                    latitude = location.Latitude,
-                    longitude = location.Longitude
-                },
-                FormattedAddress = firstResult?.FormattedAddress ?? $"{location.Latitude:F4}, {location.Longitude:F4}"
-            };
+                    LocationAcquisitionStatus.PermissionDenied => "Location permission is off. Set pickup manually or choose a point on the map.",
+                    LocationAcquisitionStatus.NotSupported => "This device doesn't support location. Set pickup manually or choose a point on the map.",
+                    LocationAcquisitionStatus.Unavailable => "Current location unavailable right now. Set pickup manually or choose a point on the map.",
+                    _ => "We couldn't fetch your current location. Set pickup manually or choose a point on the map."
+                };
+
+                Logger.LogWarning("Unable to get current location. Status: {Status}. Message: {Message}", result.Status, result.ErrorMessage);
+                return;
+            }
+
+            Logger.LogInformation("Location: {Lat}, {Lng}", result.DeviceLocation.Latitude, result.DeviceLocation.Longitude);
+
+            CurrentLocation = await ReverseGeocodeAsync(result.DeviceLocation.Latitude, result.DeviceLocation.Longitude);
+            PickupLocation ??= CurrentLocation;
+
+            if (string.IsNullOrWhiteSpace(PickupSearchQuery))
+            {
+                PickupSearchQuery = CurrentLocation.FormattedAddress;
+            }
+
+            HasLocationError = false;
+            LocationStatusMessage = "Current location ready";
 
             Logger.LogInformation("Current location: {Address}", CurrentLocation.FormattedAddress);
-            OnPropertyChanged(nameof(CurrentLocationHeadline));
             await AnimateToLocation(CurrentLocation.Location.latitude, CurrentLocation.Location.longitude, 15);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error getting current location");
-            // Alert user of failure to get location
-            await Shell.Current.DisplayAlertAsync("Location Error", "Unable to get current location. Please ensure location services are enabled and try again.", "OK");
+            HasLocationError = true;
+            LocationStatusMessage = "Unable to fetch your current location. Set pickup manually or choose a point on the map.";
         }
         finally
         {
@@ -227,6 +247,7 @@ public partial class HomePageViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(value))
         {
             Predictions.Clear();
+            SearchFeedbackMessage = "Type to search for a place";
             return;
         }
         _ = DebounceSearchAsync(value);
@@ -239,6 +260,7 @@ public partial class HomePageViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(value))
         {
             Predictions.Clear();
+            SearchFeedbackMessage = "Type to search for a place";
             return;
         }
         _ = DebounceSearchAsync(value);
@@ -274,13 +296,21 @@ public partial class HomePageViewModel : BaseViewModel
     {
         IsSearching = true;
         Predictions.Clear();
+        SearchFeedbackMessage = "Searching places...";
 
         try
         {
+            if (string.IsNullOrWhiteSpace(_googlePlacesApiKey))
+            {
+                SearchFeedbackMessage = "Google Places API key is missing. Add it in appsettings.json.";
+                Logger.LogWarning("Google Places API key is missing.");
+                return;
+            }
+
             var request = new GoogleApi.Entities.Places.AutoComplete.Request.PlacesAutoCompleteRequest
             {
                 Input = query,
-                Key = Constants.googlePlacesApiKey,
+                Key = _googlePlacesApiKey,
             };
 
             // Bias results near the user's current location
@@ -308,11 +338,34 @@ public partial class HomePageViewModel : BaseViewModel
                         Description = p.Description
                     });
                 }
+
+                SearchFeedbackMessage = "Select a place";
+                return;
             }
+
+            Logger.LogWarning("Autocomplete returned status {Status} for '{Query}'", response?.Status, query);
+
+            var fallbackResult = await GeocodeAddressAsync(query);
+            if (fallbackResult.Location is not null)
+            {
+                Predictions.Add(new PlacePrediction
+                {
+                    PlaceId = query,
+                    MainText = fallbackResult.Location.FormattedAddress,
+                    SecondaryText = "Resolved from typed address",
+                    Description = fallbackResult.Location.FormattedAddress
+                });
+
+                SearchFeedbackMessage = "Select the matched address";
+                return;
+            }
+
+            SearchFeedbackMessage = BuildSearchFailureMessage(response is null ? null : response.Status.ToString(), fallbackResult.ErrorMessage);
         }
         catch (Exception ex) when (ex is not TaskCanceledException)
         {
             Logger.LogError(ex, "Autocomplete search failed for '{Query}'", query);
+            SearchFeedbackMessage = "Search failed. Check your Google API setup or choose the location on the map.";
         }
         finally
         {
@@ -342,7 +395,7 @@ public partial class HomePageViewModel : BaseViewModel
         if (!await storageService.IsLoggedInAsync())
         {
             Logger.LogWarning("User not logged in");
-            await Shell.Current.DisplayAlert("Log in", "First login in the sidebar", "Ok");
+            await Shell.Current.DisplayAlertAsync("Log in", "First login in the sidebar", "Ok");
             return;
         }
         TransitionToSearch();
@@ -352,8 +405,10 @@ public partial class HomePageViewModel : BaseViewModel
     {
         DestinationSearchQuery = string.Empty;
         Predictions.Clear();
+        SelectedDestination = null;
+        ClearRoute();
+        SearchFeedbackMessage = "Type to search for a place";
 
-        // Pre-fill pickup with current GPS location
         PickupLocation = CurrentLocation;
         PickupSearchQuery = CurrentLocation?.FormattedAddress ?? string.Empty;
         ActiveSearchField = SearchField.Destination;
@@ -380,18 +435,29 @@ public partial class HomePageViewModel : BaseViewModel
         try
         {
             // Geocode to get coordinates
-            LocationWithAddress dest;
-            dest = await GeocodeAddressAsync(prediction.Description);
-            if (dest is null)
+            var geocodeResult = await GeocodeAddressAsync(prediction.Description);
+            if (geocodeResult.Location is null)
             {
                 Logger.LogWarning("Geocoding returned no results for {Place}", prediction.Description);
+                SearchFeedbackMessage = BuildSearchFailureMessage(null, geocodeResult.ErrorMessage);
                 return;
             }
+
+            var dest = geocodeResult.Location;
 
             // Assign to the correct target based on active field
             if (ActiveSearchField == SearchField.Pickup)
             {
                 PickupLocation = dest;
+                PickupSearchQuery = dest.FormattedAddress;
+
+                if (SelectedDestination?.Location is not null)
+                {
+                    await GetDirectionsAsync();
+                    CurrentSearchState = SearchState.RoutePreview;
+                    return;
+                }
+
                 // After picking pickup, switch focus to destination
                 ActiveSearchField = SearchField.Destination;
                 IsSearching = false;
@@ -399,6 +465,7 @@ public partial class HomePageViewModel : BaseViewModel
             }
 
             SelectedDestination = dest;
+            DestinationSearchQuery = dest.FormattedAddress;
             await GetDirectionsAsync();
             CurrentSearchState = SearchState.RoutePreview;
         }
@@ -420,6 +487,10 @@ public partial class HomePageViewModel : BaseViewModel
             case SearchState.PickingDestination:
                 ResetSearch();
                 break;
+            case SearchState.PinningLocation:
+                Predictions.Clear();
+                CurrentSearchState = SearchState.PickingDestination;
+                break;
             case SearchState.RoutePreview:
                 ClearRoute();
                 CurrentSearchState = SearchState.PickingDestination;
@@ -436,6 +507,92 @@ public partial class HomePageViewModel : BaseViewModel
     public void OpenFlyout()
     {
         Shell.Current.FlyoutIsPresented = true;
+    }
+
+    [RelayCommand]
+    public async Task UseCurrentLocationForPickup()
+    {
+        await GetCurrentLocation();
+        if (CurrentLocation is null)
+        {
+            return;
+        }
+
+        PickupLocation = CurrentLocation;
+        PickupSearchQuery = CurrentLocation.FormattedAddress;
+
+        if (SelectedDestination?.Location is not null)
+        {
+            await GetDirectionsAsync();
+            CurrentSearchState = SearchState.RoutePreview;
+            return;
+        }
+
+        ActiveSearchField = SearchField.Destination;
+        CurrentSearchState = SearchState.PickingDestination;
+    }
+
+    [RelayCommand]
+    public async Task ChooseLocationOnMap(object? fieldName)
+    {
+        if (!Enum.TryParse<SearchField>(fieldName?.ToString(), out var field))
+        {
+            return;
+        }
+
+        ActiveSearchField = field;
+        Predictions.Clear();
+        IsSearching = false;
+        _searchCts?.Cancel();
+
+        MapSelectionPrompt = field == SearchField.Pickup
+            ? "Center the pin over the pickup spot."
+            : "Center the pin over the destination.";
+        MapSelectionHelperText = field == SearchField.Pickup
+            ? "Drag the map until the pickup pin is exact, then confirm."
+            : "Drag the map until the destination pin is exact, then confirm.";
+
+        var focusLocation = GetActiveFieldLocationForMapSelection();
+        if (focusLocation?.Location is not null)
+        {
+            await AnimateToLocation(focusLocation.Location.latitude, focusLocation.Location.longitude, 16);
+        }
+
+        CurrentSearchState = SearchState.PinningLocation;
+    }
+
+    [RelayCommand]
+    public async Task ConfirmMapSelection()
+    {
+        var target = CurrentCameraPosition?.Target;
+        if (!target.HasValue)
+        {
+            await Shell.Current.DisplayAlertAsync("Map selection", "Move the map to the exact point before confirming.", "OK");
+            return;
+        }
+
+        var selectedLocation = await ReverseGeocodeAsync(target.Value.X, target.Value.Y);
+        if (ActiveSearchField == SearchField.Pickup)
+        {
+            PickupLocation = selectedLocation;
+            PickupSearchQuery = selectedLocation.FormattedAddress;
+
+            if (SelectedDestination?.Location is not null)
+            {
+                await GetDirectionsAsync();
+                CurrentSearchState = SearchState.RoutePreview;
+                return;
+            }
+
+            ActiveSearchField = SearchField.Destination;
+            CurrentSearchState = SearchState.PickingDestination;
+            return;
+        }
+
+        SelectedDestination = selectedLocation;
+        DestinationSearchQuery = selectedLocation.FormattedAddress;
+        await GetDirectionsAsync();
+        CurrentSearchState = SearchState.RoutePreview;
     }
 
     /// <summary>
@@ -499,6 +656,12 @@ public partial class HomePageViewModel : BaseViewModel
         var origin = PickupLocation ?? CurrentLocation;
         if (origin?.Location is null || SelectedDestination?.Location is null) return;
 
+        if (string.IsNullOrWhiteSpace(_googleMapsApiKey))
+        {
+            await Shell.Current.DisplayAlertAsync("Google Maps", "Google Maps API key is missing. Add it in appsettings.json.", "OK");
+            return;
+        }
+
         Logger.LogInformation("Getting directions from {Origin} to {Dest}", origin.FormattedAddress, SelectedDestination.FormattedAddress);
         IsBusy = true;
 
@@ -512,7 +675,7 @@ public partial class HomePageViewModel : BaseViewModel
                 Destination = new LocationEx(new CoordinateEx(
                     SelectedDestination.Location.latitude,
                     SelectedDestination.Location.longitude)),
-                Key = Constants.googleMapsApiKey,
+                Key = _googleMapsApiKey,
                 DepartureTime = DateTime.Now,
             };
 
@@ -571,7 +734,11 @@ public partial class HomePageViewModel : BaseViewModel
     public async Task FindDriver()
     {
         var origin = PickupLocation ?? CurrentLocation;
-        if (origin?.Location is null || SelectedDestination?.Location is null) return;
+        if (origin?.Location is null || SelectedDestination?.Location is null)
+        {
+            await Shell.Current.DisplayAlertAsync("Missing locations", "Choose both pickup and destination before finding offers.", "OK");
+            return;
+        }
 
         Logger.LogInformation("Finding driver");
         CurrentSearchState = SearchState.FindingDriver;
@@ -637,7 +804,7 @@ public partial class HomePageViewModel : BaseViewModel
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error requesting ride");
-            await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
             CurrentSearchState = SearchState.RoutePreview;
         }
         finally
@@ -706,32 +873,114 @@ public partial class HomePageViewModel : BaseViewModel
         DestinationSearchQuery = address;
         ActiveSearchField = SearchField.Destination;
         var destination = await GeocodeAddressAsync(address);
-        if (destination is null)
+        if (destination.Location is null)
         {
+            SearchFeedbackMessage = BuildSearchFailureMessage(null, destination.ErrorMessage);
             return;
         }
 
-        SelectedDestination = destination;
+        SelectedDestination = destination.Location;
         await GetDirectionsAsync();
         CurrentSearchState = SearchState.RoutePreview;
     }
 
-    private async Task<LocationWithAddress?> GeocodeAddressAsync(string address)
+    private LocationWithAddress? GetActiveFieldLocationForMapSelection()
     {
+        return ActiveSearchField == SearchField.Pickup
+            ? PickupLocation ?? CurrentLocation
+            : SelectedDestination ?? CurrentLocation ?? PickupLocation;
+    }
+
+    private async Task<LocationWithAddress> ReverseGeocodeAsync(double latitude, double longitude)
+    {
+        var fallbackAddress = $"{latitude:F5}, {longitude:F5}";
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_googleMapsApiKey))
+            {
+                Logger.LogWarning("Google Maps API key is missing for reverse geocoding.");
+                return new LocationWithAddress
+                {
+                    Location = new Models.Location
+                    {
+                        latitude = latitude,
+                        longitude = longitude
+                    },
+                    FormattedAddress = fallbackAddress
+                };
+            }
+
+            var locationGeocodeRequest = new LocationGeocodeRequest
+            {
+                Location = new Coordinate(latitude, longitude),
+                Key = _googleMapsApiKey
+            };
+
+            var response = await _geocodeApi.QueryAsync(locationGeocodeRequest);
+            var firstResult = response?.Results?.FirstOrDefault();
+            if (response?.Status != GoogleApi.Entities.Common.Enums.Status.Ok || firstResult is null)
+            {
+                Logger.LogWarning("Reverse geocode failed for {Lat}, {Lng}. Status: {Status}", latitude, longitude, response?.Status);
+                return new LocationWithAddress
+                {
+                    Location = new Models.Location
+                    {
+                        latitude = latitude,
+                        longitude = longitude
+                    },
+                    FormattedAddress = fallbackAddress
+                };
+            }
+
+            return new LocationWithAddress
+            {
+                Location = new Models.Location
+                {
+                    latitude = latitude,
+                    longitude = longitude
+                },
+                FormattedAddress = firstResult.FormattedAddress ?? fallbackAddress
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Reverse geocode failed for {Lat}, {Lng}", latitude, longitude);
+            return new LocationWithAddress
+            {
+                Location = new Models.Location
+                {
+                    latitude = latitude,
+                    longitude = longitude
+                },
+                FormattedAddress = fallbackAddress
+            };
+        }
+    }
+
+    private async Task<(LocationWithAddress? Location, string? ErrorMessage)> GeocodeAddressAsync(string address)
+    {
+        if (string.IsNullOrWhiteSpace(_googleMapsApiKey))
+        {
+            Logger.LogWarning("Google Maps API key is missing.");
+            return (null, "Google Maps API key is missing. Add it in appsettings.json.");
+        }
+
         var geocodeResponse = await _addressGeocodeApi.QueryAsync(
             new GoogleApi.Entities.Maps.Geocoding.Address.Request.AddressGeocodeRequest
             {
                 Address = address,
-                Key = Constants.googleMapsApiKey
+                Key = _googleMapsApiKey
             });
 
         var result = geocodeResponse?.Results?.FirstOrDefault();
         if (result is null)
         {
-            return null;
+            Logger.LogWarning("Forward geocode returned status {Status} for '{Address}'", geocodeResponse?.Status, address);
+            return (null, BuildSearchFailureMessage(geocodeResponse is null ? null : geocodeResponse.Status.ToString(), null));
         }
 
-        return new LocationWithAddress
+        return (new LocationWithAddress
         {
             Location = new Models.Location
             {
@@ -739,6 +988,23 @@ public partial class HomePageViewModel : BaseViewModel
                 longitude = result.Geometry.Location.Longitude
             },
             FormattedAddress = result.FormattedAddress
+        }, null);
+    }
+
+    private string BuildSearchFailureMessage(string? status, string? detail)
+    {
+        if (!string.IsNullOrWhiteSpace(detail))
+        {
+            return detail;
+        }
+
+        return status switch
+        {
+            "RequestDenied" or "REQUEST_DENIED" => "Google rejected the search request. Check the API key, billing, and app restrictions.",
+            "OverQueryLimit" or "OVER_QUERY_LIMIT" => "Google search quota has been reached. Try again later or check quota limits.",
+            "InvalidRequest" or "INVALID_REQUEST" => "Google search request was invalid. Try a fuller place name or choose on map.",
+            "ZeroResults" or "ZERO_RESULTS" => "No exact match found. Try 'Joina City Mall, Harare' or choose on map.",
+            _ => "We couldn't find that place. Try the full place name or choose on map."
         };
     }
 }

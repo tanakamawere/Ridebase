@@ -115,7 +115,7 @@ public partial class DriverProfileViewModel : BaseViewModel
 
         if (!response.IsSuccess || response.Data?.CheckoutUrl is null)
         {
-            await Shell.Current.DisplayAlert("Subscription", "Unable to start checkout right now.", "OK");
+            await Shell.Current.DisplayAlertAsync("Subscription", "Unable to start checkout right now.", "OK");
             return;
         }
 
@@ -130,7 +130,7 @@ public partial class DriverProfileViewModel : BaseViewModel
 
         if (!response.IsSuccess || response.Data?.PortalUrl is null)
         {
-            await Shell.Current.DisplayAlert("Billing", "Unable to open the billing portal right now.", "OK");
+            await Shell.Current.DisplayAlertAsync("Billing", "Unable to open the billing portal right now.", "OK");
             return;
         }
 
@@ -144,11 +144,11 @@ public partial class DriverProfileViewModel : BaseViewModel
         var state = await userSessionService.GetStateAsync();
         if (string.IsNullOrWhiteSpace(state.SubscriptionId))
         {
-            await Shell.Current.DisplayAlert("Billing", "No active subscription was found.", "OK");
+            await Shell.Current.DisplayAlertAsync("Billing", "No active subscription was found.", "OK");
             return;
         }
 
-        var confirm = await Shell.Current.DisplayAlert(
+        var confirm = await Shell.Current.DisplayAlertAsync(
             "Cancel subscription",
             "Cancel at the end of the current billing period?",
             "Cancel at period end",
@@ -166,7 +166,7 @@ public partial class DriverProfileViewModel : BaseViewModel
 
         if (!response.IsSuccess || response.Data is null)
         {
-            await Shell.Current.DisplayAlert("Billing", "Unable to cancel the subscription right now.", "OK");
+            await Shell.Current.DisplayAlertAsync("Billing", "Unable to cancel the subscription right now.", "OK");
             return;
         }
 

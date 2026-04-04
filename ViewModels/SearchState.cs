@@ -14,6 +14,9 @@ public enum SearchState
     /// <summary>Destination selected — route polyline, distance/ETA/fare displayed.</summary>
     RoutePreview,
 
+    /// <summary>User is selecting pickup or destination by moving the map under a fixed pin.</summary>
+    PinningLocation,
+
     /// <summary>Ride request sent — waiting for driver offers.</summary>
     FindingDriver
 }

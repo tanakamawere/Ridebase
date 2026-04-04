@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Driver.DriverSosPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    Title="Driver SOS"
+    x:DataType="vm:DriverSosViewModel"
+    Shell.TabBarIsVisible="False">
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="20,20,20,30" Spacing="18">
+            <Border BackgroundColor="{StaticResource KaErrorContainer}" Padding="18" StrokeThickness="0" StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Emergency support" TextColor="{StaticResource KaOnErrorContainer}" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding RiderName, StringFormat='Trip with {0}'}" TextColor="{StaticResource KaOnErrorContainer}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RideSummary}" TextColor="{StaticResource KaOnErrorContainer}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Reason" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button Command="{Binding SelectReasonCommand}" CommandParameter="unsafe_situation" Grid.Column="0" Style="{StaticResource KaSecondaryButton}" Text="Unsafe situation" />
+                        <Button Command="{Binding SelectReasonCommand}" CommandParameter="medical_issue" Grid.Column="1" Style="{StaticResource KaSecondaryButton}" Text="Medical issue" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button Command="{Binding SelectReasonCommand}" CommandParameter="vehicle_breakdown" Grid.Column="0" Style="{StaticResource KaSecondaryButton}" Text="Vehicle breakdown" />
+                        <Button Command="{Binding SelectReasonCommand}" CommandParameter="accident" Grid.Column="1" Style="{StaticResource KaSecondaryButton}" Text="Accident" />
+                    </Grid>
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding SelectedReasonCode, StringFormat='Selected: {0}'}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Notes" />
+                    <Editor AutoSize="TextChanges" HeightRequest="120" Placeholder="Add any detail support should know immediately." Text="{Binding Notes}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button BackgroundColor="{StaticResource KaError}" Command="{Binding SubmitSosCommand}" IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertedBoolConverter}}" Text="Send SOS Alert" TextColor="{StaticResource KaOnPrimary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

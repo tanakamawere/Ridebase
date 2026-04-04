@@ -71,6 +71,7 @@
     <Color x:Key="Gray400">#7A8485</Color>
     <Color x:Key="Gray500">#5B6263</Color>
     <Color x:Key="Gray600">#404849</Color>
+    <Color x:Key="Gray700">#2F3637</Color>
     <Color x:Key="Gray900">#191C1D</Color>
     <Color x:Key="Gray950">#101414</Color>
     <Color x:Key="Magenta">#005E5D</Color>

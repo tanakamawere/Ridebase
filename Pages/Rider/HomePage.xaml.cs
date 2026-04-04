@@ -8,6 +8,10 @@ public partial class HomePage : ContentPage
 	private readonly HomePageViewModel homePageViewModel;
 	private readonly IKeyboardService _keyboardService;
     private SearchState _previousState;
+    private bool _isKeyboardVisible;
+    private bool _isDraggingBottomSheet;
+    private double _dragStartHeight;
+    private double? _manualSnapHeight;
 
 	public HomePage(HomePageViewModel _homePageViewModel, IKeyboardService keyboardService)
 	{
@@ -20,6 +24,7 @@ public partial class HomePage : ContentPage
         _previousState = homePageViewModel.CurrentSearchState;
         homePageViewModel.PropertyChanged += OnViewModelPropertyChanged;
         _keyboardService.KeyboardStateChanged += OnKeyboardStateChanged;
+        SizeChanged += OnPageSizeChanged;
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -37,7 +42,12 @@ public partial class HomePage : ContentPage
         var from = _previousState;
         _previousState = newState;
 
-        MainThread.BeginInvokeOnMainThread(() => AnimateStateTransition(from, newState));
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            _manualSnapHeight = null;
+            UpdateBottomSheetLayout();
+            AnimateStateTransition(from, newState);
+        });
     }
 
     private async void AnimateStateTransition(SearchState from, SearchState to)
@@ -47,36 +57,27 @@ public partial class HomePage : ContentPage
         // ── Fade out floating overlays when leaving Idle ──
         if (from == SearchState.Idle && to == SearchState.PickingDestination)
         {
-            // Fade out search bar + hamburger
-            var fadeOut = Task.WhenAll(
-                FloatingSearchBar.FadeTo(0, duration / 2, Easing.CubicIn),
-                FloatingHamburger.FadeTo(0, duration / 2, Easing.CubicIn));
+            var fadeOut = FloatingHamburger.FadeToAsync(0, duration / 2, Easing.CubicIn);
 
-            // Slide bottom sheet content up
             BottomSheet.TranslationY = 60;
             BottomSheet.Opacity = 0;
             await fadeOut;
 
             await Task.WhenAll(
-                BottomSheet.TranslateTo(0, 0, duration, Easing.CubicOut),
-                BottomSheet.FadeTo(1, duration, Easing.CubicOut));
+                BottomSheet.TranslateToAsync(0, 0, duration, Easing.CubicOut),
+                BottomSheet.FadeToAsync(1, duration, Easing.CubicOut));
             return;
         }
 
         // ── Returning to Idle ──
         if (to == SearchState.Idle)
         {
-            // Fade in floating overlays
-            FloatingSearchBar.Opacity = 0;
             FloatingHamburger.Opacity = 0;
-            FloatingSearchBar.TranslationY = -20;
             FloatingHamburger.TranslationX = -20;
 
             await Task.WhenAll(
-                FloatingSearchBar.FadeTo(1, duration, Easing.CubicOut),
-                FloatingSearchBar.TranslateTo(0, 0, duration, Easing.CubicOut),
-                FloatingHamburger.FadeTo(1, duration, Easing.CubicOut),
-                FloatingHamburger.TranslateTo(0, 0, duration, Easing.CubicOut));
+                FloatingHamburger.FadeToAsync(1, duration, Easing.CubicOut),
+                FloatingHamburger.TranslateToAsync(0, 0, duration, Easing.CubicOut));
             return;
         }
 
@@ -88,16 +89,17 @@ public partial class HomePage : ContentPage
         incoming.Opacity = 0;
         incoming.TranslationY = 30;
         await Task.WhenAll(
-            incoming.FadeTo(1, duration, Easing.CubicOut),
-            incoming.TranslateTo(0, 0, duration, Easing.CubicOut));
+            incoming.FadeToAsync(1, duration, Easing.CubicOut),
+            incoming.TranslateToAsync(0, 0, duration, Easing.CubicOut));
     }
 
     private VisualElement? GetStateContent(SearchState state) => state switch
     {
-        SearchState.Idle => IdleContent,
-        SearchState.PickingDestination => PickingDestinationContent,
-        SearchState.RoutePreview => RoutePreviewContent,
-        SearchState.FindingDriver => FindingDriverContent,
+        //SearchState.Idle => IdleContent,
+        //SearchState.PickingDestination => PickingDestinationContent,
+        //SearchState.PinningLocation => PinningLocationContent,
+        //SearchState.RoutePreview => RoutePreviewContent,
+        //SearchState.FindingDriver => FindingDriverContent,
         _ => null
     };
 
@@ -109,12 +111,126 @@ public partial class HomePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
+            _isKeyboardVisible = isVisible;
             if (isVisible &&
                 homePageViewModel.CurrentSearchState == SearchState.PickingDestination)
             {
-                BottomSheet.TranslationY = 0;
+                //BottomSheet.TranslationY = 0;
             }
+
+            UpdateBottomSheetLayout();
         });
+    }
+
+    private void OnPageSizeChanged(object? sender, EventArgs e)
+    {
+        UpdateBottomSheetLayout();
+    }
+
+    private void UpdateBottomSheetLayout()
+    {
+        if (Height <= 0)
+        {
+            return;
+        }
+
+        var pageHeight = Height;
+        var safePadding = 20d;
+        var maximumHeight = pageHeight - safePadding;
+        var targetHeight = _manualSnapHeight ?? GetDefaultSheetHeight(pageHeight);
+
+        targetHeight = Math.Max(targetHeight, 220);
+        targetHeight = Math.Min(targetHeight, maximumHeight);
+
+        if (_isDraggingBottomSheet)
+        {
+            BottomSheet.HeightRequest = targetHeight;
+            BottomSheet.MaximumHeightRequest = maximumHeight;
+            return;
+        }
+
+        BottomSheet.HeightRequest = targetHeight;
+        BottomSheet.MaximumHeightRequest = maximumHeight;
+    }
+
+    private double GetDefaultSheetHeight(double pageHeight) => homePageViewModel.CurrentSearchState switch
+    {
+        SearchState.Idle => Math.Min(pageHeight * 0.34, 300),
+        SearchState.PickingDestination => _isKeyboardVisible ? pageHeight - 20d : pageHeight * 0.84,
+        SearchState.RoutePreview => Math.Min(pageHeight * 0.46, 410),
+        SearchState.PinningLocation => Math.Min(pageHeight * 0.54, 470),
+        SearchState.FindingDriver => Math.Min(pageHeight * 0.32, 300),
+        _ => pageHeight * 0.45
+    };
+
+    private IReadOnlyList<double> GetSnapPoints(double pageHeight)
+    {
+        var maximumHeight = pageHeight - 20d;
+        return homePageViewModel.CurrentSearchState switch
+        {
+            SearchState.Idle => [Math.Min(pageHeight * 0.28, 250), Math.Min(pageHeight * 0.34, 300), Math.Min(pageHeight * 0.42, 360)],
+            SearchState.PickingDestination => [Math.Min(pageHeight * 0.62, 520), Math.Min(pageHeight * 0.74, 640), maximumHeight],
+            SearchState.RoutePreview => [Math.Min(pageHeight * 0.38, 340), Math.Min(pageHeight * 0.46, 410), Math.Min(pageHeight * 0.58, 500)],
+            SearchState.PinningLocation => [Math.Min(pageHeight * 0.42, 380), Math.Min(pageHeight * 0.54, 470), Math.Min(pageHeight * 0.68, 580)],
+            SearchState.FindingDriver => [Math.Min(pageHeight * 0.28, 260), Math.Min(pageHeight * 0.32, 300), Math.Min(pageHeight * 0.4, 360)],
+            _ => [GetDefaultSheetHeight(pageHeight)]
+        };
+    }
+
+    private void OnBottomSheetPanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        if (Height <= 0)
+        {
+            return;
+        }
+
+        var maxHeight = Height - 20d;
+        var minHeight = 220d;
+
+        switch (e.StatusType)
+        {
+            case GestureStatus.Started:
+                _isDraggingBottomSheet = true;
+                _dragStartHeight = BottomSheet.HeightRequest > 0 ? BottomSheet.HeightRequest : GetDefaultSheetHeight(Height);
+                BottomSheetScrollView.InputTransparent = true;
+                break;
+
+            case GestureStatus.Running:
+                var nextHeight = _dragStartHeight - e.TotalY;
+                nextHeight = Math.Clamp(nextHeight, minHeight, maxHeight);
+                BottomSheet.HeightRequest = nextHeight;
+                break;
+
+            case GestureStatus.Canceled:
+            case GestureStatus.Completed:
+                _isDraggingBottomSheet = false;
+                BottomSheetScrollView.InputTransparent = false;
+
+                var currentHeight = BottomSheet.HeightRequest > 0 ? BottomSheet.HeightRequest : GetDefaultSheetHeight(Height);
+                var snapTarget = GetSnapPoints(Height)
+                    .OrderBy(point => Math.Abs(point - currentHeight))
+                    .First();
+
+                _manualSnapHeight = snapTarget;
+                AnimateBottomSheetHeight(currentHeight, snapTarget);
+                break;
+        }
+    }
+
+    private void AnimateBottomSheetHeight(double from, double to)
+    {
+        var animation = new Animation(
+            callback: value => BottomSheet.HeightRequest = value,
+            start: from,
+            end: to,
+            easing: Easing.CubicOut);
+
+        animation.Commit(
+            owner: this,
+            name: "BottomSheetSnap",
+            rate: 16,
+            length: 220,
+            finished: (_, _) => BottomSheet.HeightRequest = to);
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -150,5 +266,7 @@ public partial class HomePage : ContentPage
         base.OnDisappearing();
         homePageViewModel.PropertyChanged -= OnViewModelPropertyChanged;
         _keyboardService.KeyboardStateChanged -= OnKeyboardStateChanged;
+        SizeChanged -= OnPageSizeChanged;
+        this.AbortAnimation("BottomSheetSnap");
     }
 }

@@ -4,6 +4,7 @@ using GoogleApi;
 using GoogleApi.Entities.Common;
 using GoogleApi.Entities.Maps.Common;
 using GoogleApi.Entities.Places.Common;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 using MPowerKit.GoogleMaps;
@@ -49,8 +50,10 @@ public partial class RideDetailsViewModel : BaseViewModel
     private Func<CameraUpdate, int, Task> _animateCameraFunc;
 
     private readonly GoogleMaps.DirectionsApi directionsApi;
+    private readonly string _googleMapsApiKey;
 
     public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi
+                            , IConfiguration configuration
                             , IRideApiClient _rideService
                             , IStorageService storage
                             , IUserSessionService _userSessionService
@@ -61,6 +64,7 @@ public partial class RideDetailsViewModel : BaseViewModel
         Title = "Ride Details";
         Logger = logger;
         directionsApi = _routesDirectionsApi;
+        _googleMapsApiKey = configuration["GoogleKeys:MapsApiKey"] ?? string.Empty;
         rideApiClient = _rideService;
         storageService = storage;
         userSessionService = _userSessionService;
@@ -75,12 +79,18 @@ public partial class RideDetailsViewModel : BaseViewModel
         IsBusy = true;
         try
         {
+            if (string.IsNullOrWhiteSpace(_googleMapsApiKey))
+            {
+                Logger.LogWarning("Google Maps API key is missing for RideDetails directions.");
+                return;
+            }
+
             var request = new GoogleApi.Entities.Maps.Directions.Request.DirectionsRequest
             {
                 //TODO: how to set origin and destination
                 Origin = new LocationEx(new CoordinateEx(StartPlace.Geometry.Location.Latitude, StartPlace.Geometry.Location.Longitude)),
                 Destination = new LocationEx(new CoordinateEx(DestinationPlace.Geometry.Location.Latitude, DestinationPlace.Geometry.Location.Longitude)),
-                Key = Constants.googleMapsApiKey,
+                Key = _googleMapsApiKey,
                 DepartureTime = DateTime.Now,
             };
 
@@ -205,7 +215,7 @@ public partial class RideDetailsViewModel : BaseViewModel
         {
             Logger.LogError(ex, "Error requesting ride");
             // Display alert
-            await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
+            await AppShell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
         }
         finally
         {

@@ -12,5 +12,6 @@ public interface IRideApiClient
     Task<ApiResponse<RideStatus>> GetRideStatus(string rideId);
     Task<ApiResponse<Ridebase.Models.Location>> TrackRide(string rideId);
     Task<ApiResponse<RideSessionModel>> SelectOffer(RideAcceptRequest acceptRequest);
+    Task<ApiResponse<string>> SubmitDriverSos(DriverSosRequest sosRequest);
     Task<ApiResponse<string>> SubmitRating(RideRatingRequest ratingRequest);
 }

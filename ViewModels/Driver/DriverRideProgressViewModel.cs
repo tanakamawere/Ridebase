@@ -72,6 +72,12 @@ public partial class DriverRideProgressViewModel : BaseViewModel
         await Shell.Current.GoToAsync("//DriverHome");
     }
 
+    [RelayCommand]
+    public Task OpenSos()
+    {
+        return Shell.Current.GoToAsync(nameof(Pages.Driver.DriverSosPage));
+    }
+
     private async Task UpdateStatus(RideStatus status, string statusMessage)
     {
         var currentRide = rideStateStore.CurrentRide;

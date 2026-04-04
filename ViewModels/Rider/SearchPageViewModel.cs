@@ -78,7 +78,7 @@ public partial class SearchPageViewModel : BaseViewModel
         {
             Logger.LogError(ex, "Error searching for places with keyword: {Keyword}", keyword);
             //Display error message
-            await AppShell.Current.DisplayAlert("Error", ex.Message, "OK");
+            await AppShell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
         }
         finally
         {
@@ -172,7 +172,7 @@ public partial class SearchPageViewModel : BaseViewModel
         if (StartPlace == null || DestinationPlace == null)
         {
             Logger.LogWarning("Cannot navigate to RideDetailsPage: StartPlace or DestinationPlace is null");
-            await AppShell.Current.DisplayAlert("Error", "Please select both start and destination locations", "OK");
+            await AppShell.Current.DisplayAlertAsync("Error", "Please select both start and destination locations", "OK");
             return;
         }
 

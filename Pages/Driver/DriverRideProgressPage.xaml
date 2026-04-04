@@ -40,7 +40,7 @@
             </Grid>
 
             <Button Command="{Binding CompleteTripCommand}" Style="{StaticResource KaPrimaryButton}" Text="End Journey" />
-            <Button BackgroundColor="{StaticResource KaError}" Text="SOS" TextColor="{StaticResource KaOnPrimary}" />
+            <Button BackgroundColor="{StaticResource KaError}" Command="{Binding OpenSosCommand}" Text="SOS" TextColor="{StaticResource KaOnPrimary}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

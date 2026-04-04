@@ -1,11 +1,12 @@
-﻿    namespace Ridebase.Services;
+using Ridebase.Services.Interfaces;
 
-public class LocationService
+namespace Ridebase.Services;
+
+public class LocationService : ILocationService
 {
-    private CancellationTokenSource _cancelTokenSource;
-    private bool _isCheckingLocation;
+    private CancellationTokenSource? _cancelTokenSource;
 
-    public async Task<Location?> GetCurrentLocationAsync()
+    public async Task<LocationAcquisitionResult> GetCurrentLocationAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -14,40 +15,59 @@ public class LocationService
             {
                 status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
                 if (status != PermissionStatus.Granted)
-                    return null;
+                {
+                    return new LocationAcquisitionResult
+                    {
+                        Status = LocationAcquisitionStatus.PermissionDenied,
+                        ErrorMessage = "Location permission was denied."
+                    };
+                }
             }
 
-            // Request location with high accuracy
-            _isCheckingLocation = true;
-
-            GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+            var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
 
             _cancelTokenSource = new CancellationTokenSource();
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancelTokenSource.Token, cancellationToken);
 
-            Location location = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
-
-            if (location != null)
-                return location;
+            var location = await Geolocation.Default.GetLocationAsync(request, linkedCts.Token);
+            if (location is not null)
+            {
+                return new LocationAcquisitionResult
+                {
+                    Status = LocationAcquisitionStatus.Success,
+                    DeviceLocation = location
+                };
+            }
         }
         catch (FeatureNotSupportedException)
         {
-            Console.WriteLine("Geolocation is not supported on this device.");
+            return new LocationAcquisitionResult
+            {
+                Status = LocationAcquisitionStatus.NotSupported,
+                ErrorMessage = "Geolocation is not supported on this device."
+            };
         }
         catch (PermissionException)
         {
-            Console.WriteLine("Location permissions are not granted.");
+            return new LocationAcquisitionResult
+            {
+                Status = LocationAcquisitionStatus.PermissionDenied,
+                ErrorMessage = "Location permissions are not granted."
+            };
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unable to get location: {ex.Message}");
+            return new LocationAcquisitionResult
+            {
+                Status = LocationAcquisitionStatus.Error,
+                ErrorMessage = ex.Message
+            };
         }
 
-        return null;
+        return new LocationAcquisitionResult
+        {
+            Status = LocationAcquisitionStatus.Unavailable,
+            ErrorMessage = "We couldn't determine the device location."
+        };
     }
-}
-
-public class LocationWithAddress
-{
-    public Models.Location Location { get; set; }
-    public string FormattedAddress { get; set; }
 }

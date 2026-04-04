@@ -31,8 +31,10 @@ namespace Ridebase.Pages
 
             // Driver routes
             Routing.RegisterRoute(nameof(DriverDashboardPage), typeof(DriverDashboardPage));
+            Routing.RegisterRoute(nameof(DriverCounterOfferPage), typeof(DriverCounterOfferPage));
             Routing.RegisterRoute(nameof(DriverProfilePage), typeof(DriverProfilePage));
             Routing.RegisterRoute(nameof(DriverRideProgressPage), typeof(DriverRideProgressPage));
+            Routing.RegisterRoute(nameof(DriverSosPage), typeof(DriverSosPage));
             Routing.RegisterRoute(nameof(DriverStatsPage), typeof(DriverStatsPage));
         }
     }

@@ -116,17 +116,22 @@ public static class MauiProgram
 
         //DRIVER'S SIDE
         builder.Services.AddSingleton<DriverDashboardViewModel>();
+        builder.Services.AddTransient<DriverCounterOfferViewModel>();
         builder.Services.AddSingleton<DriverProfileViewModel>();
         builder.Services.AddTransient<DriverRideProgressViewModel>();
+        builder.Services.AddTransient<DriverSosViewModel>();
         builder.Services.AddSingleton<DriverShellViewModel>();
         builder.Services.AddSingleton<DriverStatsViewModel>();
         //pages
         builder.Services.AddSingleton<DriverDashboardPage>();
+        builder.Services.AddTransient<DriverCounterOfferPage>();
         builder.Services.AddSingleton<DriverProfilePage>();
         builder.Services.AddTransient<DriverRideProgressPage>();
+        builder.Services.AddTransient<DriverSosPage>();
         builder.Services.AddSingleton<DriverStatsPage>();
 
         builder.Services.AddTransient<AuthHeaderHandler>();
+        builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<IStorageService, StorageService>();
         builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
         builder.Services.AddSingleton<IUserBootstrapService, MockUserBootstrapService>();

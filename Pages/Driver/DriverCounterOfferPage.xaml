@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Driver.DriverCounterOfferPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
+    Title="Counter Offer"
+    x:DataType="vm:DriverCounterOfferViewModel"
+    Shell.TabBarIsVisible="False">
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="20,20,20,30" Spacing="18">
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource KaLabelMd}" Text="RIDER REQUEST" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding RiderSummary}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RouteSummary}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding GuidanceText}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Counter amount" />
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                        <Button Command="{Binding DecreaseAmountCommand}" Style="{StaticResource KaSecondaryButton}" Text="-" />
+                        <Label Grid.Column="1" HorizontalTextAlignment="Center" Style="{StaticResource KaDisplayLabel}" Text="{Binding CounterAmount, StringFormat='${0:F2}'}" VerticalTextAlignment="Center" />
+                        <Button Grid.Column="2" Command="{Binding IncreaseAmountCommand}" Style="{StaticResource KaSecondaryButton}" Text="+" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Trip summary" />
+                    <Label Style="{StaticResource KaBodyLabel}" Text="{Binding RideRequest.StartAddress}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RideRequest.DestinationAddress}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RideRequest.OfferAmount, StringFormat='Rider offer ${0:F2}'}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RideRequest.RecommendedAmount, StringFormat='Recommended ${0:F2}'}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Command="{Binding SubmitCounterOfferCommand}" Style="{StaticResource KaPrimaryButton}" Text="Send Counter Offer" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

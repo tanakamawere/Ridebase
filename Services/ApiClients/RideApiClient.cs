@@ -43,6 +43,11 @@ public class RideApiClient : IRideApiClient
         return await apiClient.PostAsync<RideSessionModel>("api/rides/select-offer", acceptRequest);
     }
 
+    public async Task<ApiResponse<string>> SubmitDriverSos(DriverSosRequest sosRequest)
+    {
+        return await apiClient.PostAsync<string>("api/rides/driver-sos", sosRequest);
+    }
+
     public async Task<ApiResponse<string>> SubmitRating(RideRatingRequest ratingRequest)
     {
         return await apiClient.PostAsync<string>("api/rides/rating", ratingRequest);
