@@ -12,5 +12,5 @@ namespace Ridebase;
               DataScheme = CALLBACK_SCHEME)]
 public class WebAuthenticationCallbackActivity : WebAuthenticatorCallbackActivity
 {
-    const string CALLBACK_SCHEME = "myapp";
+    const string CALLBACK_SCHEME = "ridebase";
 }

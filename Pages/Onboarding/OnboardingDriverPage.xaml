@@ -3,10 +3,17 @@
     x:Class="Ridebase.Pages.Onboarding.OnboardingDriverPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:Ridebase.Converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
     Title="{Binding Title}"
     x:DataType="vm:OnboardingDriverViewModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:ObjectToBooleanConverter x:Key="ObjectToBooleanConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="16">
@@ -23,16 +30,18 @@
                 Text="Complete your personal, vehicle and license information."
                 TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
 
-            <Label Margin="0,8,0,0" Text="Full Name" />
-            <Entry
-                Placeholder="Enter your full name"
-                Text="{Binding FullName}" />
-
-            <Label Text="Phone Number" />
-            <Entry
-                Keyboard="Telephone"
-                Placeholder="e.g. +263 77 123 4567"
-                Text="{Binding PhoneNumber}" />
+            <Border Padding="16" StrokeShape="RoundRectangle 16" StrokeThickness="1">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Profile details from previous step" />
+                    <Label Text="Name" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <Label FontAttributes="Bold" Text="{Binding FullName}" />
+                    <Label Text="Phone number" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <Label FontAttributes="Bold" Text="{Binding PhoneNumber}" />
+                </VerticalStackLayout>
+            </Border>
 
             <Label Margin="0,8,0,0" Text="Car Make" />
             <Entry
@@ -66,9 +75,37 @@
             </HorizontalStackLayout>
 
             <HorizontalStackLayout Spacing="8">
-                <Label Text="Active subscription" VerticalOptions="Center" />
-                <Switch IsToggled="{Binding HasActiveSubscription}" />
+                <Label Text="Subscription is managed after setup" VerticalOptions="Center" />
             </HorizontalStackLayout>
+
+            <Border Padding="16" StrokeShape="RoundRectangle 16" StrokeThickness="1">
+                <VerticalStackLayout Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Driver Photo" />
+                    <Image
+                        Aspect="AspectFill"
+                        HeightRequest="180"
+                        IsVisible="{Binding DriverPhotoPath, Converter={StaticResource ObjectToBooleanConverter}}"
+                        Source="{Binding DriverPhotoPath}" />
+                    <Label
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding DriverPhotoStatus}"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button
+                            Command="{Binding TakeDriverPhotoCommand}"
+                            HorizontalOptions="FillAndExpand"
+                            Text="Take photo" />
+                        <Button
+                            Command="{Binding PickDriverPhotoCommand}"
+                            HorizontalOptions="FillAndExpand"
+                            Text="Choose from gallery" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
             <Label
                 Margin="0,8,0,0"

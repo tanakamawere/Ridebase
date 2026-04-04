@@ -45,11 +45,9 @@ public partial class AppShellViewModel : BaseViewModel
     {
         try
         {
-            // Check if user is onboarded as a driver
             var state = await userSessionService.GetStateAsync();
-            if (!state.IsDriverSubscribed)
+            if (!state.IsOnboarded)
             {
-                // Not onboarded as driver — send to driver onboarding
                 await Shell.Current.GoToAsync(nameof(OnboardingDriverPage));
                 Shell.Current.FlyoutIsPresented = false;
                 return;

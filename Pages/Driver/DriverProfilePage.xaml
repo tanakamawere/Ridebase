@@ -31,6 +31,25 @@
                 </StackLayout>
             </Border>
 
+            <!--  Subscription Management  -->
+            <Border Padding="10">
+                <StackLayout Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Subscription Management" />
+                    <Label Text="{Binding SubscriptionStatusText}" />
+                    <Label Text="{Binding SubscriptionPeriodText}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <Label Text="{Binding SubscriptionIdText}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Command="{Binding StartCheckoutCommand}" Text="Subscribe now" />
+                        <Button Command="{Binding OpenBillingPortalCommand}" Text="Manage portal" />
+                        <Button Command="{Binding RefreshSubscriptionCommand}" Text="Refresh" />
+                    </HorizontalStackLayout>
+                    <Button Command="{Binding CancelSubscriptionCommand}" Text="Cancel subscription" />
+                </StackLayout>
+            </Border>
+
             <!--  Banking Info  -->
             <Border Padding="10">
                 <StackLayout Spacing="5">

@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.ApplicationModel;
+using Ridebase.Models;
 using Ridebase.Models.Ride;
 using Ridebase.Pages.Driver;
 using Ridebase.Services.Interfaces;
@@ -10,12 +12,14 @@ namespace Ridebase.ViewModels.Driver;
 
 public partial class DriverDashboardViewModel : BaseViewModel
 {
+    private readonly IPaymentSubscriptionApiClient paymentSubscriptionApiClient;
 
     [ObservableProperty]
     private ObservableCollection<RideRequestModel> rideRequests;
 
     [ObservableProperty]
     private bool isOnline = false;
+
     [ObservableProperty]
     private string onlineStatusText = "You are offline";
 
@@ -25,16 +29,28 @@ public partial class DriverDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private string subscriptionMessage = string.Empty;
 
-    public DriverDashboardViewModel(ILogger<DriverDashboardViewModel> logger, IRideRealtimeService _rideRealtimeService, IUserSessionService _userSessionService, IRideStateStore _rideStateStore)
+    [ObservableProperty]
+    private string subscriptionDetail = string.Empty;
+
+    [ObservableProperty]
+    private bool isRefreshingSubscription;
+
+    public DriverDashboardViewModel(
+        ILogger<DriverDashboardViewModel> logger,
+        IRideRealtimeService _rideRealtimeService,
+        IUserSessionService _userSessionService,
+        IPaymentSubscriptionApiClient _paymentSubscriptionApiClient,
+        IRideStateStore _rideStateStore)
     {
         Logger = logger;
         rideRealtimeService = _rideRealtimeService;
         userSessionService = _userSessionService;
+        paymentSubscriptionApiClient = _paymentSubscriptionApiClient;
         rideStateStore = _rideStateStore;
         RideRequests = [];
 
         rideRealtimeService.DriverRideRequestReceived += OnDriverRideRequestReceived;
-        InitializeSubscriptionState();
+        _ = RefreshSubscriptionStateAsync();
     }
 
     partial void OnIsOnlineChanged(bool oldValue, bool newValue)
@@ -60,6 +76,15 @@ public partial class DriverDashboardViewModel : BaseViewModel
 
     private async Task GoOnlineAsync()
     {
+        await RefreshSubscriptionStateAsync();
+
+        if (!CanGoOnline)
+        {
+            IsOnline = false;
+            await Shell.Current.DisplayAlert("Subscription required", "Complete your subscription before going online.", "OK");
+            return;
+        }
+
         // Use the real persisted user ID, not a fresh random GUID
         var state = await userSessionService.GetStateAsync();
         var driverId = string.IsNullOrWhiteSpace(state.UserId)
@@ -68,7 +93,6 @@ public partial class DriverDashboardViewModel : BaseViewModel
         await rideRealtimeService.StartDriverRequestStreamAsync(driverId);
     }
 
-    //Method to go to ride in progress page
     [RelayCommand]
     public async Task GoToRideInProgress(RideRequestModel? request)
     {
@@ -86,7 +110,7 @@ public partial class DriverDashboardViewModel : BaseViewModel
                 RideId = request.RideGuid.ToString("N"),
                 RiderId = request.RiderId,
                 DriverId = Guid.TryParse(session.UserId, out var drvId) ? drvId : Guid.NewGuid(),
-                RiderPhoneNumber = string.Empty, // populated by backend in production; unknown in mock
+                RiderPhoneNumber = string.Empty,
                 DriverPhoneNumber = session.PhoneNumber,
                 RiderName = "Rider",
                 DriverName = session.FullName,
@@ -103,13 +127,51 @@ public partial class DriverDashboardViewModel : BaseViewModel
             await rideRealtimeService.UpdateRideStatusAsync(request.RideGuid.ToString("N"), RideStatus.DriverEnRoute);
             await Shell.Current.GoToAsync(nameof(DriverRideProgressPage), true, new Dictionary<string, object>
             {
-                {"currentLocation", "Pickup" }
+                { "currentLocation", "Pickup" }
             });
             Logger.LogInformation("Successfully navigated to Ride In Progress page");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error navigating to Ride In Progress page");
+        }
+    }
+
+    [RelayCommand]
+    public Task GoToDriverProfile()
+    {
+        return Shell.Current.GoToAsync(nameof(DriverProfilePage));
+    }
+
+    [RelayCommand]
+    public async Task RefreshSubscriptionStateAsync()
+    {
+        if (IsRefreshingSubscription)
+        {
+            return;
+        }
+
+        IsRefreshingSubscription = true;
+        try
+        {
+            var state = await userSessionService.GetStateAsync();
+            var subscriptionResponse = await paymentSubscriptionApiClient.GetSubscriptionStatusAsync();
+
+            if (subscriptionResponse.IsSuccess && subscriptionResponse.Data is not null)
+            {
+                await userSessionService.SetSubscriptionStateAsync(subscriptionResponse.Data);
+                state = await userSessionService.GetStateAsync();
+            }
+
+            CanGoOnline = state.IsDriverSubscribed;
+            SubscriptionMessage = CanGoOnline
+                ? "Subscription active"
+                : "Subscription required to receive ride requests.";
+            SubscriptionDetail = BuildSubscriptionDetail(state);
+        }
+        finally
+        {
+            IsRefreshingSubscription = false;
         }
     }
 
@@ -129,12 +191,25 @@ public partial class DriverDashboardViewModel : BaseViewModel
         });
     }
 
-    private async void InitializeSubscriptionState()
+    private static string BuildSubscriptionDetail(UserBootstrapState state)
     {
-        var state = await userSessionService.GetStateAsync();
-        CanGoOnline = state.IsDriverSubscribed;
-        SubscriptionMessage = CanGoOnline
-            ? "Subscription active"
-            : "Subscription required to receive ride requests.";
+        if (!state.IsDriverSubscribed)
+        {
+            return "Open billing to subscribe or reactivate your driver access.";
+        }
+
+        if (state.SubscriptionCurrentPeriodEnd is null)
+        {
+            return string.IsNullOrWhiteSpace(state.SubscriptionStatus)
+                ? "Your subscription is active."
+                : $"Current status: {state.SubscriptionStatus}.";
+        }
+
+        var renewalDate = DateTimeOffset.FromUnixTimeSeconds(state.SubscriptionCurrentPeriodEnd.Value).ToLocalTime();
+        var cancellationNote = state.SubscriptionCancelAtPeriodEnd == true
+            ? "Cancellation is scheduled at period end."
+            : "Auto-renewal is active.";
+
+        return $"Renews on {renewalDate:dd MMM yyyy}. {cancellationNote}";
     }
 }
