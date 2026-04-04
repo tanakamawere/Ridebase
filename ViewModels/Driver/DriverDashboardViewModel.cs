@@ -150,22 +150,29 @@ public partial class DriverDashboardViewModel : BaseViewModel
         try
         {
             var session = await userSessionService.GetStateAsync();
+            RideRequests.Remove(request);
             rideStateStore.SetCurrentRide(new RideSessionModel
             {
                 RideId = request.RideGuid.ToString("N"),
                 RiderId = request.RiderId,
                 DriverId = Guid.TryParse(session.UserId, out var driverId) ? driverId : Guid.NewGuid(),
-                RiderPhoneNumber = string.Empty,
+                RiderName = request.RiderName,
+                RiderPhoneNumber = request.RiderPhoneNumber,
                 DriverPhoneNumber = session.PhoneNumber,
-                RiderName = "Rider",
                 DriverName = session.FullName,
                 VehicleInfo = "Driver vehicle",
                 StartLocation = request.StartLocation,
+                StartAddress = request.StartAddress,
                 DestinationLocation = request.DestinationLocation,
+                DestinationAddress = request.DestinationAddress,
                 RiderOfferAmount = request.OfferAmount,
+                RecommendedAmount = request.RecommendedAmount,
                 AcceptedAmount = request.OfferAmount,
-                DistanceKm = 5,
-                EstimatedMinutes = 12,
+                DistanceKm = request.EstimatedDistanceKm <= 0 ? 5 : request.EstimatedDistanceKm,
+                EstimatedMinutes = request.EstimatedMinutes <= 0 ? 12 : request.EstimatedMinutes,
+                DriverEtaMinutes = 6,
+                DriverCurrentLocation = request.StartLocation,
+                AcceptedAtUtc = DateTimeOffset.UtcNow,
                 Status = RideStatus.DriverEnRoute
             });
 
@@ -174,6 +181,14 @@ public partial class DriverDashboardViewModel : BaseViewModel
             LastTripEarningsText = $"${request.OfferAmount:F2}";
 
             await rideRealtimeService.UpdateRideStatusAsync(request.RideGuid.ToString("N"), RideStatus.DriverEnRoute);
+            await rideRealtimeService.PublishDriverLocationAsync(new DriverLocationUpdate
+            {
+                RideId = request.RideGuid.ToString("N"),
+                DriverId = Guid.TryParse(session.UserId, out var activeDriverId) ? activeDriverId : Guid.NewGuid(),
+                CurrentLocation = request.StartLocation,
+                EtaMinutes = 6,
+                DistanceToPickupKm = 2.3
+            });
             await Shell.Current.GoToAsync(nameof(DriverRideProgressPage), true, new Dictionary<string, object>
             {
                 { "currentLocation", "Pickup" }
@@ -275,19 +290,72 @@ public partial class DriverDashboardViewModel : BaseViewModel
     {
         App.Current?.Dispatcher.Dispatch(() =>
         {
+            var existing = RideRequests.FirstOrDefault(item => item.RideGuid == request.RideId);
+            if (existing is not null)
+            {
+                RideRequests.Remove(existing);
+            }
+
             RideRequests.Add(new RideRequestModel
             {
                 RideGuid = request.RideId,
                 RiderId = request.RiderId.ToString(),
+                RiderName = request.RiderName,
+                RiderPhoneNumber = request.RiderPhoneNumber,
                 StartLocation = request.StartLocation,
+                StartAddress = request.PickupAddress,
                 DestinationLocation = request.DestinationLocation,
+                DestinationAddress = request.DestinationAddress,
                 OfferAmount = request.OfferAmount,
-                Comments = $"Pickup {FormatLocation(request.StartLocation)} • Drop-off {FormatLocation(request.DestinationLocation)}"
+                RecommendedAmount = request.RecommendedAmount,
+                EstimatedMinutes = request.EtaToPickupMinutes,
+                EstimatedDistanceKm = (double)request.DistanceToPickupKm,
+                Comments = $"Pickup {request.PickupAddress} • Drop-off {request.DestinationAddress}"
             });
 
             LastTripTitle = FormatLocation(request.DestinationLocation);
             LastTripTimeText = FormatLocation(request.StartLocation);
             LastTripEarningsText = $"${request.OfferAmount:F2}";
+        });
+    }
+
+    [RelayCommand]
+    public async Task CounterOffer(RideRequestModel? request)
+    {
+        if (request is null)
+        {
+            return;
+        }
+
+        var session = await userSessionService.GetStateAsync();
+        var counterAmount = request.RecommendedAmount > 0
+            ? request.RecommendedAmount
+            : request.OfferAmount + 1.00m;
+
+        await rideRealtimeService.SubmitDriverOfferAsync(new DriverOfferSelectionModel
+        {
+            RideOfferId = Guid.NewGuid(),
+            RideId = request.RideGuid.ToString("N"),
+            OfferAmount = counterAmount,
+            RiderOfferAmount = request.OfferAmount,
+            RecommendedAmount = request.RecommendedAmount,
+            IsCounterOffer = true,
+            EtaToPickupMinutes = 5,
+            Distance = 2.3m,
+            PickupAddress = request.StartAddress,
+            DestinationAddress = request.DestinationAddress,
+            PickupLocation = request.StartLocation,
+            DestinationLocation = request.DestinationLocation,
+            OfferTime = DateTime.UtcNow,
+            Driver = new DriverModel
+            {
+                DriverId = Guid.TryParse(session.UserId, out var driverId) ? driverId : Guid.NewGuid(),
+                Name = string.IsNullOrWhiteSpace(session.FullName) ? DriverDisplayName : session.FullName,
+                PhoneNumber = session.PhoneNumber,
+                Rating = 4.8,
+                RidesCompleted = 487,
+                Vehicle = "Toyota Aqua"
+            }
         });
     }
 

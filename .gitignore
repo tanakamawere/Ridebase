@@ -7,6 +7,10 @@
 /obj
 /bin
 /.vs
+/.dotnet/
+/.nuget/
+*.user
+build-*.log
 
 # Test project build artifacts
 /Ridebase.Tests/bin/

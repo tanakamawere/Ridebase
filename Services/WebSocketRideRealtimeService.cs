@@ -33,6 +33,7 @@ public sealed class WebSocketRideRealtimeService : IRideRealtimeService, IAsyncD
     public event Action<DriverOfferSelectionModel>? RiderOfferReceived;
     public event Action<RideStatusUpdateEvent>? RideStatusUpdated;
     public event Action<DriverRideRequest>? DriverRideRequestReceived;
+    public event Action<DriverLocationUpdate>? DriverLocationUpdated;
 
     public WebSocketRideRealtimeService(IConfiguration configuration)
     {
@@ -79,6 +80,12 @@ public sealed class WebSocketRideRealtimeService : IRideRealtimeService, IAsyncD
         await SendAsync("AcceptOffer", request, cancellationToken);
     }
 
+    public async Task SubmitDriverOfferAsync(DriverOfferSelectionModel offer, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await SendAsync("SubmitDriverOffer", offer, cancellationToken);
+    }
+
     public async Task StartDriverRequestStreamAsync(string driverId, CancellationToken cancellationToken = default)
     {
         await EnsureConnectedAsync(cancellationToken);
@@ -89,6 +96,18 @@ public sealed class WebSocketRideRealtimeService : IRideRealtimeService, IAsyncD
     {
         await EnsureConnectedAsync(cancellationToken);
         await SendAsync("UpdateRideStatus", new { rideId, status }, cancellationToken);
+    }
+
+    public async Task PublishDriverLocationAsync(DriverLocationUpdate locationUpdate, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await SendAsync("PublishDriverLocation", locationUpdate, cancellationToken);
+    }
+
+    public async Task CompleteRideAsync(string rideId, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await SendAsync("CompleteRide", new { rideId }, cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
@@ -174,6 +193,11 @@ public sealed class WebSocketRideRealtimeService : IRideRealtimeService, IAsyncD
                 case "DriverRideRequestReceived":
                     var req = JsonSerializer.Deserialize<DriverRideRequest>(payloadJson, JsonOpts);
                     if (req is not null) DriverRideRequestReceived?.Invoke(req);
+                    break;
+
+                case "DriverLocationUpdated":
+                    var location = JsonSerializer.Deserialize<DriverLocationUpdate>(payloadJson, JsonOpts);
+                    if (location is not null) DriverLocationUpdated?.Invoke(location);
                     break;
             }
         }

@@ -25,6 +25,8 @@ public class MockRideApiClient : IRideApiClient
             Data = new RideSessionModel
             {
                 RideId = rideId,
+                StartAddress = "128 Samora Machel, Harare",
+                DestinationAddress = "RG Mugabe Intl Airport, Harare",
                 Status = RideStatus.DriverEnRoute
             },
             StatusCode = 200
@@ -66,6 +68,41 @@ public class MockRideApiClient : IRideApiClient
         {
             IsSuccess = true,
             Data = new Ridebase.Models.Location { latitude = -17.8252, longitude = 31.0335 },
+            StatusCode = 200
+        });
+    }
+
+    public Task<ApiResponse<RideSessionModel>> SelectOffer(RideAcceptRequest acceptRequest)
+    {
+        return Task.FromResult(new ApiResponse<RideSessionModel>
+        {
+            IsSuccess = true,
+            Data = new RideSessionModel
+            {
+                RideId = acceptRequest.RideId,
+                RiderId = acceptRequest.RiderId,
+                DriverId = acceptRequest.DriverId,
+                SelectedOfferId = acceptRequest.RideOfferId,
+                StartLocation = acceptRequest.StartLocation,
+                DestinationLocation = acceptRequest.DestinationLocation,
+                StartAddress = acceptRequest.PickupAddress,
+                DestinationAddress = acceptRequest.DestinationAddress,
+                RiderOfferAmount = acceptRequest.OfferAmount,
+                RecommendedAmount = acceptRequest.RecommendedAmount,
+                AcceptedAmount = acceptRequest.OfferAmount,
+                DriverEtaMinutes = 6,
+                Status = RideStatus.DriverEnRoute
+            },
+            StatusCode = 200
+        });
+    }
+
+    public Task<ApiResponse<string>> SubmitRating(RideRatingRequest ratingRequest)
+    {
+        return Task.FromResult(new ApiResponse<string>
+        {
+            IsSuccess = true,
+            Data = ratingRequest.RideId,
             StatusCode = 200
         });
     }

@@ -37,4 +37,14 @@ public class RideApiClient : IRideApiClient
     {
         throw new NotImplementedException();
     }
+
+    public async Task<ApiResponse<RideSessionModel>> SelectOffer(RideAcceptRequest acceptRequest)
+    {
+        return await apiClient.PostAsync<RideSessionModel>("api/rides/select-offer", acceptRequest);
+    }
+
+    public async Task<ApiResponse<string>> SubmitRating(RideRatingRequest ratingRequest)
+    {
+        return await apiClient.PostAsync<string>("api/rides/rating", ratingRequest);
+    }
 }

@@ -2,18 +2,21 @@
 
 public class DriverOfferSelectionModel
 {
-    // Unique identifier for the ride offer
     public Guid RideOfferId { get; set; }
-    // Information about the driver making the offer
+    public string RideId { get; set; } = string.Empty;
     public DriverModel? Driver { get; set; }
-    // Amount requested by the driver for the ride
     public decimal OfferAmount { get; set; }
-    // Distances between the two locations
+    public decimal RiderOfferAmount { get; set; }
+    public decimal RecommendedAmount { get; set; }
+    public bool IsCounterOffer { get; set; }
+    public int EtaToPickupMinutes { get; set; }
     public decimal Distance { get; set; }
-    // Pickup location of the ride offer
+    public string PickupAddress { get; set; } = string.Empty;
+    public string DestinationAddress { get; set; } = string.Empty;
     public Location? PickupLocation { get; set; }
-    // Drop-off location of the ride offer
     public Location? DestinationLocation { get; set; }
-    // Time when the ride offer was made
     public DateTime OfferTime { get; set; }
+
+    public string OfferTypeLabel => IsCounterOffer ? "COUNTER OFFER" : "ACCEPTED OFFER";
+    public decimal FareDelta => decimal.Round(OfferAmount - RiderOfferAmount, 2);
 }

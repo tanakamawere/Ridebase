@@ -17,6 +17,7 @@ public sealed class SignalRRideRealtimeService : IRideRealtimeService, IAsyncDis
     public event Action<DriverOfferSelectionModel>? RiderOfferReceived;
     public event Action<RideStatusUpdateEvent>? RideStatusUpdated;
     public event Action<DriverRideRequest>? DriverRideRequestReceived;
+    public event Action<DriverLocationUpdate>? DriverLocationUpdated;
 
     public SignalRRideRealtimeService(IConfiguration configuration)
     {
@@ -39,6 +40,9 @@ public sealed class SignalRRideRealtimeService : IRideRealtimeService, IAsyncDis
 
         _hub.On<DriverRideRequest>("DriverRideRequestReceived",
             req => DriverRideRequestReceived?.Invoke(req));
+
+        _hub.On<DriverLocationUpdate>("DriverLocationUpdated",
+            update => DriverLocationUpdated?.Invoke(update));
     }
 
     // ── Outbound hub invocations ─────────────────────────────────────────────
@@ -55,6 +59,12 @@ public sealed class SignalRRideRealtimeService : IRideRealtimeService, IAsyncDis
         await _hub.InvokeAsync("AcceptOffer", request, cancellationToken);
     }
 
+    public async Task SubmitDriverOfferAsync(DriverOfferSelectionModel offer, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await _hub.InvokeAsync("SubmitDriverOffer", offer, cancellationToken);
+    }
+
     public async Task StartDriverRequestStreamAsync(string driverId, CancellationToken cancellationToken = default)
     {
         await EnsureConnectedAsync(cancellationToken);
@@ -65,6 +75,18 @@ public sealed class SignalRRideRealtimeService : IRideRealtimeService, IAsyncDis
     {
         await EnsureConnectedAsync(cancellationToken);
         await _hub.InvokeAsync("UpdateRideStatus", rideId, status, cancellationToken);
+    }
+
+    public async Task PublishDriverLocationAsync(DriverLocationUpdate locationUpdate, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await _hub.InvokeAsync("PublishDriverLocation", locationUpdate, cancellationToken);
+    }
+
+    public async Task CompleteRideAsync(string rideId, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectedAsync(cancellationToken);
+        await _hub.InvokeAsync("CompleteRide", rideId, cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)

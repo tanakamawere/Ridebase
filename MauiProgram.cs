@@ -88,6 +88,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<RideSelectionViewModel>();
         builder.Services.AddTransient<RideProgressViewModel>();
+        builder.Services.AddTransient<RideEndedViewModel>();
         builder.Services.AddTransient<RideHistoryViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         builder.Services.AddTransient<WalletViewModel>();
@@ -137,12 +138,20 @@ public static class MauiProgram
         // Switch between raw WebSocket and SignalR hub via appsettings.json
         // "RealtimeTransport": "WebSocket"  → WebSocketRideRealtimeService
         // "RealtimeTransport": "SignalR"    → SignalRRideRealtimeService
-        if (realtimeTransport.Equals("SignalR", StringComparison.OrdinalIgnoreCase))
-            builder.Services.AddSingleton<IRideRealtimeService, SignalRRideRealtimeService>();
+        if (useMockServices)
+        {
+            builder.Services.AddSingleton<IRideRealtimeService, MockRideRealtimeService>();
+            builder.Services.AddSingleton<IRideApiClient, MockRideApiClient>();
+        }
         else
-            builder.Services.AddSingleton<IRideRealtimeService, WebSocketRideRealtimeService>();
+        {
+            if (realtimeTransport.Equals("SignalR", StringComparison.OrdinalIgnoreCase))
+                builder.Services.AddSingleton<IRideRealtimeService, SignalRRideRealtimeService>();
+            else
+                builder.Services.AddSingleton<IRideRealtimeService, WebSocketRideRealtimeService>();
 
-        builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+            builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
+        }
         builder.Services.AddTransient<IOnboardingApiClient, OnboardingApiClient>();
         builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
         if (useMockServices)

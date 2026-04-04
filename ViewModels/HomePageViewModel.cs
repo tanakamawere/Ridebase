@@ -99,6 +99,9 @@ public partial class HomePageViewModel : BaseViewModel
     [ObservableProperty]
     private decimal offerAmount = 2;
 
+    [ObservableProperty]
+    private string findingDriverMessage = "Broadcasting your request to nearby drivers.";
+
     // ─── Services ────────────────────────────────────────────────
     private readonly GoogleMaps.Geocode.LocationGeocodeApi _geocodeApi;
     private readonly GoogleMaps.Geocode.AddressGeocodeApi _addressGeocodeApi;
@@ -138,6 +141,10 @@ public partial class HomePageViewModel : BaseViewModel
 
         GetCurrentLocation();
     }
+
+    public string CurrentLocationHeadline => string.IsNullOrWhiteSpace(CurrentLocation?.FormattedAddress)
+        ? "Finding your location..."
+        : CurrentLocation.FormattedAddress;
 
     // ═════════════════════════════════════════════════════════════
     //  LOCATION
@@ -194,6 +201,7 @@ public partial class HomePageViewModel : BaseViewModel
             };
 
             Logger.LogInformation("Current location: {Address}", CurrentLocation.FormattedAddress);
+            OnPropertyChanged(nameof(CurrentLocationHeadline));
             await AnimateToLocation(CurrentLocation.Location.latitude, CurrentLocation.Location.longitude, 15);
         }
         catch (Exception ex)
@@ -322,6 +330,13 @@ public partial class HomePageViewModel : BaseViewModel
         TransitionToSearch();
     }
 
+    [RelayCommand]
+    public async Task UsePresetDestination(string destinationLabel)
+    {
+        TransitionToSearch();
+        await SetDestinationFromAddressAsync(destinationLabel);
+    }
+
     private async Task CheckLoginAndOpenSearch()
     {
         if (!await storageService.IsLoggedInAsync())
@@ -366,30 +381,12 @@ public partial class HomePageViewModel : BaseViewModel
         {
             // Geocode to get coordinates
             LocationWithAddress dest;
-            // Use address geocode API to forward-geocode the place description
-            var geocodeResponse = await _addressGeocodeApi.QueryAsync(
-                new GoogleApi.Entities.Maps.Geocoding.Address.Request.AddressGeocodeRequest
-                {
-                    Address = prediction.Description,
-                    Key = Constants.googleMapsApiKey
-                });
-
-            var result = geocodeResponse?.Results?.FirstOrDefault();
-            if (result is null)
+            dest = await GeocodeAddressAsync(prediction.Description);
+            if (dest is null)
             {
                 Logger.LogWarning("Geocoding returned no results for {Place}", prediction.Description);
                 return;
             }
-
-            dest = new LocationWithAddress
-            {
-                Location = new Models.Location
-                {
-                    latitude = result.Geometry.Location.Latitude,
-                    longitude = result.Geometry.Location.Longitude
-                },
-                FormattedAddress = result.FormattedAddress
-            };
 
             // Assign to the correct target based on active field
             if (ActiveSearchField == SearchField.Pickup)
@@ -579,28 +576,38 @@ public partial class HomePageViewModel : BaseViewModel
         Logger.LogInformation("Finding driver");
         CurrentSearchState = SearchState.FindingDriver;
         IsBusy = true;
+        FindingDriverMessage = "Broadcasting your request to nearby drivers.";
 
         try
         {
             var rideGuid = Guid.NewGuid();
             _pendingRideId = rideGuid.ToString("N");
+            var session = await userSessionService.GetStateAsync();
 
             var rideRequest = new RideRequestModel
             {
                 RideGuid = rideGuid,
                 RiderId = await storageService.GetUserIdAsync() ?? string.Empty,
+                RiderName = string.IsNullOrWhiteSpace(session.FullName) ? "Kinetic Rider" : session.FullName,
+                RiderPhoneNumber = session.PhoneNumber,
                 StartLocation = new Models.Location
                 {
                     latitude = origin.Location.latitude,
                     longitude = origin.Location.longitude
                 },
+                StartAddress = origin.FormattedAddress ?? "Pickup location",
                 DestinationLocation = new Models.Location
                 {
                     latitude = SelectedDestination.Location.latitude,
                     longitude = SelectedDestination.Location.longitude
                 },
+                DestinationAddress = SelectedDestination.FormattedAddress ?? "Destination",
                 OfferAmount = OfferAmount,
-                Comments = "Nothing entered"
+                RecommendedAmount = RecommendedFare,
+                EstimatedDistanceKm = EstimatedDistanceKm,
+                EstimatedMinutes = EstimatedMinutes,
+                RequestedAtUtc = DateTimeOffset.UtcNow,
+                Comments = "Please call on arrival."
             };
 
             Logger.LogInformation("Ride request ID: {Id}", rideRequest.RideGuid);
@@ -610,6 +617,7 @@ public partial class HomePageViewModel : BaseViewModel
             if (response.IsSuccess)
             {
                 Logger.LogInformation("Ride request sent — navigating to selection");
+                FindingDriverMessage = "Drivers can now accept or counter your offer.";
                 await rideRealtimeService.StartRiderMatchingAsync(rideRequest);
 
                 await Shell.Current.GoToAsync(nameof(RideSelectionPage), true,
@@ -686,5 +694,51 @@ public partial class HomePageViewModel : BaseViewModel
         var hour = DateTime.Now.Hour;
         var multiplier = hour is >= 17 and <= 20 ? 1.15m : 1m;
         return decimal.Round((baseFare + distanceComponent + durationComponent) * multiplier, 2);
+    }
+
+    private async Task SetDestinationFromAddressAsync(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return;
+        }
+
+        DestinationSearchQuery = address;
+        ActiveSearchField = SearchField.Destination;
+        var destination = await GeocodeAddressAsync(address);
+        if (destination is null)
+        {
+            return;
+        }
+
+        SelectedDestination = destination;
+        await GetDirectionsAsync();
+        CurrentSearchState = SearchState.RoutePreview;
+    }
+
+    private async Task<LocationWithAddress?> GeocodeAddressAsync(string address)
+    {
+        var geocodeResponse = await _addressGeocodeApi.QueryAsync(
+            new GoogleApi.Entities.Maps.Geocoding.Address.Request.AddressGeocodeRequest
+            {
+                Address = address,
+                Key = Constants.googleMapsApiKey
+            });
+
+        var result = geocodeResponse?.Results?.FirstOrDefault();
+        if (result is null)
+        {
+            return null;
+        }
+
+        return new LocationWithAddress
+        {
+            Location = new Models.Location
+            {
+                latitude = result.Geometry.Location.Latitude,
+                longitude = result.Geometry.Location.Longitude
+            },
+            FormattedAddress = result.FormattedAddress
+        };
     }
 }

@@ -82,21 +82,35 @@
                                     <VerticalStackLayout Spacing="12">
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <VerticalStackLayout Spacing="2">
-                                                <Label Style="{StaticResource KaTitleLabel}" Text="{Binding RiderId, StringFormat='Passenger {0}'}" />
-                                                <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding OfferAmount, StringFormat='Offer • ${0:F2}'}" />
+                                                <Label Style="{StaticResource KaTitleLabel}" Text="{Binding RiderName}" />
+                                                <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding OfferAmount, StringFormat='Rider offer • ${0:F2}'}" />
                                             </VerticalStackLayout>
                                             <Border Style="{StaticResource KaStatusChipActive}">
                                                 <Label Style="{StaticResource KaStatusChipLabel}" Text="NEARBY" />
                                             </Border>
                                         </Grid>
 
-                                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding Comments}" />
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Style="{StaticResource KaBodyLabel}" Text="{Binding StartAddress}" />
+                                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding DestinationAddress}" />
+                                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RecommendedAmount, StringFormat='Recommended fare • ${0:F2}'}" />
+                                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding EstimatedDistanceKm, StringFormat='Distance to pickup • {0:F1} km'}" />
+                                        </VerticalStackLayout>
 
-                                        <Button
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=GoToRideInProgressCommand}"
-                                            CommandParameter="{Binding .}"
-                                            Style="{StaticResource KaPrimaryButton}"
-                                            Text="Accept Request" />
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                            <Button
+                                                Grid.Column="0"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=CounterOfferCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource KaSecondaryButton}"
+                                                Text="Counter Offer" />
+                                            <Button
+                                                Grid.Column="1"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=GoToRideInProgressCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource KaPrimaryButton}"
+                                                Text="Accept Request" />
+                                        </Grid>
                                     </VerticalStackLayout>
                                 </Border>
                             </DataTemplate>

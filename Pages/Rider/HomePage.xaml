@@ -168,7 +168,6 @@
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
                     Spacing="20">
 
-                    <!--  Drag Handle  -->
                     <BoxView
                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray300},
                                                           Dark={StaticResource Gray600}}"
@@ -177,61 +176,89 @@
                         HorizontalOptions="Center"
                         WidthRequest="40" />
 
-                    <!--  Current Location Display  -->
-                    <Grid
-                        ColumnDefinitions="Auto,*"
-                        ColumnSpacing="16"
-                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                        RowDefinitions="Auto,Auto"
-                        RowSpacing="8">
-
-                        <Border
-                            Grid.Row="0"
-                            Grid.RowSpan="2"
-                            Grid.Column="0"
-                            Padding="12"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Secondary},
-                                                              Dark={StaticResource Primary}}"
-                            HeightRequest="52"
-                            StrokeShape="RoundRectangle 26"
-                            StrokeThickness="0"
-                            VerticalOptions="Start"
-                            WidthRequest="52">
-                            <Image>
-                                <Image.Source>
-                                    <FontImageSource
-                                        FontFamily="fasolid"
-                                        Glyph="{x:Static icons:Fasolid.LocationDot}"
-                                        Size="24"
-                                        Color="{AppThemeBinding Dark={StaticResource White},
-                                                                Light={StaticResource Primary}}" />
-                                </Image.Source>
-                            </Image>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border BackgroundColor="{StaticResource Secondary}" HeightRequest="52" StrokeThickness="0" StrokeShape="RoundRectangle 26" WidthRequest="52">
+                            <Label FontFamily="fasolid" FontSize="22" HorizontalOptions="Center" Text="&#xf3cd;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
                         </Border>
-
-                        <Label
-                            Grid.Row="0"
-                            Grid.Column="1"
-                            FontSize="12"
-                            Text="YOUR LOCATION"
-                            TextColor="{AppThemeBinding Light={StaticResource Gray400},
-                                                        Dark={StaticResource Gray500}}"
-                            VerticalOptions="End" />
-
-                        <Label
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            LineBreakMode="TailTruncation"
-                            MaxLines="2"
-                            Text="{Binding CurrentLocation.FormattedAddress}"
-                            TextColor="{AppThemeBinding Light={StaticResource OffBlack},
-                                                        Dark={StaticResource White}}"
-                            VerticalOptions="Start" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label FontSize="12" Text="KINETIC" TextColor="{StaticResource Gray400}" />
+                            <Label FontAttributes="Bold" FontSize="20" Text="Ready when you are" TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="2" BackgroundColor="{StaticResource Gray100}" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 22" WidthRequest="44">
+                            <Label FontFamily="fasolid" FontSize="18" HorizontalOptions="Center" Text="&#xf0f3;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                        </Border>
                     </Grid>
 
-                    <!--  Loading State  -->
+                    <Border Padding="16,14" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray700}}" Shadow="{StaticResource CardShadow}" StrokeShape="RoundRectangle 20" StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenSearchCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label FontFamily="fasolid" FontSize="18" Text="&#xf002;" TextColor="{StaticResource Gray500}" VerticalTextAlignment="Center" />
+                            <Label Grid.Column="1" FontAttributes="Bold" FontSize="16" Text="Where to?" TextColor="{StaticResource Gray500}" VerticalOptions="Center" />
+                            <Border Grid.Column="2" BackgroundColor="{StaticResource Gray100}" Padding="8,4" StrokeThickness="0" StrokeShape="RoundRectangle 14">
+                                <Label FontFamily="fasolid" FontSize="14" Text="&#xf017;" TextColor="{StaticResource Primary}" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Border Grid.Column="0" Padding="14" Style="{StaticResource KaSectionSurface}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="128 Samora Machel, Harare" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6">
+                                <Label FontFamily="fasolid" FontSize="18" Text="&#xf015;" TextColor="{StaticResource Primary}" />
+                                <Label FontAttributes="Bold" FontSize="16" Text="Home" />
+                                <Label FontSize="13" Text="128 Samora Machel" TextColor="{StaticResource Gray500}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" Padding="14" Style="{StaticResource KaSectionSurface}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="Kinetic HQ, Milton Park, Harare" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6">
+                                <Label FontFamily="fasolid" FontSize="18" Text="&#xf0b1;" TextColor="{StaticResource Primary}" />
+                                <Label FontAttributes="Bold" FontSize="16" Text="Work" />
+                                <Label FontSize="13" Text="Kinetic HQ, Milton Park" TextColor="{StaticResource Gray500}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <Border Padding="18" Style="{StaticResource KaFleetModuleCard}">
+                        <VerticalStackLayout Spacing="16">
+                            <Label Style="{StaticResource KaSectionTitle}" Text="Recent Destinations" />
+
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border BackgroundColor="{StaticResource Gray100}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
+                                    <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="&#xf1da;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label FontAttributes="Bold" Text="Avondale Shopping Centre" />
+                                    <Label FontSize="13" Text="King George Rd, Harare" TextColor="{StaticResource Gray500}" />
+                                </VerticalStackLayout>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="Avondale Shopping Centre, King George Rd, Harare" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border BackgroundColor="{StaticResource Gray100}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
+                                    <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="&#xf5b0;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label FontAttributes="Bold" Text="RG Mugabe Intl Airport" />
+                                    <Label FontSize="13" Text="Airport Rd, Harare" TextColor="{StaticResource Gray500}" />
+                                </VerticalStackLayout>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="RG Mugabe Intl Airport, Airport Rd, Harare" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+
+                            <Button Style="{StaticResource KaPrimaryButton}" Text="Plan a Future Trip" />
+                        </VerticalStackLayout>
+                    </Border>
+
                     <HorizontalStackLayout
                         HorizontalOptions="Center"
                         IsVisible="{Binding IsBusy}"
@@ -641,7 +668,7 @@
                                 FontAttributes="Bold"
                                 FontSize="18"
                                 HorizontalOptions="Center"
-                                Text="Find Driver"
+                                Text="Find Offers"
                                 TextColor="{StaticResource White}"
                                 VerticalOptions="Center" />
 
@@ -692,14 +719,14 @@
                         FontAttributes="Bold"
                         FontSize="18"
                         HorizontalOptions="Center"
-                        Text="Finding your driver..."
+                        Text="Finding offers..."
                         TextColor="{AppThemeBinding Light={StaticResource OffBlack},
                                                     Dark={StaticResource White}}" />
 
                     <Label
                         FontSize="14"
                         HorizontalOptions="Center"
-                        Text="Hang tight, we're matching you"
+                        Text="{Binding FindingDriverMessage}"
                         TextColor="{AppThemeBinding Light={StaticResource Gray500},
                                                     Dark={StaticResource Gray400}}" />
 

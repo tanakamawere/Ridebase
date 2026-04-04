@@ -1,7 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using Ridebase.Models;
 using Ridebase.Models.Ride;
 using Ridebase.Pages.Rider;
 using Ridebase.Services.Interfaces;
@@ -13,75 +12,104 @@ namespace Ridebase.ViewModels.Rider;
 public partial class RideSelectionViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private ObservableCollection<DriverOfferSelectionModel> driversList;
-    [ObservableProperty]
-    private RideRequestModel rideRequest;
+    private ObservableCollection<DriverOfferSelectionModel> driversList = [];
 
-    public RideSelectionViewModel(IRideRealtimeService _rideRealtimeService, IRideStateStore _rideStateStore, IUserSessionService _userSessionService, ILogger<RideSelectionViewModel> logger)
+    [ObservableProperty]
+    private RideRequestModel rideRequest = new();
+
+    public RideSelectionViewModel(
+        IRideRealtimeService realtimeService,
+        IRideStateStore rideStateStore,
+        IUserSessionService userSessionService,
+        IRideApiClient rideApiClient,
+        ILogger<RideSelectionViewModel> logger)
     {
         Logger = logger;
-        rideRealtimeService = _rideRealtimeService;
-        rideStateStore = _rideStateStore;
-        userSessionService = _userSessionService;
-        DriversList = new ObservableCollection<DriverOfferSelectionModel>();
+        rideRealtimeService = realtimeService;
+        this.rideStateStore = rideStateStore;
+        this.userSessionService = userSessionService;
+        this.rideApiClient = rideApiClient;
 
         rideRealtimeService.RiderOfferReceived += HandleIncomingOffer;
     }
 
+    partial void OnRideRequestChanged(RideRequestModel value)
+    {
+        DriversList.Clear();
+    }
+
     private void HandleIncomingOffer(DriverOfferSelectionModel offer)
     {
-        App.Current?.Dispatcher.Dispatch(() => DriversList.Add(offer));
+        var rideRequest = RideRequest;
+        if (rideRequest is null || rideRequest.RideGuid == Guid.Empty)
+        {
+            return;
+        }
+
+        if (!string.Equals(offer.RideId, rideRequest.RideGuid.ToString("N"), StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        App.Current?.Dispatcher.Dispatch(() =>
+        {
+            var existing = DriversList.FirstOrDefault(item => item.RideOfferId == offer.RideOfferId);
+            if (existing is not null)
+            {
+                DriversList.Remove(existing);
+            }
+
+            DriversList.Add(offer);
+        });
     }
 
     [RelayCommand]
     public async Task SelectDriver(DriverOfferSelectionModel driver)
     {
-        if (driver == null)
+        if (driver?.Driver is null)
         {
-            Logger.LogWarning("SelectDriver called with null driver");
+            Logger.LogWarning("SelectDriver called with an invalid driver offer");
             return;
         }
 
-        Logger.LogInformation("Driver selected: DriverId={DriverId}, OfferAmount={OfferAmount}", driver.Driver?.DriverId, driver.OfferAmount);
-
-        //Create Driver Accept Request Object
-        var driverAcceptRequest = new RideAcceptRequest
+        var acceptRequest = new RideAcceptRequest
         {
             RideId = RideRequest.RideGuid.ToString("N"),
-            DriverId = driver.Driver?.DriverId ?? Guid.Empty,
+            DriverId = driver.Driver.DriverId,
+            RideOfferId = driver.RideOfferId,
             RiderId = RideRequest.RiderId,
             OfferAmount = driver.OfferAmount,
+            RecommendedAmount = RideRequest.RecommendedAmount,
             Status = RideStatus.OfferAccepted,
+            PickupAddress = RideRequest.StartAddress,
+            DestinationAddress = RideRequest.DestinationAddress,
             StartLocation = RideRequest.StartLocation,
             DestinationLocation = RideRequest.DestinationLocation
         };
 
         try
         {
-            Logger.LogInformation("Sending driver accept request via realtime service");
-            await rideRealtimeService.AcceptOfferAsync(driverAcceptRequest);
+            await rideApiClient.SelectOffer(acceptRequest);
+            await rideRealtimeService.AcceptOfferAsync(acceptRequest);
 
             var session = await CreateRideSession(driver);
             rideStateStore.SetCurrentRide(session);
 
-            await rideRealtimeService.UpdateRideStatusAsync(session.RideId, RideStatus.DriverEnRoute);
             await Shell.Current.GoToAsync(nameof(RideProgressPage));
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error sending driver accept request");
+            Logger.LogError(ex, "Error accepting driver offer");
         }
     }
 
     [RelayCommand]
     public void DeclineDriver(DriverOfferSelectionModel driver)
     {
-        if (driver is null)
+        if (driver is not null)
         {
-            return;
+            DriversList.Remove(driver);
         }
-
-        DriversList.Remove(driver);
     }
 
     [RelayCommand]
@@ -89,14 +117,15 @@ public partial class RideSelectionViewModel : BaseViewModel
     {
         try
         {
-            Logger.LogInformation("Cancelling ride from selection screen");
             await rideRealtimeService.StopAsync();
 
-            if (RideRequest?.RideGuid != Guid.Empty)
+            var rideRequest = RideRequest;
+            if (rideRequest is not null && rideRequest.RideGuid != Guid.Empty)
             {
-                await rideApiClient.CancelRide(RideRequest!.RideGuid.ToString("N"));
+                await rideApiClient.CancelRide(rideRequest.RideGuid.ToString("N"));
             }
 
+            rideStateStore.SetCurrentRide(null);
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
@@ -114,17 +143,26 @@ public partial class RideSelectionViewModel : BaseViewModel
             RideId = RideRequest.RideGuid.ToString("N"),
             RiderId = RideRequest.RiderId,
             DriverId = selectedOffer.Driver?.DriverId ?? Guid.Empty,
-            RiderName = session.FullName,
+            RiderName = string.IsNullOrWhiteSpace(session.FullName) ? "Kinetic Rider" : session.FullName,
             RiderPhoneNumber = session.PhoneNumber,
             DriverName = selectedOffer.Driver?.Name ?? "Driver",
             DriverPhoneNumber = selectedOffer.Driver?.PhoneNumber ?? string.Empty,
             VehicleInfo = selectedOffer.Driver?.Vehicle ?? "Vehicle",
             StartLocation = RideRequest.StartLocation,
+            StartAddress = RideRequest.StartAddress,
             DestinationLocation = RideRequest.DestinationLocation,
+            DestinationAddress = RideRequest.DestinationAddress,
             RiderOfferAmount = RideRequest.OfferAmount,
+            RecommendedAmount = RideRequest.RecommendedAmount,
             AcceptedAmount = selectedOffer.OfferAmount,
-            DistanceKm = (double)selectedOffer.Distance,
-            EstimatedMinutes = 10,
+            SelectedOfferId = selectedOffer.RideOfferId,
+            DistanceKm = RideRequest.EstimatedDistanceKm <= 0 ? (double)selectedOffer.Distance : RideRequest.EstimatedDistanceKm,
+            EstimatedMinutes = RideRequest.EstimatedMinutes,
+            DriverEtaMinutes = selectedOffer.EtaToPickupMinutes,
+            DriverCurrentLocation = selectedOffer.PickupLocation ?? RideRequest.StartLocation,
+            DriverStatusNote = selectedOffer.IsCounterOffer ? "Counter offer accepted" : "Driver accepted your offer",
+            RequestedAtUtc = RideRequest.RequestedAtUtc,
+            AcceptedAtUtc = DateTimeOffset.UtcNow,
             Status = RideStatus.DriverEnRoute
         };
     }

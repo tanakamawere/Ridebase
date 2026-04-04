@@ -2,18 +2,15 @@
 
 public class RideAcceptRequest
 {
-    // Unique identifier for the ride
-    public string RideId { get; set; }
-    // Unique identifier for the driver
+    public string RideId { get; set; } = string.Empty;
     public Guid DriverId { get; set; }
-    // Unique identifier for the rider
-    public string RiderId { get; set; }
-    // Amount offered by the rider
+    public Guid RideOfferId { get; set; }
+    public string RiderId { get; set; } = string.Empty;
     public decimal OfferAmount { get; set; }
-    // Status of the ride
+    public decimal RecommendedAmount { get; set; }
     public RideStatus Status { get; set; }
-    // Start location of the ride
-    public Location StartLocation { get; set; }
-    // Destination location of the ride
-    public Location DestinationLocation { get; set; }
+    public string PickupAddress { get; set; } = string.Empty;
+    public string DestinationAddress { get; set; } = string.Empty;
+    public Location StartLocation { get; set; } = new();
+    public Location DestinationLocation { get; set; } = new();
 }
