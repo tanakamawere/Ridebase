@@ -63,7 +63,7 @@ public partial class AppShellViewModel : BaseViewModel
         catch (Exception ex)
         {
             Logger?.LogError(ex, "Failed to switch to driver mode");
-            await Application.Current.MainPage.DisplayAlert("Error", "Could not switch to driver mode. Please try again.", "OK");
+            await ShowAlertAsync("Error", "Could not switch to driver mode. Please try again.");
         }
     }
 
@@ -96,6 +96,20 @@ public partial class AppShellViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    public async Task GoToWallet()
+    {
+        Shell.Current.FlyoutIsPresented = false;
+        await Shell.Current.GoToAsync(nameof(WalletPage));
+    }
+
+    [RelayCommand]
+    public async Task GoToProfile()
+    {
+        Shell.Current.FlyoutIsPresented = false;
+        await Shell.Current.GoToAsync(nameof(ProfilePage));
+    }
+
+    [RelayCommand]
     public async Task GoToSupport()
     {
         Shell.Current.FlyoutIsPresented = false;
@@ -111,12 +125,18 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task Login()
     {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
         try
         {
             var loginResult = await authenticationClient.LoginAsync();
             if (loginResult.IsError)
             {
-                await Application.Current.MainPage.DisplayAlert("Login Failed", loginResult.ErrorDescription, "OK");
+                await ShowAlertAsync("Login Failed", loginResult.ErrorDescription);
                 return;
             }
 
@@ -149,11 +169,17 @@ public partial class AppShellViewModel : BaseViewModel
         catch (Exception ex)
         {
             Logger?.LogError(ex, "Auth0 login failed");
+            await ShowAlertAsync("Login Failed", "Unable to complete authentication right now. Please try again.");
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
     private async void CheckAuthenticationState()
     {
+        IsBusy = true;
         try
         {
             var token = await SecureStorage.GetAsync("auth_token");
@@ -173,6 +199,10 @@ public partial class AppShellViewModel : BaseViewModel
         {
             Logger?.LogWarning(ex, "CheckAuthenticationState failed; treating as logged out");
             ClearStorage();
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
@@ -237,5 +267,11 @@ public partial class AppShellViewModel : BaseViewModel
         {
             await Shell.Current.GoToAsync("//Home");
         }
+    }
+
+    private static Task ShowAlertAsync(string title, string message)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        return page is null ? Task.CompletedTask : page.DisplayAlertAsync(title, message, "OK");
     }
 }

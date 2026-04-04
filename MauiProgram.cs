@@ -45,6 +45,9 @@ public static class MauiProgram
                 fonts.AddFont("faregular.otf", "faregular");
                 fonts.AddFont("fabrands.otf", "fabrands");
                 fonts.AddFont("rubik.ttf", "rubik");
+                // Temporary aliases until the dedicated Plus Jakarta Sans and Inter files are added.
+                fonts.AddFont("rubik.ttf", "plusjakartasans");
+                fonts.AddFont("rubik.ttf", "inter");
             });
 
 
@@ -85,6 +88,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<RideSelectionViewModel>();
         builder.Services.AddTransient<RideProgressViewModel>();
+        builder.Services.AddTransient<RideHistoryViewModel>();
+        builder.Services.AddTransient<ProfileViewModel>();
+        builder.Services.AddTransient<WalletViewModel>();
 
         //Onboarding ViewModels
         builder.Services.AddTransient<OnboardingProfileViewModel>();
@@ -99,6 +105,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RideHistoryPage>();
         builder.Services.AddTransient<RideProgressPage>();
         builder.Services.AddTransient<ProfilePage>();
+        builder.Services.AddTransient<WalletPage>();
         builder.Services.AddTransient<RideSelectionPage>();
 
         //Onboarding Pages

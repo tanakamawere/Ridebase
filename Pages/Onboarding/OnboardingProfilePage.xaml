@@ -8,60 +8,100 @@
     Title="{Binding Title}"
     x:DataType="vm:OnboardingProfileViewModel">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="16">
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="20,20,20,32" Spacing="20">
+            <Border
+                Background="{StaticResource KaPrimaryGradientBrush}"
+                Padding="20"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24">
+                <VerticalStackLayout Spacing="10">
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="12"
+                        LetterSpacing="2"
+                        Text="STEP 1"
+                        TextColor="#C7E4E4" />
+                    <Label
+                        FontFamily="{StaticResource KaDisplayFontFamily}"
+                        FontSize="30"
+                        FontAttributes="Bold"
+                        Text="Tell us about yourself"
+                        TextColor="{StaticResource KaOnPrimary}" />
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="14"
+                        Text="We need a few details to personalize pickups, receipts, and support."
+                        TextColor="#D7ECEB" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label
-                FontAttributes="Bold"
-                FontSize="Title"
-                HorizontalOptions="Center"
-                Text="Tell us about yourself" />
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="18">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Full Name" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                KeyboardFlags="CapitalizeWord"
+                                Placeholder="Enter your full name"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding FullName}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <Label
-                HorizontalOptions="Center"
-                HorizontalTextAlignment="Center"
-                Text="We need a few details to get you started."
-                TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Phone Number" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Keyboard="Telephone"
+                                Placeholder="e.g. +263 77 123 4567"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding PhoneNumber}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <Label Margin="0,8,0,0" Text="Full Name" />
-            <Entry
-                Placeholder="Enter your full name"
-                Text="{Binding FullName}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="City" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Picker
+                                ItemsSource="{Binding ZimbabweCities}"
+                                SelectedItem="{Binding SelectedCity}"
+                                Title="Select your city" />
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Phone Number" />
-            <Entry
-                Keyboard="Telephone"
-                Placeholder="e.g. +263 77 123 4567"
-                Text="{Binding PhoneNumber}" />
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding LocationPermissionGranted}" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Style="{StaticResource KaTitleLabel}" Text="Enable location for pickups" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="This helps us prefill your pickup point and improve ride matching." />
+                        </VerticalStackLayout>
+                    </Grid>
 
-            <Label Text="City" />
-            <Picker
-                ItemsSource="{Binding ZimbabweCities}"
-                SelectedItem="{Binding SelectedCity}"
-                Title="Select your city" />
-
-            <HorizontalStackLayout Spacing="8">
-                <CheckBox IsChecked="{Binding LocationPermissionGranted}" />
-                <Label Text="I allow default location permission for pickups." VerticalOptions="Center" />
-            </HorizontalStackLayout>
-
-            <HorizontalStackLayout Spacing="8">
-                <CheckBox IsChecked="{Binding ProfileConfirmed}" />
-                <Label Text="I confirm my profile details are correct." VerticalOptions="Center" />
-            </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding ProfileConfirmed}" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Style="{StaticResource KaTitleLabel}" Text="Confirm your details" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="Make sure your name, phone number, and city are correct before continuing." />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
 
             <Button
-                Margin="0,16,0,0"
                 Command="{Binding ContinueCommand}"
                 IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                Style="{StaticResource KaPrimaryButton}"
                 Text="Continue" />
 
             <ActivityIndicator
+                Color="{StaticResource KaPrimary}"
                 IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
-
+                IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>

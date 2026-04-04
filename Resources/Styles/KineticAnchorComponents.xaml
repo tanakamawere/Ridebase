@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Typography  -->
+    <Style x:Key="KaDisplayLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaDisplayLgSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+    </Style>
+
+    <Style x:Key="KaHeadlineLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaHeadlineMdSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+    </Style>
+
+    <Style x:Key="KaTitleLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaTitleMdSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+    </Style>
+
+    <Style x:Key="KaBodyLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaBodyMdSize}" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+    </Style>
+
+    <Style x:Key="KaMutedBodyLabel" TargetType="Label" BasedOn="{StaticResource KaBodyLabel}">
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurfaceMuted}" />
+    </Style>
+
+    <Style x:Key="KaLabelMd" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaLabelMdSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurfaceMuted}" />
+    </Style>
+
+    <Style x:Key="KaUrgentLabel" TargetType="Label" BasedOn="{StaticResource KaLabelMd}">
+        <Setter Property="TextColor" Value="{StaticResource KaTertiary}" />
+    </Style>
+
+    <!--  Layout surfaces  -->
+    <Style x:Key="KaSectionSurface" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceContainerLow}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+    </Style>
+
+    <Style x:Key="KaFleetModuleCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceContainerLowest}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+    </Style>
+
+    <Style x:Key="KaInteractiveCard" TargetType="Border" BasedOn="{StaticResource KaFleetModuleCard}">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceBright}" />
+        <Setter Property="Shadow" Value="{StaticResource KaCloudShadow}" />
+    </Style>
+
+    <Style x:Key="KaListRowCard" TargetType="Border" BasedOn="{StaticResource KaFleetModuleCard}">
+        <Setter Property="Padding" Value="16,14" />
+    </Style>
+
+    <Style x:Key="KaGhostBorderCard" TargetType="Border" BasedOn="{StaticResource KaFleetModuleCard}">
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{StaticResource KaOutlineGhost}" />
+    </Style>
+
+    <Style x:Key="KaGlassPanel" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceGlass}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{StaticResource KaOutlineGhost}" />
+        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="Shadow" Value="{StaticResource KaCloudShadow}" />
+    </Style>
+
+    <!--  Buttons  -->
+    <Style x:Key="KaPrimaryButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource KaPrimaryGradientBrush}" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnPrimary}" />
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="{StaticResource KaTitleSmSize}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="18,14" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+        <Setter Property="Shadow" Value="{StaticResource KaCloudShadow}" />
+    </Style>
+
+    <Style x:Key="KaSecondaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSecondaryContainer}" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSecondaryContainer}" />
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="{StaticResource KaTitleSmSize}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="18,14" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+    </Style>
+
+    <Style x:Key="KaTertiaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource KaPrimary}" />
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="{StaticResource KaTitleSmSize}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+    </Style>
+
+    <!--  Status chips  -->
+    <Style x:Key="KaStatusChip" TargetType="Border">
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 9999" />
+        <Setter Property="BackgroundColor" Value="{StaticResource KaPrimaryFixed}" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="KaStatusChipActive" TargetType="Border" BasedOn="{StaticResource KaStatusChip}">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaPrimaryFixed}" />
+    </Style>
+
+    <Style x:Key="KaStatusChipError" TargetType="Border" BasedOn="{StaticResource KaStatusChip}">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaErrorContainer}" />
+    </Style>
+
+    <Style x:Key="KaStatusChipLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaLabelSmSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnPrimaryFixedVariant}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="KaStatusChipLabelError" TargetType="Label" BasedOn="{StaticResource KaStatusChipLabel}">
+        <Setter Property="TextColor" Value="{StaticResource KaOnErrorContainer}" />
+    </Style>
+
+    <Style x:Key="KaIconBadge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceContainerLow}" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+    </Style>
+
+    <Style x:Key="KaHeroIconBadge" TargetType="Border" BasedOn="{StaticResource KaIconBadge}">
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="WidthRequest" Value="48" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+    </Style>
+
+    <!--  Input field composition  -->
+    <Style x:Key="KaFieldLabel" TargetType="Label" BasedOn="{StaticResource KaLabelMd}">
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style x:Key="KaInputBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KaSurfaceContainerHighest}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+    </Style>
+
+    <Style x:Key="KaInputBorderFocused" TargetType="Border" BasedOn="{StaticResource KaInputBorder}">
+        <Setter Property="Stroke" Value="{StaticResource KaOutlineGhost}" />
+    </Style>
+
+    <Style x:Key="KaEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource KaOnSurfaceMuted}" />
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontAttributes" Value="None" />
+        <Setter Property="FontSize" Value="{StaticResource KaBodyLgSize}" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+    </Style>
+
+    <Style x:Key="KaEditor" TargetType="Editor">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource KaOnSurface}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource KaOnSurfaceMuted}" />
+        <Setter Property="FontFamily" Value="{StaticResource KaBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaBodyLgSize}" />
+        <Setter Property="MinimumHeightRequest" Value="{StaticResource KaTouchTargetMin}" />
+    </Style>
+
+    <!--  Utility styles for composition  -->
+    <Style x:Key="KaSectionTitle" TargetType="Label" BasedOn="{StaticResource KaHeadlineLabel}">
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style x:Key="KaMetricValue" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource KaDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource KaTitleLgSize}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KaPrimary}" />
+    </Style>
+
+    <Style x:Key="KaMetricCard" TargetType="Border" BasedOn="{StaticResource KaFleetModuleCard}">
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="96" />
+    </Style>
+
+</ResourceDictionary>

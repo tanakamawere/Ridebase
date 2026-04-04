@@ -15,6 +15,7 @@ namespace Ridebase.Pages
 
             Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
             Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
+            Routing.RegisterRoute(nameof(WalletPage), typeof(WalletPage));
             Routing.RegisterRoute(nameof(RideEndedPage), typeof(RideEndedPage));
             Routing.RegisterRoute(nameof(RideHistoryPage), typeof(RideHistoryPage));
             Routing.RegisterRoute(nameof(RideProgressPage), typeof(RideProgressPage));

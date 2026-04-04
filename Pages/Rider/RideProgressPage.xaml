@@ -1,15 +1,82 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
-             x:Class="Ridebase.Pages.Rider.RideProgressPage"
-             x:DataType="vm:RideProgressViewModel"
-             Title="Ride progress">
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <Label FontAttributes="Bold" FontSize="20" Text="Ride status" />
-        <Label Text="{Binding RideStatusText}" />
-        <Label FontAttributes="Bold" Text="Driver phone" />
-        <Label Text="{Binding OtherPartyPhoneNumber}" />
-        <Button Command="{Binding CancelRideCommand}" Text="Cancel Ride" />
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
+    x:Class="Ridebase.Pages.Rider.RideProgressPage"
+    x:DataType="vm:RideProgressViewModel"
+    Title="Ride progress"
+    Shell.NavBarIsVisible="False">
+
+    <Grid BackgroundColor="{StaticResource KaBackground}" RowDefinitions="Auto,*">
+        <Grid Padding="20,18,20,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+            <Button Grid.Column="0" BackgroundColor="Transparent" Command="{Binding CancelRideCommand}" Text="←" TextColor="{StaticResource KaPrimary}" />
+            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                <Label Style="{StaticResource KaLabelMd}" Text="ACTIVE TRIP" />
+                <Label Style="{StaticResource KaHeadlineLabel}" Text="Kinetic" />
+            </VerticalStackLayout>
+            <Border Grid.Column="2" Style="{StaticResource KaStatusChipActive}" VerticalOptions="Center">
+                <Label Style="{StaticResource KaStatusChipLabel}" Text="{Binding RideStatusText}" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,12,20,32" Spacing="20">
+                <Border Style="{StaticResource KaFleetModuleCard}">
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Style="{StaticResource KaTitleLabel}" Text="On the way" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Style="{StaticResource KaMetricValue}" HorizontalTextAlignment="End" Text="{Binding EstimatedArrivalText}" />
+                                <Label Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="End" Text="ARRIVING SOON" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+                            <Border BackgroundColor="{StaticResource KaSurfaceContainerLow}" HeightRequest="72" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="72">
+                                <Label FontFamily="fasolid" FontSize="28" HorizontalOptions="Center" Text="&#xf007;" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                <Label Style="{StaticResource KaHeadlineLabel}" Text="{Binding DriverName}" />
+                                <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding VehicleInfo}" />
+                                <Border Style="{StaticResource KaStatusChip}">
+                                    <Label Style="{StaticResource KaStatusChipLabel}" Text="Driver Contact Ready" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" BackgroundColor="{StaticResource KaSurfaceContainerLow}" CornerRadius="16" HeightRequest="56" Text="SMS" TextColor="{StaticResource KaPrimary}" WidthRequest="56" />
+                            <Button Grid.Column="3" BackgroundColor="{StaticResource KaPrimary}" CornerRadius="16" HeightRequest="56" Text="Call" TextColor="{StaticResource KaOnPrimary}" WidthRequest="56" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Border Grid.Column="0" Style="{StaticResource KaSectionSurface}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Style="{StaticResource KaLabelMd}" Text="DESTINATION" />
+                                    <Label Style="{StaticResource KaBodyLabel}" Text="{Binding DestinationText}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource KaSectionSurface}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Style="{StaticResource KaLabelMd}" Text="ESTIMATED FARE" />
+                                    <Label Style="{StaticResource KaMetricValue}" Text="{Binding EstimatedFareText}" />
+                                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="Kinetic Wallet" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Grid.Column="0" Style="{StaticResource KaSecondaryButton}" Text="Trip Details" />
+                            <Button Grid.Column="1" Command="{Binding CancelRideCommand}" Style="{StaticResource KaSecondaryButton}" Text="Cancel Trip" TextColor="{StaticResource KaError}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource KaSectionSurface}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaSectionTitle}" Text="Safety Center" />
+                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="Use emergency support, trusted contacts, and ride details when needed." />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

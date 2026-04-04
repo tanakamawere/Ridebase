@@ -4,94 +4,89 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
-    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-    xmlns:models="clr-namespace:Ridebase.Models"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:models="clr-namespace:Ridebase.Models.Driver"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
-    xmlns:wits="http://what.is.this.sheet/schemas/controls"
     Title="Profile Management"
     x:DataType="vm:DriverProfileViewModel">
+
     <ScrollView>
+        <VerticalStackLayout Padding="20,16,20,36" Spacing="20">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Border BackgroundColor="{StaticResource KaSecondaryContainer}" HeightRequest="52" StrokeThickness="0" StrokeShape="RoundRectangle 16" WidthRequest="52">
+                    <Label FontFamily="fasolid" FontSize="22" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.UserTie}" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
+                </Border>
 
-        <VerticalStackLayout Padding="10" Spacing="10">
-            <!--  Profile Management  -->
-            <Border Padding="10">
-                <StackLayout Spacing="5">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Profile Management" />
-                    <Entry x:Name="NameEntry" Placeholder="Enter your name" />
-                    <Entry
-                        x:Name="PhoneEntry"
-                        Keyboard="Telephone"
-                        Placeholder="Enter your phone number" />
-                    <Entry x:Name="VehicleInfoEntry" Placeholder="Enter your vehicle information" />
-                    <Button Text="Update Profile" />
-                </StackLayout>
-            </Border>
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding DriverName}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding MemberSinceText}" />
+                </VerticalStackLayout>
 
-            <!--  Subscription Management  -->
-            <Border Padding="10">
-                <StackLayout Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Subscription Management" />
-                    <Label Text="{Binding SubscriptionStatusText}" />
-                    <Label Text="{Binding SubscriptionPeriodText}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                    <Label Text="{Binding SubscriptionIdText}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Border Grid.Column="2" BackgroundColor="{StaticResource KaPrimaryFixed}" Padding="12,6" StrokeThickness="0" StrokeShape="RoundRectangle 9999">
+                    <Label Style="{StaticResource KaStatusChipLabel}" Text="ONLINE READY" />
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource KaLabelMd}" Text="ACTIVE VEHICLE" />
+                    <Label Style="{StaticResource KaHeadlineLabel}" Text="{Binding ActiveVehicleName}" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding ActiveVehiclePlate}" />
+
                     <HorizontalStackLayout Spacing="8">
-                        <Button Command="{Binding StartCheckoutCommand}" Text="Subscribe now" />
-                        <Button Command="{Binding OpenBillingPortalCommand}" Text="Manage portal" />
-                        <Button Command="{Binding RefreshSubscriptionCommand}" Text="Refresh" />
+                        <Border Style="{StaticResource KaStatusChip}">
+                            <Label Style="{StaticResource KaStatusChipLabel}" Text="4.9 Rating" />
+                        </Border>
+                        <Border Style="{StaticResource KaStatusChip}">
+                            <Label Style="{StaticResource KaStatusChipLabel}" Text="1,240 Trips" />
+                        </Border>
                     </HorizontalStackLayout>
-                    <Button Command="{Binding CancelSubscriptionCommand}" Text="Cancel subscription" />
-                </StackLayout>
+                </VerticalStackLayout>
             </Border>
 
-            <!--  Banking Info  -->
-            <Border Padding="10">
-                <StackLayout Spacing="5">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Banking Info" />
-                    <Entry
-                        x:Name="BankAccountEntry"
-                        Keyboard="Numeric"
-                        Placeholder="Enter bank account number" />
-                    <Entry
-                        x:Name="BankRoutingEntry"
-                        Keyboard="Numeric"
-                        Placeholder="Enter routing number" />
-                    <Button Text="Update Banking Info" />
-                </StackLayout>
+            <CollectionView ItemsSource="{Binding ProfileShortcuts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DriverShortcutModel">
+                        <Border Margin="0,0,0,12" Style="{StaticResource KaFleetModuleCard}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border BackgroundColor="{Binding AccentColor}" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 14" VerticalOptions="Center" WidthRequest="44">
+                                    <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Title}" />
+                                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding Subtitle}" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" FontFamily="fasolid" FontSize="16" Text="{x:Static icons:Fasolid.ArrowRight}" TextColor="{StaticResource KaOnSurfaceMuted}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Subscription Management" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding SubscriptionStatusText}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding SubscriptionPeriodText}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding SubscriptionIdText}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Command="{Binding StartCheckoutCommand}" Style="{StaticResource KaPrimaryButton}" Text="Subscribe Now" />
+                        <Button Grid.Column="1" Command="{Binding OpenBillingPortalCommand}" Style="{StaticResource KaSecondaryButton}" Text="Billing Portal" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Command="{Binding RefreshSubscriptionCommand}" Style="{StaticResource KaTertiaryButton}" Text="Refresh Status" />
+                        <Button Grid.Column="1" Command="{Binding CancelSubscriptionCommand}" Style="{StaticResource KaTertiaryButton}" Text="Cancel Plan" />
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
 
-            <!--  Notification Preferences  -->
-            <Border Padding="10">
-                <StackLayout Orientation="Horizontal" VerticalOptions="Center">
-                    <Label Text="Enable Alerts" VerticalOptions="Center" />
-                    <Switch x:Name="NotificationSwitch" />
-                </StackLayout>
-            </Border>
-
-            <!--  Support & Help  -->
-            <Border Padding="10">
-                <StackLayout Spacing="5">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Support" />
-                    <Button Text="Contact Customer Service" />
-                    <Button Command="{Binding GoToRiderPagesCommand}" Text="Rider's Side" />
-                    <Button
-                        BackgroundColor="Red"
-                        FontAttributes="Bold"
-                        Text="Log Out" />
-                </StackLayout>
-            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Command="{Binding GoToRiderPagesCommand}" Style="{StaticResource KaSecondaryButton}" Text="Rider Side" />
+                <Button Grid.Column="1" Command="{Binding OpenBillingPortalCommand}" Style="{StaticResource KaPrimaryButton}" Text="Manage Billing" />
+            </Grid>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -3,154 +3,177 @@
     x:Class="Ridebase.Pages.Driver.DriverDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
-    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-    xmlns:models="clr-namespace:Ridebase.Models.Ride"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:driverModels="clr-namespace:Ridebase.Models.Driver"
+    xmlns:rideModels="clr-namespace:Ridebase.Models.Ride"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
-    xmlns:wits="http://what.is.this.sheet/schemas/controls"
     Title="Driver Dashboard"
     x:DataType="vm:DriverDashboardViewModel">
 
-    <ContentPage.Content>
-        <ScrollView>
-            <StackLayout Padding="10">
-                <!--  Live Status  -->
-                <StackLayout HorizontalOptions="Center" Orientation="Horizontal">
-                    <Switch x:Name="LiveStatusSwitch" IsEnabled="{Binding CanGoOnline}" IsToggled="{Binding IsOnline}" />
-                    <Label
-                        x:Name="LiveStatusLabel"
-                        Text="{Binding OnlineStatusText}"
-                        VerticalOptions="Center" />
-                </StackLayout>
-
-                <Border Margin="0,10" Padding="12" StrokeThickness="1">
-                    <StackLayout Spacing="8">
-                        <Label FontAttributes="Bold" FontSize="Medium" Text="Driver subscription" />
-                        <Label Text="{Binding SubscriptionMessage}" />
-                        <Label Text="{Binding SubscriptionDetail}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                        <StackLayout Orientation="Horizontal" Spacing="8">
-                            <Button Command="{Binding GoToDriverProfileCommand}" Text="Manage billing" />
-                            <Button Command="{Binding RefreshSubscriptionStateCommand}" Text="Refresh status" />
-                        </StackLayout>
-                    </StackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16,20,36" Spacing="20">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Border BackgroundColor="{StaticResource KaSecondaryContainer}" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 24" VerticalOptions="Center" WidthRequest="48">
+                    <Label FontFamily="fasolid" FontSize="20" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.User}" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
                 </Border>
 
-                <!--  Earnings Summary  -->
-                <Border Margin="0,10" Padding="10">
-                    <StackLayout>
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="Medium"
-                            Text="Earnings Summary" />
-                        <Label Text="Daily Earnings: $XXX.XX" />
-                        <Label Text="Weekly Earnings: $XXX.XX" />
-                    </StackLayout>
-                </Border>
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding DriverDisplayName}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Switch IsEnabled="{Binding CanGoOnline}" IsToggled="{Binding IsOnline}" Scale="0.8" />
+                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding OnlineStatusText}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
 
-                <!--  Ride Requests  -->
-                <Border
-                    Margin="0,10"
-                    Padding="10"
-                    Stroke="#cccccc"
-                    StrokeThickness="1">
-                    <StackLayout>
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="Medium"
-                            Text="Ride Requests" />
-                        <CollectionView EmptyView="There are no current riders near you." ItemsSource="{Binding RideRequests}">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="models:RideRequestModel">
-                                    <!--  Example Request  -->
-                                    <Border
-                                        Margin="0,5"
-                                        Padding="10"
-                                        Stroke="#cccccc"
-                                        StrokeThickness="1">
-                                        <StackLayout>
-                                            <Label Text="{Binding RiderId, StringFormat='Passenger: {0}'}" />
-                                            <Label Text="{Binding OfferAmount, StringFormat='Offer: USD$ {0:F2}'}" />
-                                            <Label Text="Pickup: Location available" />
-                                            <Label Text="Drop-off: Location available" />
-                                            <StackLayout
-                                                HorizontalOptions="Center"
-                                                Orientation="Horizontal"
-                                                Spacing="5">
-                                                <Button
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=GoToRideInProgressCommand}"
-                                                    CommandParameter="{Binding .}"
-                                                    Text="Accept" />
-                                                <Button Text="Reject" />
-                                            </StackLayout>
-                                        </StackLayout>
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                        <!--  Add more requests as needed  -->
-                    </StackLayout>
+                <Border Grid.Column="2" BackgroundColor="{StaticResource KaPrimary}" Padding="14,7" StrokeThickness="0" StrokeShape="RoundRectangle 9999" VerticalOptions="Start">
+                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="11" FontAttributes="Bold" Text="{Binding OnlineBadgeText}" TextColor="{StaticResource KaOnPrimary}" />
                 </Border>
+            </Grid>
 
-                <!--  Navigation Shortcuts  -->
-                <Border
-                    Margin="0,10"
-                    Padding="10"
-                    Stroke="#cccccc"
-                    StrokeThickness="1">
-                    <StackLayout Spacing="10">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="Medium"
-                            Text="Navigation Shortcuts" />
-                        <Button Clicked="Button_Clicked" Text="Open Google Maps" />
-                    </StackLayout>
-                </Border>
+            <Border Background="{StaticResource KaPrimaryGradientBrush}" Padding="20" StrokeThickness="0" StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="14">
+                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" LetterSpacing="2" Text="{Binding CurrentPlanCaption}" TextColor="#A8D2D2" />
+                    <Label FontFamily="{StaticResource KaDisplayFontFamily}" FontSize="28" FontAttributes="Bold" LineBreakMode="WordWrap" Text="{Binding CurrentPlanTitle}" TextColor="{StaticResource KaOnPrimary}" />
+                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="13" Text="{Binding SubscriptionDetail}" TextColor="#D7ECEB" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Command="{Binding RefreshSubscriptionStateCommand}" Style="{StaticResource KaSecondaryButton}" Text="Refresh Status" />
+                        <Button Grid.Column="1" Command="{Binding GoToDriverProfileCommand}" Style="{StaticResource KaTertiaryButton}" Text="{Binding RenewActionText}" TextColor="{StaticResource KaOnPrimary}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
 
-                <dxc:BottomSheet x:Name="bottomSheet" State="FullExpanded">
-                    <ScrollView>
-                        <StackLayout Padding="10" Spacing="10">
-                            <!--  Passenger Info  -->
-                            <Border Padding="10" StrokeThickness="1">
-                                <StackLayout Spacing="5">
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontSize="Medium"
-                                        Text="Passenger Info" />
-                                    <Label Text="Name: Jane Smith" />
-                                    <Label Text="Pickup: 789 Pine St" />
-                                    <Label Text="Drop-off: 321 Oak Ave" />
-                                </StackLayout>
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Style="{StaticResource KaLabelMd}" Text="DAILY GOAL" />
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Style="{StaticResource KaDisplayLabel}" Text="{Binding DailyGoalAmount, StringFormat='${0:0}'}" />
+                                <Label Margin="0,10,0,0" Style="{StaticResource KaMutedBodyLabel}" Text="{Binding DailyGoalTarget, StringFormat='/{0:0}'}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" FontFamily="fasolid" FontSize="16" Text="{x:Static icons:Fasolid.Flag}" TextColor="{StaticResource KaPrimary}" />
+                    </Grid>
+
+                    <ProgressBar HeightRequest="8" Progress="{Binding DailyGoalProgress}" ProgressColor="{StaticResource KaPrimary}" BackgroundColor="{StaticResource KaSurfaceContainer}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding DailyGoalSupportText}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Style="{StaticResource KaSectionTitle}" Text="Incoming Ride Requests" />
+                        <Button Grid.Column="1" Command="{Binding RefreshSubscriptionStateCommand}" Style="{StaticResource KaTertiaryButton}" Text="Refresh" />
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding RideRequests}">
+                        <CollectionView.EmptyView>
+                            <Border Style="{StaticResource KaSectionSurface}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Style="{StaticResource KaTitleLabel}" Text="No requests nearby" />
+                                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="Stay online and we will surface new trip opportunities here." />
+                                </VerticalStackLayout>
                             </Border>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="rideModels:RideRequestModel">
+                                <Border Margin="0,0,0,12" Style="{StaticResource KaSectionSurface}">
+                                    <VerticalStackLayout Spacing="12">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label Style="{StaticResource KaTitleLabel}" Text="{Binding RiderId, StringFormat='Passenger {0}'}" />
+                                                <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding OfferAmount, StringFormat='Offer • ${0:F2}'}" />
+                                            </VerticalStackLayout>
+                                            <Border Style="{StaticResource KaStatusChipActive}">
+                                                <Label Style="{StaticResource KaStatusChipLabel}" Text="NEARBY" />
+                                            </Border>
+                                        </Grid>
 
-                            <!--  Trip Details  -->
-                            <Border Padding="10" StrokeThickness="1">
-                                <StackLayout Spacing="5">
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontSize="Medium"
-                                        Text="Trip Details" />
-                                    <Label Text="Distance: 5.2 miles" />
-                                    <Label Text="Estimated Fare: $12.50" />
-                                </StackLayout>
-                            </Border>
+                                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding Comments}" />
 
-                            <!--  Accept/Decline Buttons  -->
-                            <StackLayout
-                                HorizontalOptions="Center"
-                                Orientation="Horizontal"
-                                Spacing="20">
-                                <Button
-                                    x:Name="AcceptButton"
-                                    Command="{Binding GoToRideInProgressCommand}"
-                                    Text="Accept" />
-                                <Button x:Name="DeclineButton" Text="Decline" />
-                            </StackLayout>
-                        </StackLayout>
-                    </ScrollView>
-                </dxc:BottomSheet>
-            </StackLayout>
-        </ScrollView>
-    </ContentPage.Content>
+                                        <Button
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverDashboardViewModel}}, Path=GoToRideInProgressCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource KaPrimaryButton}"
+                                            Text="Accept Request" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource KaLabelMd}" Text="LAST TRIP" />
+                            <Label Style="{StaticResource KaTitleLabel}" Text="{Binding LastTripTitle}" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding LastTripTimeText}" />
+                        </VerticalStackLayout>
+                        <Border Style="{StaticResource KaStatusChip}">
+                            <Label Style="{StaticResource KaStatusChipLabel}" Text="TRACKED" />
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border BackgroundColor="{StaticResource KaSurfaceContainerLow}" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 12" WidthRequest="44">
+                            <Label FontFamily="fasolid" FontSize="18" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.TruckFront}" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
+                        </Border>
+
+                        <Grid Grid.Column="1" ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Style="{StaticResource KaMutedBodyLabel}" Text="Earnings" />
+                                <Label Style="{StaticResource KaMetricValue}" Text="{Binding LastTripEarningsText}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Command="{Binding OpenGoogleMapsCommand}" Style="{StaticResource KaSecondaryButton}" Text="Open Maps" VerticalOptions="End" />
+                        </Grid>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaSectionSurface}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border BackgroundColor="{StaticResource KaSurfaceContainerLowest}" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 24" WidthRequest="48">
+                        <Label FontFamily="fasolid" FontSize="20" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.Gear}" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
+                    </Border>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource KaTitleLabel}" Text="{Binding VehicleHeadline}" />
+                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding VehicleDiagnostics}" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="2" Command="{Binding GoToDriverProfileCommand}" Style="{StaticResource KaTertiaryButton}" Text="Manage" />
+                </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Style="{StaticResource KaSectionTitle}" Text="Recent Insights" />
+                <Button Grid.Column="1" Command="{Binding GoToDriverProfileCommand}" Style="{StaticResource KaTertiaryButton}" Text="View All" />
+            </Grid>
+
+            <CollectionView ItemsSource="{Binding RecentInsights}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="driverModels:DriverInsightModel">
+                        <Border Margin="0,0,0,12" Style="{StaticResource KaFleetModuleCard}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border BackgroundColor="{Binding AccentColor}" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 22" VerticalOptions="Center" WidthRequest="44">
+                                    <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Title}" />
+                                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding Detail}" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" Style="{StaticResource KaLabelMd}" Text="{Binding AgeText}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -7,54 +7,85 @@
     Title="{Binding Title}"
     x:DataType="vm:OnboardingRoleViewModel">
 
-    <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="Center">
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="20,20,20,32" Spacing="20">
+            <Border
+                Background="{StaticResource KaPrimaryGradientBrush}"
+                Padding="20"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24">
+                <VerticalStackLayout Spacing="10">
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="12"
+                        LetterSpacing="2"
+                        Text="STEP 2"
+                        TextColor="#C7E4E4" />
+                    <Label
+                        FontFamily="{StaticResource KaDisplayFontFamily}"
+                        FontSize="30"
+                        FontAttributes="Bold"
+                        Text="How will you use Ridebase?"
+                        TextColor="{StaticResource KaOnPrimary}" />
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="14"
+                        Text="Choose the experience that best fits today. You can switch later from your profile."
+                        TextColor="#D7ECEB" />
+                </VerticalStackLayout>
+            </Border>
 
-        <Label
-            FontAttributes="Bold"
-            FontSize="Title"
-            HorizontalOptions="Center"
-            Text="How will you use Ridebase?" />
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Border
+                        BackgroundColor="{StaticResource KaSecondaryContainer}"
+                        HeightRequest="52"
+                        HorizontalOptions="Start"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16"
+                        WidthRequest="52">
+                        <Label
+                            FontFamily="fasolid"
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            Text="&#xf1b9;"
+                            TextColor="{StaticResource KaPrimary}"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <Label Style="{StaticResource KaHeadlineLabel}" Text="Rider" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="Book rides, track drivers live, manage activity, and pay from your wallet." />
+                    <Button
+                        Command="{Binding ChooseRiderCommand}"
+                        Style="{StaticResource KaPrimaryButton}"
+                        Text="Continue as Rider" />
+                </VerticalStackLayout>
+            </Border>
 
-        <Label
-            HorizontalOptions="Center"
-            HorizontalTextAlignment="Center"
-            Text="Choose the role that best describes you. You can always switch later."
-            TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-
-        <Border Padding="20" StrokeShape="RoundRectangle 12">
-            <VerticalStackLayout Spacing="12">
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="Medium"
-                    HorizontalOptions="Center"
-                    Text="&#xf4d8;  Rider" />
-                <Label
-                    HorizontalOptions="Center"
-                    HorizontalTextAlignment="Center"
-                    Text="Book rides and get to your destination quickly and safely." />
-                <Button
-                    Command="{Binding ChooseRiderCommand}"
-                    Text="I'm a Rider" />
-            </VerticalStackLayout>
-        </Border>
-
-        <Border Padding="20" StrokeShape="RoundRectangle 12">
-            <VerticalStackLayout Spacing="12">
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="Medium"
-                    HorizontalOptions="Center"
-                    Text="&#xf5e4;  Driver" />
-                <Label
-                    HorizontalOptions="Center"
-                    HorizontalTextAlignment="Center"
-                    Text="Earn money by giving rides on your own schedule." />
-                <Button
-                    Command="{Binding ChooseDriverCommand}"
-                    Text="I'm a Driver" />
-            </VerticalStackLayout>
-        </Border>
-
-    </VerticalStackLayout>
-
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Border
+                        BackgroundColor="{StaticResource KaTertiaryContainer}"
+                        HeightRequest="52"
+                        HorizontalOptions="Start"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16"
+                        WidthRequest="52">
+                        <Label
+                            FontFamily="fasolid"
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            Text="&#xf5e4;"
+                            TextColor="{StaticResource KaTertiary}"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <Label Style="{StaticResource KaHeadlineLabel}" Text="Driver" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="Set up your vehicle, manage subscriptions, and earn through the driver workspace." />
+                    <Button
+                        Command="{Binding ChooseDriverCommand}"
+                        Style="{StaticResource KaSecondaryButton}"
+                        Text="Continue as Driver" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -3,28 +3,114 @@
     x:Class="Ridebase.Pages.Driver.DriverStatsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
-    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
-    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-    xmlns:models="clr-namespace:Ridebase.Models"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:models="clr-namespace:Ridebase.Models.Driver"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Driver"
-    xmlns:wits="http://what.is.this.sheet/schemas/controls"
     Title="Stats"
     x:DataType="vm:DriverStatsViewModel">
+
     <ScrollView>
-        <StackLayout Padding="10" Spacing="10">
-            <!--  Earnings Report  -->
-            <Border Padding="10">
-                <StackLayout>
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Daily Weekly Earnings Report" />
-                    <Label Text="Daily Earnings: $100.00" />
-                    <Label Text="Weekly Earnings: $700.00" />
-                </StackLayout>
+        <VerticalStackLayout Padding="20,16,20,36" Spacing="20">
+            <VerticalStackLayout Spacing="4">
+                <Label Style="{StaticResource KaLabelMd}" Text="PERFORMANCE OVERVIEW" />
+                <Label Style="{StaticResource KaHeadlineLabel}" Text="{Binding EarningsHeadline}" />
+            </VerticalStackLayout>
+
+            <Border Background="{StaticResource KaPrimaryGradientBrush}" Padding="20" StrokeThickness="0" StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="10">
+                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" Text="Total Weekly Earnings" TextColor="#C7E4E4" />
+                    <Label FontFamily="{StaticResource KaDisplayFontFamily}" FontSize="34" FontAttributes="Bold" Text="{Binding EarningsTotal}" TextColor="{StaticResource KaOnPrimary}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Label Grid.Column="0" FontFamily="{StaticResource KaBodyFontFamily}" FontSize="14" Text="{Binding EarningsBaseline}" TextColor="#D7ECEB" />
+                        <Label Grid.Column="1" FontFamily="{StaticResource KaBodyFontFamily}" FontSize="14" HorizontalTextAlignment="End" Text="{Binding EarningsStretch}" TextColor="#D7ECEB" />
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
-        </StackLayout>
+
+            <CollectionView ItemsSource="{Binding SummaryCards}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DriverStatSummaryModel">
+                        <Border Margin="0,0,0,12" Style="{StaticResource KaFleetModuleCard}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border BackgroundColor="{Binding AccentColor}" HeightRequest="42" StrokeThickness="0" StrokeShape="RoundRectangle 14" WidthRequest="42">
+                                    <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Style="{StaticResource KaMetricValue}" Text="{Binding Value}" />
+                                    <Label Style="{StaticResource KaLabelMd}" Text="{Binding Label}" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" Style="{StaticResource KaLabelMd}" Text="{Binding SupportingText}" VerticalOptions="Start" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="16">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Earnings Distribution" />
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="8" HeightRequest="150" VerticalOptions="End">
+                        <BoxView Grid.Column="0" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="42" VerticalOptions="End" />
+                        <BoxView Grid.Column="1" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="68" VerticalOptions="End" />
+                        <BoxView Grid.Column="2" BackgroundColor="{StaticResource KaPrimary}" CornerRadius="8" HeightRequest="124" VerticalOptions="End" />
+                        <BoxView Grid.Column="3" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="74" VerticalOptions="End" />
+                        <BoxView Grid.Column="4" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="92" VerticalOptions="End" />
+                        <BoxView Grid.Column="5" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="58" VerticalOptions="End" />
+                        <BoxView Grid.Column="6" BackgroundColor="{StaticResource KaSurfaceContainer}" CornerRadius="8" HeightRequest="88" VerticalOptions="End" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="MON" />
+                        <Label Grid.Column="1" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="TUE" />
+                        <Label Grid.Column="2" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="WED" />
+                        <Label Grid.Column="3" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="THU" />
+                        <Label Grid.Column="4" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="FRI" />
+                        <Label Grid.Column="5" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="SAT" />
+                        <Label Grid.Column="6" Style="{StaticResource KaLabelMd}" HorizontalTextAlignment="Center" Text="SUN" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Harare Top Earners" />
+                    <CollectionView ItemsSource="{Binding TopEarners}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DriverLeaderboardEntryModel">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="0,8">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Name}" />
+                                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RatingText, StringFormat='Rating {0}'}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Style="{StaticResource KaTitleLabel}" Text="{Binding AmountText}" VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Style="{StaticResource KaLabelMd}" Text="DRIVER RATING" />
+                    <Label Style="{StaticResource KaDisplayLabel}" Text="{Binding OverallRating}" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding RatingCaption}" />
+
+                    <CollectionView ItemsSource="{Binding RatingMetrics}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DriverRatingMetricModel">
+                                <VerticalStackLayout Padding="0,6" Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Style="{StaticResource KaBodyLabel}" Text="{Binding Label}" />
+                                        <Label Grid.Column="1" Style="{StaticResource KaBodyLabel}" Text="{Binding ScoreText}" />
+                                    </Grid>
+                                    <ProgressBar HeightRequest="8" Progress="{Binding Progress}" ProgressColor="{StaticResource KaPrimary}" BackgroundColor="{StaticResource KaSurfaceContainer}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

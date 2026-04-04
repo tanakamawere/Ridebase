@@ -8,8 +8,10 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/KineticAnchorTokens.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/RidebaseStyles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/KineticAnchorComponents.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

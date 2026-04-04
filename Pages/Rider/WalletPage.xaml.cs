@@ -2,9 +2,9 @@ using Ridebase.ViewModels.Rider;
 
 namespace Ridebase.Pages.Rider;
 
-public partial class RideHistoryPage : ContentPage
+public partial class WalletPage : ContentPage
 {
-    public RideHistoryPage(RideHistoryViewModel viewModel)
+    public WalletPage(WalletViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;

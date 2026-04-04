@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Ridebase.Models;
 using Ridebase.Services.Interfaces;
 using Microsoft.Maui.Storage;
@@ -62,13 +63,13 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     [RelayCommand]
     public async Task TakeDriverPhotoAsync()
     {
-        await PickDriverPhotoAsync(MediaPicker.CapturePhotoAsync, "camera");
+        await PickDriverPhotoAsync(async () => await MediaPicker.Default.CapturePhotoAsync(), "camera");
     }
 
     [RelayCommand]
     public async Task PickDriverPhotoAsync()
     {
-        await PickDriverPhotoAsync(MediaPicker.PickPhotoAsync, "gallery");
+        await PickDriverPhotoAsync(async () => await MediaPicker.Default.PickPhotoAsync(), "gallery");
     }
 
     [RelayCommand]

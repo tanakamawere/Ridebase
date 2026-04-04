@@ -1,12 +1,77 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Ridebase.Pages.Rider.ProfilePage"
-             Title="ProfilePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+<ContentPage
+    x:Class="Ridebase.Pages.Rider.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:Ridebase.Models.Rider"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
+    Title="Profile"
+    x:DataType="vm:ProfileViewModel">
+
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{StaticResource KaBackground}">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
+                <Border Style="{StaticResource KaFleetModuleCard}">
+                    <VerticalStackLayout Spacing="16">
+                        <Border BackgroundColor="{StaticResource KaOnSurface}" HeightRequest="88" HorizontalOptions="Center" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="88">
+                            <Label FontFamily="fasolid" FontSize="34" HorizontalOptions="Center" Text="&#xf007;" TextColor="{StaticResource KaOnPrimary}" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Style="{StaticResource KaHeadlineLabel}" HorizontalTextAlignment="Center" Text="{Binding RiderName}" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" HorizontalTextAlignment="Center" Text="{Binding RiderContact}" />
+                        </VerticalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Border Style="{StaticResource KaStatusChip}">
+                                <Label Style="{StaticResource KaStatusChipLabel}" Text="4.98 Rating" />
+                            </Border>
+                            <Border Style="{StaticResource KaStatusChip}">
+                                <Label Style="{StaticResource KaStatusChipLabel}" Text="1,240 Rides" />
+                            </Border>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Background="{StaticResource KaPrimaryGradientBrush}" Padding="20" StrokeThickness="0" StrokeShape="RoundRectangle 20">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border BackgroundColor="#1FFFFFFF" HeightRequest="44" StrokeThickness="0" StrokeShape="RoundRectangle 14" WidthRequest="44">
+                            <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="&#xf362;" TextColor="{StaticResource KaOnPrimary}" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Style="{StaticResource KaTitleLabel}" Text="Switch to Driver Mode" TextColor="{StaticResource KaOnPrimary}" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="Start earning today with Ridebase Fleet" TextColor="#D7ECEB" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" IsToggled="False" Toggled="OnDriverModeToggled" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <CollectionView ItemsSource="{Binding Options}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:RiderProfileOption">
+                            <Border Margin="0,0,0,12" Style="{StaticResource KaListRowCard}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Style="{StaticResource KaIconBadge}" BackgroundColor="{Binding AccentColor}">
+                                        <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Title}" />
+                                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding Subtitle}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" FontFamily="fasolid" FontSize="16" Text="&#8594;" TextColor="{StaticResource KaOnSurfaceMuted}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Command="{Binding LogoutCommand}" Style="{StaticResource KaSecondaryButton}" Text="Log Out" TextColor="{StaticResource KaError}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{StaticResource KaSurfaceContainerLowest}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+            <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
+            <Button Grid.Column="1" Command="{Binding GoToHistoryCommand}" Style="{StaticResource KaTertiaryButton}" Text="ACTIVITY" />
+            <Button Grid.Column="2" Command="{Binding GoToWalletCommand}" Style="{StaticResource KaTertiaryButton}" Text="WALLET" />
+            <Button Grid.Column="3" Style="{StaticResource KaPrimaryButton}" Text="PROFILE" />
+        </Grid>
+    </Grid>
 </ContentPage>

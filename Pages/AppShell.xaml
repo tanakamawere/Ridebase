@@ -67,6 +67,7 @@
                     Padding="16,12"
                     BackgroundColor="White"
                     HorizontalOptions="Start"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                     StrokeShape="RoundRectangle 24"
                     StrokeThickness="0">
                     <Border.GestureRecognizers>
@@ -90,6 +91,16 @@
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
+                <HorizontalStackLayout
+                    IsVisible="{Binding IsBusy}"
+                    Spacing="10">
+                    <ActivityIndicator IsRunning="True" />
+                    <Label
+                        FontSize="13"
+                        Text="Authenticating..."
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
             </VerticalStackLayout>
 
             <!--  Logged-in user info  -->
@@ -193,8 +204,9 @@
     </FlyoutItem>
 
     <Shell.FlyoutContent>
-        <ScrollView>
-            <VerticalStackLayout Padding="0" Spacing="0">
+        <Grid>
+            <ScrollView>
+                <VerticalStackLayout Padding="0" Spacing="0">
 
                 <!--  Menu Section  -->
                 <VerticalStackLayout Padding="16,24,16,8" Spacing="4">
@@ -235,6 +247,42 @@
                                 </Image.Source>
                             </Image>
                             <Label Style="{StaticResource FlyoutMenuLabel}" Text="Ride History" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Border IsVisible="{Binding IsLoggedIn}" Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToWalletCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.Wallet}"
+                                        Size="18"
+                                        Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label Style="{StaticResource FlyoutMenuLabel}" Text="Wallet" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Border IsVisible="{Binding IsLoggedIn}" Style="{StaticResource FlyoutMenuItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToProfileCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Style="{StaticResource FlyoutMenuIcon}">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="fasolid"
+                                        Glyph="{x:Static icons:Fasolid.User}"
+                                        Size="18"
+                                        Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource OffBlack}}" />
+                                </Image.Source>
+                            </Image>
+                            <Label Style="{StaticResource FlyoutMenuLabel}" Text="Profile" />
                         </HorizontalStackLayout>
                     </Border>
 
@@ -341,8 +389,28 @@
                     </Border>
                 </VerticalStackLayout>
 
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid
+                BackgroundColor="#66000000"
+                InputTransparent="False"
+                IsVisible="{Binding IsBusy}">
+                <Border
+                    Padding="18,14"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
+                    HorizontalOptions="Center"
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="12">
+                        <ActivityIndicator IsRunning="True" />
+                        <Label
+                            Text="Checking authentication..."
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
     </Shell.FlyoutContent>
 
 </Shell>

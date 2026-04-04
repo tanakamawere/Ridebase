@@ -15,128 +15,162 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="16">
-
-            <Label
-                FontAttributes="Bold"
-                FontSize="Title"
-                HorizontalOptions="Center"
-                Text="Driver Setup" />
-
-            <Label
-                HorizontalOptions="Center"
-                HorizontalTextAlignment="Center"
-                Text="Complete your personal, vehicle and license information."
-                TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-
-            <Border Padding="16" StrokeShape="RoundRectangle 16" StrokeThickness="1">
-                <VerticalStackLayout Spacing="8">
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="20,20,20,32" Spacing="20">
+            <Border
+                Background="{StaticResource KaPrimaryGradientBrush}"
+                Padding="20"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24">
+                <VerticalStackLayout Spacing="10">
                     <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="12"
+                        LetterSpacing="2"
+                        Text="STEP 3"
+                        TextColor="#C7E4E4" />
+                    <Label
+                        FontFamily="{StaticResource KaDisplayFontFamily}"
+                        FontSize="30"
                         FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Profile details from previous step" />
-                    <Label Text="Name" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                    <Label FontAttributes="Bold" Text="{Binding FullName}" />
-                    <Label Text="Phone number" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                    <Label FontAttributes="Bold" Text="{Binding PhoneNumber}" />
+                        Text="Driver setup"
+                        TextColor="{StaticResource KaOnPrimary}" />
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="14"
+                        Text="Complete your vehicle and identity details so dispatch can trust every trip."
+                        TextColor="#D7ECEB" />
                 </VerticalStackLayout>
             </Border>
 
-            <Label Margin="0,8,0,0" Text="Car Make" />
-            <Entry
-                Placeholder="e.g. Toyota"
-                Text="{Binding CarMake}" />
+            <Border Style="{StaticResource KaSectionSurface}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Profile details" />
+                    <Label Style="{StaticResource KaLabelMd}" Text="Name" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding FullName}" />
+                    <Label Style="{StaticResource KaLabelMd}" Text="Phone Number" />
+                    <Label Style="{StaticResource KaTitleLabel}" Text="{Binding PhoneNumber}" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Car Model" />
-            <Entry
-                Placeholder="e.g. Corolla"
-                Text="{Binding CarModel}" />
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="18">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Car Make" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                KeyboardFlags="CapitalizeWord"
+                                Placeholder="e.g. Toyota"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding CarMake}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <Label Text="Year" />
-            <Entry
-                Keyboard="Numeric"
-                Placeholder="e.g. 2020"
-                Text="{Binding CarYear}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Car Model" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                KeyboardFlags="CapitalizeWord"
+                                Placeholder="e.g. Corolla"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding CarModel}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <Label Text="License Plate" />
-            <Entry
-                Placeholder="e.g. ABC 1234"
-                Text="{Binding LicensePlate}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Year" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Keyboard="Numeric"
+                                Placeholder="e.g. 2020"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding CarYear}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <Label Text="Driver License Number" />
-            <Entry
-                Placeholder="e.g. DL-2026-00123"
-                Text="{Binding DriverLicenseNumber}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="License Plate" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Placeholder="e.g. ABC 1234"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding LicensePlate}" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <HorizontalStackLayout Spacing="8">
-                <Label Text="Available now" VerticalOptions="Center" />
-                <Switch IsToggled="{Binding IsAvailable}" />
-            </HorizontalStackLayout>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Driver License Number" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Placeholder="e.g. DL-2026-00123"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding DriverLicenseNumber}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
-            <HorizontalStackLayout Spacing="8">
-                <Label Text="Subscription is managed after setup" VerticalOptions="Center" />
-            </HorizontalStackLayout>
+            <Border Style="{StaticResource KaSectionSurface}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Style="{StaticResource KaTitleLabel}" Text="Available now" />
+                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="Turn this on if you want to start receiving work as soon as setup is complete." />
+                    </VerticalStackLayout>
+                    <Switch Grid.Column="1" IsToggled="{Binding IsAvailable}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
 
-            <Border Padding="16" StrokeShape="RoundRectangle 16" StrokeThickness="1">
-                <VerticalStackLayout Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="Medium"
-                        Text="Driver Photo" />
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Driver Photo" />
                     <Image
                         Aspect="AspectFill"
-                        HeightRequest="180"
+                        HeightRequest="190"
                         IsVisible="{Binding DriverPhotoPath, Converter={StaticResource ObjectToBooleanConverter}}"
                         Source="{Binding DriverPhotoPath}" />
                     <Label
-                        HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
-                        Text="{Binding DriverPhotoStatus}"
-                        TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                    <HorizontalStackLayout Spacing="8">
+                        Style="{StaticResource KaMutedBodyLabel}"
+                        Text="{Binding DriverPhotoStatus}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button
                             Command="{Binding TakeDriverPhotoCommand}"
-                            HorizontalOptions="FillAndExpand"
-                            Text="Take photo" />
+                            Grid.Column="0"
+                            Style="{StaticResource KaSecondaryButton}"
+                            Text="Take Photo" />
                         <Button
                             Command="{Binding PickDriverPhotoCommand}"
-                            HorizontalOptions="FillAndExpand"
-                            Text="Choose from gallery" />
-                    </HorizontalStackLayout>
+                            Grid.Column="1"
+                            Style="{StaticResource KaPrimaryButton}"
+                            Text="Choose from Gallery" />
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 
-            <Label
-                Margin="0,8,0,0"
-                FontAttributes="Bold"
-                Text="Driver's License" />
-
-            <Border Padding="16" StrokeShape="RoundRectangle 8">
-                <VerticalStackLayout Spacing="8">
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Driver's License" />
                     <Label
-                        HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
-                        Text="{Binding DriverLicenseStatus}"
-                        TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                        Style="{StaticResource KaMutedBodyLabel}"
+                        Text="{Binding DriverLicenseStatus}" />
                     <Button
                         Command="{Binding UploadLicenseCommand}"
+                        Style="{StaticResource KaSecondaryButton}"
                         Text="Upload Driver's License" />
                 </VerticalStackLayout>
             </Border>
 
             <Button
-                Margin="0,16,0,0"
                 Command="{Binding CompleteOnboardingCommand}"
                 IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                Style="{StaticResource KaPrimaryButton}"
                 Text="Complete Setup" />
 
             <ActivityIndicator
+                Color="{StaticResource KaPrimary}"
                 IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
-
+                IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>

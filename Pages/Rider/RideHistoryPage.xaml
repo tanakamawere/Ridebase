@@ -1,12 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Ridebase.Pages.Rider.RideHistoryPage"
-             Title="RideHistoryPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+<ContentPage
+    x:Class="Ridebase.Pages.Rider.RideHistoryPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:Ridebase.Models.Rider"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
+    Title="Activity"
+    x:DataType="vm:RideHistoryViewModel">
+
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{StaticResource KaBackground}">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
+                <VerticalStackLayout Spacing="4">
+                    <Label Style="{StaticResource KaHeadlineLabel}" Text="Activity" />
+                    <Label Style="{StaticResource KaMutedBodyLabel}" Text="Review completed, scheduled, and cancelled rides" />
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Button Grid.Column="0" Command="{Binding SetFilterCommand}" CommandParameter="Completed" Style="{StaticResource KaPrimaryButton}" Text="Completed" />
+                    <Button Grid.Column="1" Command="{Binding SetFilterCommand}" CommandParameter="Scheduled" Style="{StaticResource KaSecondaryButton}" Text="Scheduled" />
+                    <Button Grid.Column="2" Command="{Binding SetFilterCommand}" CommandParameter="Cancelled" Style="{StaticResource KaSecondaryButton}" Text="Cancelled" />
+                </Grid>
+
+                <CollectionView ItemsSource="{Binding ActivityItems}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:RiderActivityItem">
+                            <Border Margin="0,0,0,16" Style="{StaticResource KaFleetModuleCard}">
+                                <VerticalStackLayout Spacing="14">
+                                    <Border BackgroundColor="{Binding AccentColor}" HeightRequest="80" StrokeThickness="0" StrokeShape="RoundRectangle 12" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Style="{StaticResource KaTitleLabel}" Text="{Binding DriverRouteText}" />
+                                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding TimestampText}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Style="{StaticResource KaMetricValue}" Text="{Binding AmountText}" />
+                                    </Grid>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Style="{StaticResource KaLabelMd}" Text="PICKUP" />
+                                        <Label Style="{StaticResource KaBodyLabel}" Text="{Binding PickupText}" />
+                                        <Label Style="{StaticResource KaLabelMd}" Text="DROP-OFF" />
+                                        <Label Style="{StaticResource KaBodyLabel}" Text="{Binding DropOffText}" />
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Style="{StaticResource KaTertiaryButton}" Text="LOAD OLDER ACTIVITY" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{StaticResource KaSurfaceContainerLowest}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+            <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
+            <Button Grid.Column="1" Style="{StaticResource KaPrimaryButton}" Text="ACTIVITY" />
+            <Button Grid.Column="2" Command="{Binding GoToWalletCommand}" Style="{StaticResource KaTertiaryButton}" Text="WALLET" />
+            <Button Grid.Column="3" Command="{Binding GoToProfileCommand}" Style="{StaticResource KaTertiaryButton}" Text="PROFILE" />
+        </Grid>
+    </Grid>
 </ContentPage>

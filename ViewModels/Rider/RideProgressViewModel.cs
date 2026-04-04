@@ -16,6 +16,21 @@ public partial class RideProgressViewModel : BaseViewModel
     [ObservableProperty]
     private bool canCompleteView;
 
+    [ObservableProperty]
+    private string driverName = "Driver";
+
+    [ObservableProperty]
+    private string vehicleInfo = "Vehicle";
+
+    [ObservableProperty]
+    private string destinationText = "Destination available";
+
+    [ObservableProperty]
+    private string estimatedFareText = "$0.00";
+
+    [ObservableProperty]
+    private string estimatedArrivalText = "Arriving soon";
+
     public RideProgressViewModel(IRideStateStore _rideStateStore, IRideRealtimeService _rideRealtimeService)
     {
         rideStateStore = _rideStateStore;
@@ -79,6 +94,11 @@ public partial class RideProgressViewModel : BaseViewModel
         };
 
         OtherPartyPhoneNumber = ride.DriverPhoneNumber;
+        DriverName = string.IsNullOrWhiteSpace(ride.DriverName) ? "Driver" : ride.DriverName;
+        VehicleInfo = string.IsNullOrWhiteSpace(ride.VehicleInfo) ? "Vehicle" : ride.VehicleInfo;
+        DestinationText = $"{ride.DestinationLocation.latitude:F3}, {ride.DestinationLocation.longitude:F3}";
+        EstimatedFareText = $"${ride.AcceptedAmount:F2}";
+        EstimatedArrivalText = ride.EstimatedMinutes <= 0 ? "Arriving soon" : $"{ride.EstimatedMinutes} min";
         CanCompleteView = ride.Status is RideStatus.TripCompleted or RideStatus.Cancelled;
     }
 }

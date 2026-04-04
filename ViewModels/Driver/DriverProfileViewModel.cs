@@ -1,10 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
 using Ridebase.Models;
+using Ridebase.Models.Driver;
 using Ridebase.Models.Subscriptions;
 using Ridebase.Services.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace Ridebase.ViewModels.Driver;
 
@@ -27,14 +29,61 @@ public partial class DriverProfileViewModel : BaseViewModel
     [ObservableProperty]
     private string subscriptionIdText = string.Empty;
 
+    [ObservableProperty]
+    private string driverName = "Kinetic Anchor";
+
+    [ObservableProperty]
+    private string memberSinceText = "Verified partner";
+
+    [ObservableProperty]
+    private string activeVehicleName = "Vehicle pending";
+
+    [ObservableProperty]
+    private string activeVehiclePlate = "Assign a primary vehicle";
+
+    [ObservableProperty]
+    private ObservableCollection<DriverShortcutModel> profileShortcuts;
+
     public DriverProfileViewModel(
         ILogger<DriverProfileViewModel> logger,
-        IUserSessionService _userSessionService,
-        IPaymentSubscriptionApiClient _paymentSubscriptionApiClient)
+        IUserSessionService userSessionService,
+        IPaymentSubscriptionApiClient paymentSubscriptionApiClient)
     {
         Logger = logger;
-        userSessionService = _userSessionService;
-        paymentSubscriptionApiClient = _paymentSubscriptionApiClient;
+        this.userSessionService = userSessionService;
+        this.paymentSubscriptionApiClient = paymentSubscriptionApiClient;
+        ProfileShortcuts =
+        [
+            new DriverShortcutModel
+            {
+                Title = "Vehicle Documents",
+                Subtitle = "Insurance, registration, and permit checks",
+                AccentColor = "#CCE8E7",
+                IconGlyph = "\uf15c"
+            },
+            new DriverShortcutModel
+            {
+                Title = "Subscription Management",
+                Subtitle = "Billing, renewals, and plan visibility",
+                AccentColor = "#F6E3D7",
+                IconGlyph = "\uf555"
+            },
+            new DriverShortcutModel
+            {
+                Title = "Safety Settings",
+                Subtitle = "Emergency contacts and support readiness",
+                AccentColor = "#E8EDEE",
+                IconGlyph = "\uf505"
+            },
+            new DriverShortcutModel
+            {
+                Title = "Support",
+                Subtitle = "24/7 dispatch help and FAQs",
+                AccentColor = "#E8EDEE",
+                IconGlyph = "\uf059"
+            }
+        ];
+
         _ = RefreshSubscriptionStateAsync();
     }
 
@@ -134,6 +183,12 @@ public partial class DriverProfileViewModel : BaseViewModel
         }
 
         IsSubscribed = state.IsDriverSubscribed;
+        DriverName = string.IsNullOrWhiteSpace(state.FullName) ? "Kinetic Anchor" : state.FullName;
+        MemberSinceText = string.IsNullOrWhiteSpace(state.PhoneNumber)
+            ? "Verified partner"
+            : $"Verified partner • {state.PhoneNumber}";
+        ActiveVehicleName = state.IsDriverSubscribed ? "White Toyota Corolla" : "Complete driver setup";
+        ActiveVehiclePlate = state.IsDriverSubscribed ? "ABX-9082" : "Billing and vehicle details pending";
         SubscriptionStatusText = IsSubscribed ? "Subscription active" : "Subscription inactive";
         SubscriptionIdText = string.IsNullOrWhiteSpace(state.SubscriptionId)
             ? "Subscription ID not available yet"

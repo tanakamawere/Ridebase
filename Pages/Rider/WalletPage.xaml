@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Rider.WalletPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:models="clr-namespace:Ridebase.Models.Rider"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Rider"
+    Title="Wallet"
+    x:DataType="vm:WalletViewModel">
+
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{StaticResource KaBackground}">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource KaHeroIconBadge}" BackgroundColor="{StaticResource KaSecondaryContainer}">
+                        <Label FontFamily="fasolid" FontSize="18" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.Wallet}" TextColor="{StaticResource KaPrimary}" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Label Style="{StaticResource KaHeadlineLabel}" Text="Wallet" />
+                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="Manage your transit funds and earnings" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Border Background="{StaticResource KaPrimaryGradientBrush}" Padding="20" StrokeThickness="0" StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+                        <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" LetterSpacing="2" Text="TOTAL BALANCE" TextColor="#C7E4E4" />
+                        <Label FontFamily="{StaticResource KaDisplayFontFamily}" FontSize="34" FontAttributes="Bold" Text="{Binding TotalBalance}" TextColor="{StaticResource KaOnPrimary}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" Text="ACCOUNT HOLDER" TextColor="#C7E4E4" />
+                                <Label Style="{StaticResource KaTitleLabel}" Text="{Binding AccountHolder}" TextColor="{StaticResource KaOnPrimary}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1" BackgroundColor="#26FFFFFF" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 14" WidthRequest="48">
+                                <Label FontFamily="fasolid" FontSize="18" HorizontalOptions="Center" Text="{x:Static icons:Fasolid.MoneyCheckDollar}" TextColor="{StaticResource KaOnPrimary}" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Grid.Column="0" Command="{Binding AddFundsCommand}" Style="{StaticResource KaPrimaryButton}" Text="Add Funds" />
+                    <Button Grid.Column="1" Command="{Binding TransferCommand}" Style="{StaticResource KaSecondaryButton}" Text="Transfer" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource KaMetricCard}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Style="{StaticResource KaLabelMd}" Text="EARNINGS" />
+                            <Label Style="{StaticResource KaMetricValue}" Text="{Binding MonthlyEarnings}" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="This month" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource KaMetricCard}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Style="{StaticResource KaLabelMd}" Text="SPEND" />
+                            <Label Style="{StaticResource KaMetricValue}" Text="{Binding MonthlySpend}" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="Last 30 days" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Style="{StaticResource KaSectionTitle}" Text="Recent Activity" />
+                    <Label Grid.Column="1" Style="{StaticResource KaLabelMd}" Text="See All" VerticalOptions="Center" />
+                </Grid>
+
+                <CollectionView ItemsSource="{Binding Transactions}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:RiderWalletTransaction">
+                            <Border Margin="0,0,0,12" Style="{StaticResource KaListRowCard}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Style="{StaticResource KaIconBadge}" BackgroundColor="{Binding AccentColor}">
+                                        <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Title}" />
+                                        <Label Style="{StaticResource KaMutedBodyLabel}" Text="{Binding TimestampText}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                        <Label Style="{StaticResource KaTitleLabel}" HorizontalTextAlignment="End" Text="{Binding AmountText}" />
+                                        <Border Style="{StaticResource KaStatusChip}">
+                                            <Label Style="{StaticResource KaStatusChipLabel}" Text="{Binding StatusText}" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{StaticResource KaSurfaceContainerLowest}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+            <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
+            <Button Grid.Column="1" Command="{Binding GoToHistoryCommand}" Style="{StaticResource KaTertiaryButton}" Text="ACTIVITY" />
+            <Button Grid.Column="2" Style="{StaticResource KaPrimaryButton}" Text="WALLET" />
+            <Button Grid.Column="3" Command="{Binding GoToProfileCommand}" Style="{StaticResource KaTertiaryButton}" Text="PROFILE" />
+        </Grid>
+    </Grid>
+</ContentPage>

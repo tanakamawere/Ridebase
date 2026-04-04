@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Kinetic Anchor color tokens  -->
+    <Color x:Key="KaBackground">#F8FAFA</Color>
+    <Color x:Key="KaSurface">#FCFDFD</Color>
+    <Color x:Key="KaSurfaceBright">#F8FAFA</Color>
+    <Color x:Key="KaSurfaceContainerLowest">#FFFFFF</Color>
+    <Color x:Key="KaSurfaceContainerLow">#F2F4F5</Color>
+    <Color x:Key="KaSurfaceContainer">#E8EDEE</Color>
+    <Color x:Key="KaSurfaceContainerHigh">#DDE4E5</Color>
+    <Color x:Key="KaSurfaceContainerHighest">#D2DBDC</Color>
+    <Color x:Key="KaSurfaceGlass">#CCFCFDFD</Color>
+    <Color x:Key="KaOnSurface">#191C1D</Color>
+    <Color x:Key="KaOnSurfaceMuted">#5B6263</Color>
+    <Color x:Key="KaOutlineVariant">#C1C7C8</Color>
+    <Color x:Key="KaOutlineGhost">#26C1C7C8</Color>
+
+    <Color x:Key="KaPrimary">#004444</Color>
+    <Color x:Key="KaPrimaryContainer">#005E5D</Color>
+    <Color x:Key="KaPrimaryFixed">#CCE8E7</Color>
+    <Color x:Key="KaOnPrimary">#FFFFFF</Color>
+    <Color x:Key="KaOnPrimaryFixedVariant">#003535</Color>
+
+    <Color x:Key="KaSecondaryContainer">#DCE8E7</Color>
+    <Color x:Key="KaOnSecondaryContainer">#173A3A</Color>
+
+    <Color x:Key="KaTertiary">#603011</Color>
+    <Color x:Key="KaTertiaryContainer">#F6E3D7</Color>
+    <Color x:Key="KaOnTertiary">#FFFFFF</Color>
+
+    <Color x:Key="KaError">#B3261E</Color>
+    <Color x:Key="KaErrorContainer">#F9DEDC</Color>
+    <Color x:Key="KaOnErrorContainer">#410E0B</Color>
+
+    <!--  Design token aliases so new screens can read like the design doc  -->
+    <Color x:Key="background">#F8FAFA</Color>
+    <Color x:Key="surface">#FCFDFD</Color>
+    <Color x:Key="surface-bright">#F8FAFA</Color>
+    <Color x:Key="surface-container-lowest">#FFFFFF</Color>
+    <Color x:Key="surface-container-low">#F2F4F5</Color>
+    <Color x:Key="surface-container">#E8EDEE</Color>
+    <Color x:Key="surface-container-high">#DDE4E5</Color>
+    <Color x:Key="surface-container-highest">#D2DBDC</Color>
+    <Color x:Key="primary">#004444</Color>
+    <Color x:Key="primary_container">#005E5D</Color>
+    <Color x:Key="primary_fixed">#CCE8E7</Color>
+    <Color x:Key="on_primary_fixed_variant">#003535</Color>
+    <Color x:Key="secondary_container">#DCE8E7</Color>
+    <Color x:Key="on_secondary_container">#173A3A</Color>
+    <Color x:Key="tertiary">#603011</Color>
+    <Color x:Key="error_container">#F9DEDC</Color>
+    <Color x:Key="on_error_container">#410E0B</Color>
+    <Color x:Key="outline_variant">#C1C7C8</Color>
+    <Color x:Key="on_surface">#191C1D</Color>
+
+    <!--  Brand alias bridge for existing pages  -->
+    <Color x:Key="Primary">#004444</Color>
+    <Color x:Key="PrimaryDark">#4E7E7D</Color>
+    <Color x:Key="PrimaryDarkText">#191C1D</Color>
+    <Color x:Key="Secondary">#DCE8E7</Color>
+    <Color x:Key="SecondaryDarkText">#173A3A</Color>
+    <Color x:Key="Tertiary">#603011</Color>
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#191C1D</Color>
+    <Color x:Key="OffBlack">#191C1D</Color>
+    <Color x:Key="Gray100">#E8EDEE</Color>
+    <Color x:Key="Gray200">#C1C7C8</Color>
+    <Color x:Key="Gray300">#D2DBDC</Color>
+    <Color x:Key="Gray400">#7A8485</Color>
+    <Color x:Key="Gray500">#5B6263</Color>
+    <Color x:Key="Gray600">#404849</Color>
+    <Color x:Key="Gray900">#191C1D</Color>
+    <Color x:Key="Gray950">#101414</Color>
+    <Color x:Key="Magenta">#005E5D</Color>
+    <Color x:Key="MidnightBlue">#173A3A</Color>
+    <Color x:Key="BlueGray">#2F4141</Color>
+
+    <!--  Brushes  -->
+    <SolidColorBrush x:Key="KaBackgroundBrush" Color="{StaticResource KaBackground}" />
+    <SolidColorBrush x:Key="KaSurfaceBrush" Color="{StaticResource KaSurface}" />
+    <SolidColorBrush x:Key="KaSurfaceLowBrush" Color="{StaticResource KaSurfaceContainerLow}" />
+    <SolidColorBrush x:Key="KaSurfaceLowestBrush" Color="{StaticResource KaSurfaceContainerLowest}" />
+    <SolidColorBrush x:Key="KaPrimaryBrush" Color="{StaticResource KaPrimary}" />
+    <SolidColorBrush x:Key="KaSecondaryContainerBrush" Color="{StaticResource KaSecondaryContainer}" />
+    <SolidColorBrush x:Key="KaGhostOutlineBrush" Color="{StaticResource KaOutlineGhost}" />
+
+    <LinearGradientBrush x:Key="KaPrimaryGradientBrush" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="{StaticResource KaPrimary}" />
+        <GradientStop Offset="1.0" Color="{StaticResource KaPrimaryContainer}" />
+    </LinearGradientBrush>
+
+    <!--  Typography aliases  -->
+    <x:String x:Key="KaDisplayFontFamily">plusjakartasans</x:String>
+    <x:String x:Key="KaBodyFontFamily">inter</x:String>
+
+    <!--  Spacing scale  -->
+    <x:Double x:Key="KaSpace1">4</x:Double>
+    <x:Double x:Key="KaSpace2">8</x:Double>
+    <x:Double x:Key="KaSpace3">12</x:Double>
+    <x:Double x:Key="KaSpace4">16</x:Double>
+    <x:Double x:Key="KaSpace5">20</x:Double>
+    <x:Double x:Key="KaSpace6">24</x:Double>
+    <x:Double x:Key="KaSpace8">32</x:Double>
+    <x:Double x:Key="KaSpace10">40</x:Double>
+    <x:Double x:Key="KaTouchTargetMin">48</x:Double>
+
+    <!--  Radius scale  -->
+    <x:Double x:Key="KaRadiusSm">4</x:Double>
+    <x:Double x:Key="KaRadiusMd">12</x:Double>
+    <x:Double x:Key="KaRadiusLg">20</x:Double>
+    <x:Double x:Key="KaRadiusXl">28</x:Double>
+    <x:Double x:Key="KaRadiusFull">9999</x:Double>
+
+    <!--  Typography scale  -->
+    <x:Double x:Key="KaDisplayLgSize">34</x:Double>
+    <x:Double x:Key="KaHeadlineMdSize">28</x:Double>
+    <x:Double x:Key="KaTitleLgSize">22</x:Double>
+    <x:Double x:Key="KaTitleMdSize">18</x:Double>
+    <x:Double x:Key="KaTitleSmSize">16</x:Double>
+    <x:Double x:Key="KaBodyLgSize">16</x:Double>
+    <x:Double x:Key="KaBodyMdSize">14</x:Double>
+    <x:Double x:Key="KaLabelMdSize">13</x:Double>
+    <x:Double x:Key="KaLabelSmSize">12</x:Double>
+
+    <!--  Cloud shadow used for floating modules  -->
+    <Shadow x:Key="KaCloudShadow"
+            Brush="#0F191C1D"
+            Offset="0,12"
+            Opacity="0.06"
+            Radius="32" />
+
+</ResourceDictionary>
