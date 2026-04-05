@@ -11,3 +11,5 @@
 # Test project build artifacts
 /Ridebase.Tests/bin/
 /Ridebase.Tests/obj/
+/Ridebase.Maui/obj
+/Ridebase.Maui/bin/Debug/net10.0-android
