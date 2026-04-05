@@ -2,18 +2,5 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/Ridebase/FileContentIndex/merges
-/.vs/Ridebase
-/obj
-/bin
 /.vs
-/.dotnet/
-/.nuget/
-*.user
-build-*.log
-
-# Test project build artifacts
-/Ridebase.Tests/bin/
-/Ridebase.Tests/obj/
-/Ridebase.Maui/obj
-/Ridebase.Maui/bin/Debug/net10.0-android
+/Ridebase.Tests/obj
