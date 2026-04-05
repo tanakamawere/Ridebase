@@ -134,7 +134,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<IStorageService, StorageService>();
         builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
-        builder.Services.AddSingleton<IUserBootstrapService, MockUserBootstrapService>();
+        builder.Services.AddSingleton<IUserBootstrapService, UserBootstrapService>();
         builder.Services.AddSingleton<IRideStateStore, RideStateStore>();
 
         var realtimeTransport = configuration.GetValue<string>("RealtimeTransport") ?? "WebSocket";
@@ -157,24 +157,20 @@ public static class MauiProgram
 
             builder.Services.AddSingleton<IRideApiClient, RideApiClient>();
         }
-        if (useMockServices)
-        {
-            builder.Services.AddSingleton<IOnboardingApiClient, MockOnboardingApiClient>();
-        }
-        else
-        {
-            builder.Services.AddHttpClient<IOnboardingApiClient, OnboardingApiClient>("OnboardingServiceClient", client =>
-            {
-                var onboardingBaseAddress = configuration["OnboardingServiceEndpoint"];
-                if (string.IsNullOrEmpty(onboardingBaseAddress))
-                {
-                    throw new ArgumentNullException(nameof(onboardingBaseAddress), "Onboarding Service Endpoint configuration is missing or empty.");
-                }
 
-                client.BaseAddress = new Uri(onboardingBaseAddress);
-            })
-                .AddHttpMessageHandler<AuthHeaderHandler>();
-        }
+
+
+        builder.Services.AddHttpClient<IOnboardingApiClient, OnboardingApiClient>("OnboardingServiceClient", client =>
+        {
+            var onboardingBaseAddress = configuration["OnboardingServiceEndpoint"];
+            if (string.IsNullOrEmpty(onboardingBaseAddress))
+            {
+                throw new ArgumentNullException(nameof(onboardingBaseAddress), "Onboarding Service Endpoint configuration is missing or empty.");
+            }
+
+            client.BaseAddress = new Uri(onboardingBaseAddress);
+        }).AddHttpMessageHandler<AuthHeaderHandler>();
+
         builder.Services.AddSingleton<IDriverApiClient, DriverApiClient>();
         if (useMockServices)
         {
@@ -208,7 +204,6 @@ public static class MauiProgram
             Scope = configuration["Auth:Scopes"],
             RedirectUri = configuration["Auth:RedirectUri"],
             Browser = new MauiAuthenticationBrowser(),
-
             Policy = new Policy
             {
                 Discovery = new DiscoveryPolicy

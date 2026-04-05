@@ -29,7 +29,7 @@ public class OnboardingApiClient : IOnboardingApiClient
             };
         }
 
-        return await ProcessResponseAsync<OnboardingProfileResponse>(response);
+        return await response.ToApiResponseAsync<OnboardingProfileResponse>();
     }
 
     public async Task<ApiResponse<bool>> CheckOnboardingStatusAsync(string userId)
@@ -55,7 +55,7 @@ public class OnboardingApiClient : IOnboardingApiClient
         };
 
         var response = await httpClient.PostAsync("api/v1/onboarding/profile", new FormUrlEncodedContent(form));
-        return await ProcessStringResponseAsync(response, "Profile submitted");
+        return await response.ToStringApiResponseAsync("Profile submitted");
     }
 
     public async Task<ApiResponse<string>> SubmitDriverDetailsAsync(CarDetails carDetails, string licensePhotoPath)
@@ -86,39 +86,7 @@ public class OnboardingApiClient : IOnboardingApiClient
         multipart.Add(fileContent, "license_photo", Path.GetFileName(licensePhotoPath));
 
         var response = await httpClient.PostAsync("api/v1/onboarding/driver_setup", multipart);
-        return await ProcessStringResponseAsync(response, "Driver setup submitted");
-    }
-
-    private static async Task<ApiResponse<T>> ProcessResponseAsync<T>(HttpResponseMessage response)
-    {
-        var apiResponse = new ApiResponse<T>
-        {
-            StatusCode = (int)response.StatusCode,
-            IsSuccess = response.IsSuccessStatusCode
-        };
-
-        if (response.IsSuccessStatusCode)
-        {
-            apiResponse.Data = await response.Content.ReadFromJsonAsync<T>();
-        }
-        else
-        {
-            apiResponse.ErrorMessage = await response.Content.ReadAsStringAsync();
-        }
-
-        return apiResponse;
-    }
-
-    private static async Task<ApiResponse<string>> ProcessStringResponseAsync(HttpResponseMessage response, string fallback)
-    {
-        var body = await response.Content.ReadAsStringAsync();
-        return new ApiResponse<string>
-        {
-            IsSuccess = response.IsSuccessStatusCode,
-            StatusCode = (int)response.StatusCode,
-            Data = response.IsSuccessStatusCode ? (string.IsNullOrWhiteSpace(body) ? fallback : body) : string.Empty,
-            ErrorMessage = response.IsSuccessStatusCode ? string.Empty : body
-        };
+        return await response.ToStringApiResponseAsync("Driver setup submitted");
     }
 
     private static string GetMimeType(string filePath)

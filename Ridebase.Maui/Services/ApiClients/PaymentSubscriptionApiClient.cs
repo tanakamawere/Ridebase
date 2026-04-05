@@ -35,32 +35,12 @@ public class PaymentSubscriptionApiClient : IPaymentSubscriptionApiClient
     private async Task<ApiResponse<T>> SendGetAsync<T>(string url, CancellationToken cancellationToken)
     {
         var response = await httpClient.GetAsync(url, cancellationToken);
-        return await ProcessResponseAsync<T>(response);
+        return await response.ToApiResponseAsync<T>();
     }
 
     private async Task<ApiResponse<T>> SendPostAsync<T>(string url, object data, CancellationToken cancellationToken)
     {
         var response = await httpClient.PostAsJsonAsync(url, data, cancellationToken);
-        return await ProcessResponseAsync<T>(response);
-    }
-
-    private static async Task<ApiResponse<T>> ProcessResponseAsync<T>(HttpResponseMessage response)
-    {
-        var apiResponse = new ApiResponse<T>
-        {
-            StatusCode = (int)response.StatusCode,
-            IsSuccess = response.IsSuccessStatusCode
-        };
-
-        if (response.IsSuccessStatusCode)
-        {
-            apiResponse.Data = await response.Content.ReadFromJsonAsync<T>();
-        }
-        else
-        {
-            apiResponse.ErrorMessage = response.ReasonPhrase;
-        }
-
-        return apiResponse;
+        return await response.ToApiResponseAsync<T>();
     }
 }

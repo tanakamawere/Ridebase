@@ -8,12 +8,12 @@
     Title="Profile"
     x:DataType="vm:ProfileViewModel">
 
-    <Grid RowDefinitions="*,Auto" BackgroundColor="{StaticResource KaBackground}">
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource KaBackground}, Dark={StaticResource Gray950}}">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
                 <Border Style="{StaticResource KaFleetModuleCard}">
                     <VerticalStackLayout Spacing="16">
-                        <Border BackgroundColor="{StaticResource KaOnSurface}" HeightRequest="88" HorizontalOptions="Center" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="88">
+                        <Border BackgroundColor="{StaticResource KaPrimary}" HeightRequest="88" HorizontalOptions="Center" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="88">
                             <Label FontFamily="fasolid" FontSize="34" HorizontalOptions="Center" Text="&#xf007;" TextColor="{StaticResource KaOnPrimary}" VerticalOptions="Center" />
                         </Border>
                         <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
@@ -38,7 +38,7 @@
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Style="{StaticResource KaTitleLabel}" Text="Switch to Driver Mode" TextColor="{StaticResource KaOnPrimary}" />
-                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="Start earning today with Ridebase Fleet" TextColor="#D7ECEB" />
+                            <Label Style="{StaticResource KaMutedBodyLabel}" Text="Start earning today with Ridebase Fleet" TextColor="{StaticResource KaOnPrimaryMuted}" />
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" IsToggled="False" Toggled="OnDriverModeToggled" VerticalOptions="Center" />
                     </Grid>
@@ -49,8 +49,8 @@
                         <DataTemplate x:DataType="models:RiderProfileOption">
                             <Border Margin="0,0,0,12" Style="{StaticResource KaListRowCard}">
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-                                    <Border Style="{StaticResource KaIconBadge}" BackgroundColor="{Binding AccentColor}">
-                                        <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnSurface}" VerticalOptions="Center" />
+                                    <Border Style="{StaticResource KaIconBadge}">
+                                        <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="{Binding IconGlyph}" TextColor="{StaticResource KaOnPrimaryFixedVariant}" VerticalOptions="Center" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2">
                                         <Label Style="{StaticResource KaTitleLabel}" Text="{Binding Title}" />
@@ -67,7 +67,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{StaticResource KaSurfaceContainerLowest}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowest}, Dark={StaticResource Gray900}}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
             <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
             <Button Grid.Column="1" Command="{Binding GoToHistoryCommand}" Style="{StaticResource KaTertiaryButton}" Text="ACTIVITY" />
             <Button Grid.Column="2" Command="{Binding GoToWalletCommand}" Style="{StaticResource KaTertiaryButton}" Text="WALLET" />

@@ -147,23 +147,17 @@ public partial class AppShellViewModel : BaseViewModel
             var displayName = loginResult.User.Identity?.Name ?? "Ridebase User";
             var pictureUrl = loginResult.User.FindFirst(c => c.Type == "picture")?.Value ?? string.Empty;
 
-            await SecureStorage.SetAsync("auth_token", loginResult.AccessToken);
-            await SecureStorage.SetAsync("user_id", userId);
+            await userSessionService.SetAuthSessionAsync(userId, loginResult.AccessToken, loginResult.RefreshToken, displayName, email, pictureUrl);
 
-            if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
-            {
-                await SecureStorage.SetAsync("refresh_token", loginResult.RefreshToken);
-            }
-
-            RidebaseUser = await userSessionService.BuildUserAsync(userId, loginResult.AccessToken, displayName);
-            RidebaseUser.Email = email;
-            RidebaseUser.ImageUrl = pictureUrl;
-            HasEmail = !string.IsNullOrWhiteSpace(email);
+            RidebaseUser = await userSessionService.GetCachedUserAsync(loginResult.AccessToken)
+                ?? await userSessionService.BuildUserAsync(userId, loginResult.AccessToken, displayName);
+            HasEmail = !string.IsNullOrWhiteSpace(RidebaseUser.Email);
             IsLoggedIn = true;
 
             Shell.Current.FlyoutIsPresented = false;
 
             var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
+            ApplyBootstrapDisplayName(bootstrap);
             await NavigateByBootstrapState(bootstrap);
         }
         catch (Exception ex)
@@ -186,19 +180,23 @@ public partial class AppShellViewModel : BaseViewModel
 
             if (string.IsNullOrEmpty(token) || IsTokenExpired(token))
             {
-                ClearStorage();
+                await ResetToLoggedOutStateAsync();
                 return;
             }
 
-            IsLoggedIn = true;
             var userId = await SecureStorage.GetAsync("user_id") ?? string.Empty;
+            RidebaseUser = await userSessionService.GetCachedUserAsync(token)
+                ?? await userSessionService.BuildUserAsync(userId, token, "Ridebase User");
+            HasEmail = !string.IsNullOrWhiteSpace(RidebaseUser?.Email);
+            IsLoggedIn = true;
             var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
+            ApplyBootstrapDisplayName(bootstrap);
             await NavigateByBootstrapState(bootstrap);
         }
         catch (Exception ex)
         {
             Logger?.LogWarning(ex, "CheckAuthenticationState failed; treating as logged out");
-            ClearStorage();
+            await ResetToLoggedOutStateAsync();
         }
         finally
         {
@@ -230,21 +228,7 @@ public partial class AppShellViewModel : BaseViewModel
             Logger?.LogWarning(ex, "Auth0 logout failed in mock mode");
         }
 
-        ClearStorage();
-        IsLoggedIn = false;
-        HasEmail = false;
-        IsDriverMode = false;
-        IsRiderMode = true;
-        CurrentModeLabel = "Rider";
-        RidebaseUser = null;
-        await Shell.Current.GoToAsync("//Home");
-    }
-
-    public void ClearStorage()
-    {
-        SecureStorage.Remove("auth_token");
-        SecureStorage.Remove("user_id");
-        SecureStorage.Remove("refresh_token");
+        await ResetToLoggedOutStateAsync(navigateHome: true);
     }
 
     private async Task NavigateByBootstrapState(UserBootstrapState bootstrap)
@@ -273,5 +257,32 @@ public partial class AppShellViewModel : BaseViewModel
     {
         var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         return page is null ? Task.CompletedTask : page.DisplayAlertAsync(title, message, "OK");
+    }
+
+    private void ApplyBootstrapDisplayName(UserBootstrapState bootstrap)
+    {
+        if (RidebaseUser is null || string.IsNullOrWhiteSpace(bootstrap.FullName))
+        {
+            return;
+        }
+
+        RidebaseUser.UserName = bootstrap.FullName;
+    }
+
+    private async Task ResetToLoggedOutStateAsync(bool navigateHome = false)
+    {
+        await userSessionService.ClearSessionAsync();
+
+        IsLoggedIn = false;
+        HasEmail = false;
+        IsDriverMode = false;
+        IsRiderMode = true;
+        CurrentModeLabel = "Rider";
+        RidebaseUser = null;
+
+        if (navigateHome)
+        {
+            await Shell.Current.GoToAsync("//Home");
+        }
     }
 }

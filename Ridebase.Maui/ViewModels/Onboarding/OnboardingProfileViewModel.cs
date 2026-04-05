@@ -31,9 +31,7 @@ public partial class OnboardingProfileViewModel : BaseViewModel
 
     public List<string> ZimbabweCities { get; } =
     [
-        "Harare", "Bulawayo", "Mutare", "Gweru", "Kwekwe", "Kadoma", "Masvingo",
-        "Chinhoyi", "Norton", "Marondera", "Chegutu", "Zvishavane", "Bindura",
-        "Beitbridge", "Hwange", "Victoria Falls", "Karoi", "Kariba", "Rusape", "Chiredzi"
+        "Harare", "Bulawayo"
     ];
 
     public OnboardingProfileViewModel(IOnboardingApiClient _onboardingApiClient, IUserSessionService _userSessionService)

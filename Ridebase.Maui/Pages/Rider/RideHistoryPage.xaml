@@ -8,7 +8,7 @@
     Title="Activity"
     x:DataType="vm:RideHistoryViewModel">
 
-    <Grid RowDefinitions="*,Auto" BackgroundColor="{StaticResource KaBackground}">
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource KaBackground}, Dark={StaticResource Gray950}}">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
                 <VerticalStackLayout Spacing="4">
@@ -27,7 +27,7 @@
                         <DataTemplate x:DataType="models:RiderActivityItem">
                             <Border Margin="0,0,0,16" Style="{StaticResource KaFleetModuleCard}">
                                 <VerticalStackLayout Spacing="14">
-                                    <Border BackgroundColor="{Binding AccentColor}" HeightRequest="80" StrokeThickness="0" StrokeShape="RoundRectangle 12" />
+                                    <Border BackgroundColor="{StaticResource KaSecondaryContainer}" HeightRequest="80" StrokeThickness="0" StrokeShape="RoundRectangle 12" />
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                                         <VerticalStackLayout Spacing="4">
                                             <Label Style="{StaticResource KaTitleLabel}" Text="{Binding DriverRouteText}" />
@@ -51,7 +51,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{StaticResource KaSurfaceContainerLowest}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowest}, Dark={StaticResource Gray900}}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
             <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
             <Button Grid.Column="1" Style="{StaticResource KaPrimaryButton}" Text="ACTIVITY" />
             <Button Grid.Column="2" Command="{Binding GoToWalletCommand}" Style="{StaticResource KaTertiaryButton}" Text="WALLET" />
