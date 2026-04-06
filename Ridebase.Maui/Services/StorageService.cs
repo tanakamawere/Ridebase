@@ -9,6 +9,11 @@ internal class StorageService : IStorageService
         return await SecureStorage.GetAsync("auth_token");
     }
 
+    public async Task<string> GetRefreshTokenAsync()
+    {
+        return await SecureStorage.GetAsync("refresh_token");
+    }
+
     public async Task<string> GetUserIdAsync()
     {
         return await SecureStorage.GetAsync("user_id");
@@ -22,6 +27,11 @@ internal class StorageService : IStorageService
     public async Task SetAuthTokenAsync(string authToken)
     {
         await SecureStorage.SetAsync("auth_token", authToken);
+    }
+
+    public async Task SetRefreshTokenAsync(string refreshToken)
+    {
+        await SecureStorage.SetAsync("refresh_token", refreshToken);
     }
 
     public async Task SetUserIdAsync(string userId)

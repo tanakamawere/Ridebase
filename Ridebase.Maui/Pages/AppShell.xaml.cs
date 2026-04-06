@@ -1,4 +1,5 @@
-﻿using Ridebase.Pages.Driver;
+﻿using Ridebase.Pages.Auth;
+using Ridebase.Pages.Driver;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
 using Ridebase.ViewModels;
@@ -23,6 +24,11 @@ namespace Ridebase.Pages
 
             // Support route
             Routing.RegisterRoute(nameof(SupportPage), typeof(SupportPage));
+
+            // Auth routes
+            Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+            Routing.RegisterRoute(nameof(SignUpPage), typeof(SignUpPage));
+            Routing.RegisterRoute(nameof(EmailVerificationPage), typeof(EmailVerificationPage));
 
             // Onboarding routes
             Routing.RegisterRoute(nameof(OnboardingProfilePage), typeof(OnboardingProfilePage));

@@ -32,7 +32,7 @@
 
             <Border Background="{StaticResource KaPrimaryGradientBrush}" Padding="20" StrokeThickness="0" StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="14">
-                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" LetterSpacing="2" Text="{Binding CurrentPlanCaption}" TextColor="#A8D2D2" />
+                    <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="12" CharacterSpacing="2" Text="{Binding CurrentPlanCaption}" TextColor="#A8D2D2" />
                     <Label FontFamily="{StaticResource KaDisplayFontFamily}" FontSize="28" FontAttributes="Bold" LineBreakMode="WordWrap" Text="{Binding CurrentPlanTitle}" TextColor="{StaticResource KaOnPrimary}" />
                     <Label FontFamily="{StaticResource KaBodyFontFamily}" FontSize="13" Text="{Binding SubscriptionDetail}" TextColor="#D7ECEB" />
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">

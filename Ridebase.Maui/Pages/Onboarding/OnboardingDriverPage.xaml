@@ -26,7 +26,7 @@
                     <Label
                         FontFamily="{StaticResource KaBodyFontFamily}"
                         FontSize="12"
-                        LetterSpacing="2"
+                        CharacterSpacing="2"
                         Text="STEP 3"
                         TextColor="#C7E4E4" />
                     <Label
@@ -59,7 +59,6 @@
                         <Label Style="{StaticResource KaFieldLabel}" Text="Car Make" />
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
-                                KeyboardFlags="CapitalizeWord"
                                 Placeholder="e.g. Toyota"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding CarMake}" />
@@ -70,7 +69,6 @@
                         <Label Style="{StaticResource KaFieldLabel}" Text="Car Model" />
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
-                                KeyboardFlags="CapitalizeWord"
                                 Placeholder="e.g. Corolla"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding CarModel}" />

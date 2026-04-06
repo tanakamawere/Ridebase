@@ -13,7 +13,7 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
                 new Uri(options.StartUrl),
                 new Uri(options.EndUrl));
 
-            var url = new RequestUrl("myapp://callback")
+            var url = new RequestUrl(options.EndUrl)
                 .Create(new Parameters(result.Properties));
 
             return new BrowserResult

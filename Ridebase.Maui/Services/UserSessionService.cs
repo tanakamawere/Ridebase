@@ -26,61 +26,81 @@ public class UserSessionService : IUserSessionService
 
     public async Task<UserBootstrapState> GetStateAsync()
     {
-        var userId = await SecureStorage.GetAsync(UserIdKey) ?? string.Empty;
-        var role = await SecureStorage.GetAsync(RoleKey) ?? AppUserRole.Rider.ToString();
-        var onboarded = await SecureStorage.GetAsync(IsOnboardedKey) ?? bool.FalseString;
-        var subscriptionStatus = await SecureStorage.GetAsync(SubscriptionStatusKey) ?? string.Empty;
-        var subscribed = await SecureStorage.GetAsync(DriverSubscribedKey) ?? bool.FalseString;
-        var subscriptionCurrentPeriodStart = await SecureStorage.GetAsync(SubscriptionCurrentPeriodStartKey);
-        var subscriptionCurrentPeriodEnd = await SecureStorage.GetAsync(SubscriptionCurrentPeriodEndKey);
-        var subscriptionCancelAtPeriodEnd = await SecureStorage.GetAsync(SubscriptionCancelAtPeriodEndKey);
+        // Fire all reads in parallel
+        var userIdTask = SecureStorage.GetAsync(UserIdKey);
+        var roleTask = SecureStorage.GetAsync(RoleKey);
+        var onboardedTask = SecureStorage.GetAsync(IsOnboardedKey);
+        var subStatusTask = SecureStorage.GetAsync(SubscriptionStatusKey);
+        var subscribedTask = SecureStorage.GetAsync(DriverSubscribedKey);
+        var periodStartTask = SecureStorage.GetAsync(SubscriptionCurrentPeriodStartKey);
+        var periodEndTask = SecureStorage.GetAsync(SubscriptionCurrentPeriodEndKey);
+        var cancelAtEndTask = SecureStorage.GetAsync(SubscriptionCancelAtPeriodEndKey);
+        var subIdTask = SecureStorage.GetAsync(SubscriptionIdKey);
+        var customerIdTask = SecureStorage.GetAsync(SubscriptionCustomerIdKey);
+        var fullNameTask = SecureStorage.GetAsync(FullNameKey);
+        var phoneTask = SecureStorage.GetAsync(PhoneNumberKey);
+
+        await Task.WhenAll(
+            userIdTask, roleTask, onboardedTask, subStatusTask,
+            subscribedTask, periodStartTask, periodEndTask, cancelAtEndTask,
+            subIdTask, customerIdTask, fullNameTask, phoneTask);
+
+        var subscriptionStatus = subStatusTask.Result ?? string.Empty;
+        var subscribed = subscribedTask.Result ?? bool.FalseString;
 
         return new UserBootstrapState
         {
-            UserId = userId,
-            Role = Enum.TryParse<AppUserRole>(role, true, out var parsedRole) ? parsedRole : AppUserRole.Rider,
-            IsOnboarded = bool.TryParse(onboarded, out var parsedOnboarded) && parsedOnboarded,
+            UserId = userIdTask.Result ?? string.Empty,
+            Role = Enum.TryParse<AppUserRole>(roleTask.Result ?? AppUserRole.Rider.ToString(), true, out var parsedRole) ? parsedRole : AppUserRole.Rider,
+            IsOnboarded = bool.TryParse(onboardedTask.Result ?? bool.FalseString, out var parsedOnboarded) && parsedOnboarded,
             IsDriverSubscribed = IsSubscribedStatus(subscriptionStatus) || (bool.TryParse(subscribed, out var parsedSubscribed) && parsedSubscribed),
-            SubscriptionId = await SecureStorage.GetAsync(SubscriptionIdKey),
-            CustomerId = await SecureStorage.GetAsync(SubscriptionCustomerIdKey),
+            SubscriptionId = subIdTask.Result,
+            CustomerId = customerIdTask.Result,
             SubscriptionStatus = subscriptionStatus,
-            SubscriptionCurrentPeriodStart = long.TryParse(subscriptionCurrentPeriodStart, out var parsedPeriodStart) ? parsedPeriodStart : null,
-            SubscriptionCurrentPeriodEnd = long.TryParse(subscriptionCurrentPeriodEnd, out var parsedPeriodEnd) ? parsedPeriodEnd : null,
-            SubscriptionCancelAtPeriodEnd = bool.TryParse(subscriptionCancelAtPeriodEnd, out var parsedCancelAtPeriodEnd) ? parsedCancelAtPeriodEnd : null,
-            FullName = await SecureStorage.GetAsync(FullNameKey) ?? string.Empty,
-            PhoneNumber = await SecureStorage.GetAsync(PhoneNumberKey) ?? string.Empty
+            SubscriptionCurrentPeriodStart = long.TryParse(periodStartTask.Result, out var parsedPeriodStart) ? parsedPeriodStart : null,
+            SubscriptionCurrentPeriodEnd = long.TryParse(periodEndTask.Result, out var parsedPeriodEnd) ? parsedPeriodEnd : null,
+            SubscriptionCancelAtPeriodEnd = bool.TryParse(cancelAtEndTask.Result, out var parsedCancelAtPeriodEnd) ? parsedCancelAtPeriodEnd : null,
+            FullName = fullNameTask.Result ?? string.Empty,
+            PhoneNumber = phoneTask.Result ?? string.Empty
         };
     }
 
     public async Task SetAuthSessionAsync(string userId, string accessToken, string? refreshToken, string displayName, string email, string imageUrl)
     {
-        await SecureStorage.SetAsync(AuthTokenKey, accessToken);
-        await SecureStorage.SetAsync(UserIdKey, userId);
+        var tasks = new List<Task>
+        {
+            SecureStorage.SetAsync(AuthTokenKey, accessToken),
+            SecureStorage.SetAsync(UserIdKey, userId),
+            WriteValueOrRemoveAsync(DisplayNameKey, displayName),
+            WriteValueOrRemoveAsync(EmailKey, email),
+            WriteValueOrRemoveAsync(ImageUrlKey, imageUrl)
+        };
 
         if (string.IsNullOrWhiteSpace(refreshToken))
-        {
             SecureStorage.Remove(RefreshTokenKey);
-        }
         else
-        {
-            await SecureStorage.SetAsync(RefreshTokenKey, refreshToken);
-        }
+            tasks.Add(SecureStorage.SetAsync(RefreshTokenKey, refreshToken));
 
-        await WriteValueOrRemoveAsync(DisplayNameKey, displayName);
-        await WriteValueOrRemoveAsync(EmailKey, email);
-        await WriteValueOrRemoveAsync(ImageUrlKey, imageUrl);
+        await Task.WhenAll(tasks);
     }
 
     public async Task<User?> GetCachedUserAsync(string accessToken)
     {
-        var userId = await SecureStorage.GetAsync(UserIdKey);
-        if (string.IsNullOrWhiteSpace(userId))
-        {
-            return null;
-        }
+        // Fire all reads in parallel
+        var userIdTask = SecureStorage.GetAsync(UserIdKey);
+        var fullNameTask = SecureStorage.GetAsync(FullNameKey);
+        var displayNameTask = SecureStorage.GetAsync(DisplayNameKey);
+        var emailTask = SecureStorage.GetAsync(EmailKey);
+        var imageUrlTask = SecureStorage.GetAsync(ImageUrlKey);
 
-        var fullName = await SecureStorage.GetAsync(FullNameKey);
-        var authDisplayName = await SecureStorage.GetAsync(DisplayNameKey);
+        await Task.WhenAll(userIdTask, fullNameTask, displayNameTask, emailTask, imageUrlTask);
+
+        var userId = userIdTask.Result;
+        if (string.IsNullOrWhiteSpace(userId))
+            return null;
+
+        var fullName = fullNameTask.Result;
+        var authDisplayName = displayNameTask.Result;
         var resolvedDisplayName = !string.IsNullOrWhiteSpace(fullName)
             ? fullName
             : string.IsNullOrWhiteSpace(authDisplayName)
@@ -88,8 +108,8 @@ public class UserSessionService : IUserSessionService
                 : authDisplayName;
 
         var user = await BuildUserAsync(userId, accessToken, resolvedDisplayName);
-        user.Email = await SecureStorage.GetAsync(EmailKey) ?? string.Empty;
-        user.ImageUrl = await SecureStorage.GetAsync(ImageUrlKey) ?? string.Empty;
+        user.Email = emailTask.Result ?? string.Empty;
+        user.ImageUrl = imageUrlTask.Result ?? string.Empty;
         return user;
     }
 
@@ -136,19 +156,23 @@ public class UserSessionService : IUserSessionService
 
     public async Task SetDriverSubscriptionAsync(bool isSubscribed)
     {
-        await SecureStorage.SetAsync(DriverSubscribedKey, isSubscribed.ToString());
-        await SecureStorage.SetAsync(SubscriptionStatusKey, isSubscribed ? "active" : "canceled");
+        await Task.WhenAll(
+            SecureStorage.SetAsync(DriverSubscribedKey, isSubscribed.ToString()),
+            SecureStorage.SetAsync(SubscriptionStatusKey, isSubscribed ? "active" : "canceled")
+        );
     }
 
     public async Task SetSubscriptionStateAsync(DriverSubscriptionStatus subscriptionState)
     {
-        await SecureStorage.SetAsync(DriverSubscribedKey, subscriptionState.IsSubscribed.ToString());
-        await WriteValueOrRemoveAsync(SubscriptionIdKey, subscriptionState.SubscriptionId);
-        await WriteValueOrRemoveAsync(SubscriptionCustomerIdKey, subscriptionState.CustomerId);
-        await WriteValueOrRemoveAsync(SubscriptionStatusKey, subscriptionState.Status);
-        await WriteValueOrRemoveAsync(SubscriptionCurrentPeriodStartKey, subscriptionState.CurrentPeriodStart?.ToString());
-        await WriteValueOrRemoveAsync(SubscriptionCurrentPeriodEndKey, subscriptionState.CurrentPeriodEnd?.ToString());
-        await WriteValueOrRemoveAsync(SubscriptionCancelAtPeriodEndKey, subscriptionState.CancelAtPeriodEnd?.ToString());
+        await Task.WhenAll(
+            SecureStorage.SetAsync(DriverSubscribedKey, subscriptionState.IsSubscribed.ToString()),
+            WriteValueOrRemoveAsync(SubscriptionIdKey, subscriptionState.SubscriptionId),
+            WriteValueOrRemoveAsync(SubscriptionCustomerIdKey, subscriptionState.CustomerId),
+            WriteValueOrRemoveAsync(SubscriptionStatusKey, subscriptionState.Status),
+            WriteValueOrRemoveAsync(SubscriptionCurrentPeriodStartKey, subscriptionState.CurrentPeriodStart?.ToString()),
+            WriteValueOrRemoveAsync(SubscriptionCurrentPeriodEndKey, subscriptionState.CurrentPeriodEnd?.ToString()),
+            WriteValueOrRemoveAsync(SubscriptionCancelAtPeriodEndKey, subscriptionState.CancelAtPeriodEnd?.ToString())
+        );
     }
 
     public Task ClearSubscriptionStateAsync()
@@ -165,8 +189,10 @@ public class UserSessionService : IUserSessionService
 
     public async Task SetProfileAsync(string fullName, string phoneNumber)
     {
-        await SecureStorage.SetAsync(FullNameKey, fullName);
-        await SecureStorage.SetAsync(PhoneNumberKey, phoneNumber);
+        await Task.WhenAll(
+            SecureStorage.SetAsync(FullNameKey, fullName),
+            SecureStorage.SetAsync(PhoneNumberKey, phoneNumber)
+        );
     }
 
     public Task<User> BuildUserAsync(string userId, string accessToken, string displayName)

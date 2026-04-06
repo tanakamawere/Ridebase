@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Auth.SignUpPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels"
+    x:DataType="vm:SignUpViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="24,60,24,24"
+            Spacing="14"
+            VerticalOptions="Center">
+
+            <Label
+                FontAttributes="Bold"
+                FontSize="26"
+                HorizontalOptions="Center"
+                Text="Create Account"
+                TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+
+            <Label
+                FontSize="14"
+                HorizontalOptions="Center"
+                Opacity="0.7"
+                Text="Sign up to get started with Ridebase"
+                TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+            <!-- Error message -->
+            <Border
+                Padding="12,10"
+                BackgroundColor="#FFF0F0"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="0">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#D32F2F" />
+            </Border>
+
+            <!-- Email -->
+            <VerticalStackLayout Spacing="6">
+                <Label
+                    FontSize="13"
+                    Text="Email"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Border
+                    Padding="14,0"
+                    BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2A2A2A}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <Entry
+                        FontSize="16"
+                        Keyboard="Email"
+                        Placeholder="you@example.com"
+                        Text="{Binding Email}"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Username -->
+            <VerticalStackLayout Spacing="6">
+                <Label
+                    FontSize="13"
+                    Text="Username"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Border
+                    Padding="14,0"
+                    BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2A2A2A}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <Entry
+                        FontSize="16"
+                        Placeholder="Choose a username"
+                        Text="{Binding Username}"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Password -->
+            <VerticalStackLayout Spacing="6">
+                <Label
+                    FontSize="13"
+                    Text="Password"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Border
+                    Padding="14,0"
+                    BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2A2A2A}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <Entry
+                        FontSize="16"
+                        IsPassword="True"
+                        Placeholder="Create a password"
+                        Text="{Binding Password}"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Confirm Password -->
+            <VerticalStackLayout Spacing="6">
+                <Label
+                    FontSize="13"
+                    Text="Confirm Password"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Border
+                    Padding="14,0"
+                    BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2A2A2A}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <Entry
+                        FontSize="16"
+                        IsPassword="True"
+                        Placeholder="Confirm your password"
+                        Text="{Binding ConfirmPassword}"
+                        TextColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource White}}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Sign Up button -->
+            <Button
+                Margin="0,8,0,0"
+                BackgroundColor="{StaticResource Primary}"
+                Command="{Binding SignUpCommand}"
+                CornerRadius="24"
+                FontAttributes="Bold"
+                FontSize="16"
+                HeightRequest="52"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                Text="Create Account"
+                TextColor="White" />
+
+            <!-- Loading indicator -->
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsBusy}"
+                Spacing="8">
+                <ActivityIndicator
+                    HeightRequest="20"
+                    IsRunning="True"
+                    WidthRequest="20"
+                    Color="{StaticResource Primary}" />
+                <Label
+                    FontSize="13"
+                    Text="Creating account..."
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <!-- Back to Login -->
+            <HorizontalStackLayout
+                Margin="0,12,0,0"
+                HorizontalOptions="Center"
+                Spacing="4">
+                <Label
+                    FontSize="14"
+                    Text="Already have an account?"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                    VerticalOptions="Center" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    Text="Sign In"
+                    TextColor="{StaticResource Primary}"
+                    VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToLoginCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:IsNotNullConverter
+                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                x:Key="IsNotNullConverter" />
+            <toolkit:InvertedBoolConverter
+                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+</ContentPage>

@@ -51,7 +51,8 @@ public class OnboardingApiClient : IOnboardingApiClient
             ["full_name"] = profile.FullName,
             ["phone_number"] = profile.PhoneNumber,
             ["city"] = profile.City,
-            ["role"] = role == AppUserRole.Driver ? "DRIVER" : "RIDER"
+            ["role"] = role == AppUserRole.Driver ? "DRIVER" : "RIDER",
+            ["email"] = profile.Email
         };
 
         var response = await httpClient.PostAsync("api/v1/onboarding/profile", new FormUrlEncodedContent(form));
@@ -87,6 +88,18 @@ public class OnboardingApiClient : IOnboardingApiClient
 
         var response = await httpClient.PostAsync("api/v1/onboarding/driver_setup", multipart);
         return await response.ToStringApiResponseAsync("Driver setup submitted");
+    }
+
+    public async Task<ApiResponse<string>> VerifyEmailOtpAsync(string code)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/v1/onboarding/verify-email", new { code });
+        return await response.ToStringApiResponseAsync("Email verified successfully.");
+    }
+
+    public async Task<ApiResponse<string>> ResendOtpAsync()
+    {
+        var response = await httpClient.PostAsync("api/v1/onboarding/resend-otp", null);
+        return await response.ToStringApiResponseAsync("Verification code resent.");
     }
 
     private static string GetMimeType(string filePath)
