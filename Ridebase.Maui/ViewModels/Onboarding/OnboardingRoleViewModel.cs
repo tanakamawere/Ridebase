@@ -1,6 +1,7 @@
 using Ridebase.Models;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
+using Ridebase.Pages.Auth;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Services.Interfaces;
 
@@ -41,6 +42,21 @@ public partial class OnboardingRoleViewModel : BaseViewModel
         IsBusy = true;
         try
         {
+            // Wait for background login to persist the token (race with SignUpViewModel)
+            var token = await SecureStorage.GetAsync("auth_token");
+            for (int i = 0; i < 10 && string.IsNullOrEmpty(token); i++)
+            {
+                await Task.Delay(500);
+                token = await SecureStorage.GetAsync("auth_token");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                await Shell.Current.DisplayAlertAsync("Session expired", "Please sign in again.", "OK");
+                await Shell.Current.GoToAsync("//Login");
+                return;
+            }
+
             var state = await userSessionService.GetStateAsync();
             var fullName = await SecureStorage.GetAsync(PendingFullNameKey) ?? state.FullName;
             var phoneNumber = await SecureStorage.GetAsync(PendingPhoneNumberKey) ?? state.PhoneNumber;
@@ -53,11 +69,14 @@ public partial class OnboardingRoleViewModel : BaseViewModel
                 return;
             }
 
+            var email = await SecureStorage.GetAsync("user_email") ?? string.Empty;
+
             var submitResponse = await onboardingApiClient.SubmitProfileAsync(new OnboardingProfile
             {
                 FullName = fullName,
                 PhoneNumber = phoneNumber,
                 City = city,
+                Email = email,
                 DefaultLocationPermissionGranted = true,
                 ProfileConfirmed = true
             }, role);
@@ -77,16 +96,25 @@ public partial class OnboardingRoleViewModel : BaseViewModel
             SecureStorage.Remove(PendingPhoneNumberKey);
             SecureStorage.Remove(PendingCityKey);
 
-            if (role == AppUserRole.Driver)
+            // Profile creation triggers OTP email — navigate to verification
+            var userId = await SecureStorage.GetAsync("user_id") ?? string.Empty;
+            var accessToken = await SecureStorage.GetAsync("auth_token") ?? string.Empty;
+            var displayName = await SecureStorage.GetAsync("user_display_name") ?? fullName;
+            var pictureUrl = await SecureStorage.GetAsync("user_image_url") ?? string.Empty;
+
+            Console.WriteLine($"[ONBOARD-ROLE] accessToken: {accessToken}");
+            Console.WriteLine($"[ONBOARD-ROLE] userId: {userId}, email: {email}, role: {role}");
+
+            var navParams = new Dictionary<string, object>
             {
-                await userSessionService.SetOnboardedAsync(false);
-                await Shell.Current.GoToAsync(nameof(OnboardingDriverPage));
-            }
-            else
-            {
-                await userSessionService.SetOnboardedAsync(true);
-                await Shell.Current.GoToAsync("//Home");
-            }
+                ["UserEmail"] = email,
+                ["UserId"] = userId,
+                ["AccessToken"] = accessToken,
+                ["DisplayName"] = displayName,
+                ["PictureUrl"] = pictureUrl,
+                ["SelectedRole"] = role == AppUserRole.Driver ? "DRIVER" : "RIDER"
+            };
+            await Shell.Current.GoToAsync(nameof(EmailVerificationPage), navParams);
         }
         finally
         {

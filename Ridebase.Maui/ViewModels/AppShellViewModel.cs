@@ -1,12 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Duende.IdentityModel.OidcClient;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Ridebase.Models;
 using Ridebase.Pages;
+using Ridebase.Pages.Auth;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
+using Ridebase.Services;
 using Ridebase.Services.Interfaces;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Ridebase.ViewModels;
@@ -25,18 +28,27 @@ public partial class AppShellViewModel : BaseViewModel
     [ObservableProperty]
     private string currentModeLabel = "Rider";
 
+    private readonly OidcLoginService oidcLoginService;
+
     public AppShellViewModel(
-        OidcClient authClient,
         ILogger<AppShellViewModel> logger,
         IOnboardingApiClient _onboardingApiClient,
         IUserSessionService _userSessionService,
-        IUserBootstrapService _userBootstrapService)
+        IUserBootstrapService _userBootstrapService,
+        OidcLoginService _oidcLoginService)
     {
-        authenticationClient = authClient;
         onboardingApiClient = _onboardingApiClient;
         userSessionService = _userSessionService;
         userBootstrapService = _userBootstrapService;
+        oidcLoginService = _oidcLoginService;
         Logger = logger;
+
+        // Listen for successful login from LoginViewModel
+        WeakReferenceMessenger.Default.Register<LoginSuccessMessage>(this, async (_, msg) =>
+        {
+            await CompleteLoginAsync(msg.Value);
+        });
+
         CheckAuthenticationState();
     }
 
@@ -125,45 +137,48 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task Login()
     {
-        if (IsBusy)
-        {
-            return;
-        }
+        await Shell.Current.GoToAsync(nameof(LoginPage));
+        Shell.Current.FlyoutIsPresented = false;
+    }
 
+    private async Task CompleteLoginAsync(LoginSuccessData data)
+    {
         IsBusy = true;
         try
         {
-            var loginResult = await authenticationClient.LoginAsync();
-            if (loginResult.IsError)
+            // Build user directly from message data — no SecureStorage round-trips
+            RidebaseUser = new Models.User
             {
-                await ShowAlertAsync("Login Failed", loginResult.ErrorDescription);
-                return;
-            }
-
-            var userId = loginResult.User.FindFirst(c => c.Type == "sub")?.Value ?? Guid.NewGuid().ToString("N");
-            var email = loginResult.User.FindFirst(c => c.Type == "email")?.Value
-                     ?? loginResult.User.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value
-                     ?? string.Empty;
-            var displayName = loginResult.User.Identity?.Name ?? "Ridebase User";
-            var pictureUrl = loginResult.User.FindFirst(c => c.Type == "picture")?.Value ?? string.Empty;
-
-            await userSessionService.SetAuthSessionAsync(userId, loginResult.AccessToken, loginResult.RefreshToken, displayName, email, pictureUrl);
-
-            RidebaseUser = await userSessionService.GetCachedUserAsync(loginResult.AccessToken)
-                ?? await userSessionService.BuildUserAsync(userId, loginResult.AccessToken, displayName);
-            HasEmail = !string.IsNullOrWhiteSpace(RidebaseUser.Email);
+                UserId = data.UserId,
+                UserName = data.DisplayName,
+                AccessToken = data.AccessToken,
+                Email = data.Email,
+                ImageUrl = data.PictureUrl
+            };
+            HasEmail = !string.IsNullOrWhiteSpace(data.Email);
             IsLoggedIn = true;
 
-            Shell.Current.FlyoutIsPresented = false;
+            // Start bootstrap in parallel with navigating to Home
+            var bootstrapTask = userBootstrapService.ResolveAfterLoginAsync(data.UserId);
+            await Shell.Current.GoToAsync("//Home");
 
-            var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
-            ApplyBootstrapDisplayName(bootstrap);
-            await NavigateByBootstrapState(bootstrap);
+            try
+            {
+                var bootstrap = await bootstrapTask;
+                ApplyBootstrapDisplayName(bootstrap);
+                await NavigateByBootstrapState(bootstrap);
+            }
+            catch (Exception bootstrapEx)
+            {
+                // Bootstrap failure should not block the user — they're already on Home
+                Logger?.LogWarning(bootstrapEx, "Post-login bootstrap failed: {Message}", bootstrapEx.Message);
+                Debug.WriteLine($"[Bootstrap] {bootstrapEx}");
+            }
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Auth0 login failed");
-            await ShowAlertAsync("Login Failed", "Unable to complete authentication right now. Please try again.");
+            Logger?.LogError(ex, "Post-login flow failed");
+            await ShowAlertAsync("Error", "Login succeeded but setup failed. Please try again.");
         }
         finally
         {
@@ -178,20 +193,38 @@ public partial class AppShellViewModel : BaseViewModel
         {
             var token = await SecureStorage.GetAsync("auth_token");
 
-            if (string.IsNullOrEmpty(token) || IsTokenExpired(token))
+            if (string.IsNullOrEmpty(token))
             {
                 await ResetToLoggedOutStateAsync();
                 return;
             }
+
+            // If the access token is expired, try a silent refresh first
+            if (IsTokenExpired(token))
+            {
+                token = await TrySilentRefreshAsync();
+                if (token is null)
+                {
+                    await ResetToLoggedOutStateAsync();
+                    return;
+                }
+            }
+
+            Console.WriteLine($"[RELOGIN] Access token: {token}");
 
             var userId = await SecureStorage.GetAsync("user_id") ?? string.Empty;
             RidebaseUser = await userSessionService.GetCachedUserAsync(token)
                 ?? await userSessionService.BuildUserAsync(userId, token, "Ridebase User");
             HasEmail = !string.IsNullOrWhiteSpace(RidebaseUser?.Email);
             IsLoggedIn = true;
-            var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
-            ApplyBootstrapDisplayName(bootstrap);
-            await NavigateByBootstrapState(bootstrap);
+
+            // Navigate immediately using cached state for a fast startup
+            var cachedState = await userSessionService.GetStateAsync();
+            ApplyBootstrapDisplayName(cachedState);
+            await NavigateByBootstrapState(cachedState);
+
+            // Refresh state from server in background (non-blocking)
+            _ = RefreshBootstrapInBackgroundAsync(userId, cachedState);
         }
         catch (Exception ex)
         {
@@ -201,6 +234,54 @@ public partial class AppShellViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts a silent token refresh using the stored refresh token.
+    /// Returns the new access token on success, or null if refresh fails.
+    /// </summary>
+    private async Task<string?> TrySilentRefreshAsync()
+    {
+        var refreshToken = await SecureStorage.GetAsync("refresh_token");
+        if (string.IsNullOrEmpty(refreshToken))
+            return null;
+
+        var result = await oidcLoginService.RefreshAsync(refreshToken);
+        if (result.IsError)
+        {
+            Logger?.LogWarning("Silent refresh failed: {Error}", result.Error);
+            return null;
+        }
+
+        // Persist the new tokens
+        var tasks = new List<Task>
+        {
+            SecureStorage.SetAsync("auth_token", result.AccessToken)
+        };
+        if (!string.IsNullOrEmpty(result.RefreshToken))
+            tasks.Add(SecureStorage.SetAsync("refresh_token", result.RefreshToken));
+        await Task.WhenAll(tasks);
+
+        return result.AccessToken;
+    }
+
+    private async Task RefreshBootstrapInBackgroundAsync(string userId, UserBootstrapState cachedState)
+    {
+        try
+        {
+            var freshState = await userBootstrapService.ResolveAfterLoginAsync(userId);
+            MainThread.BeginInvokeOnMainThread(() => ApplyBootstrapDisplayName(freshState));
+
+            // Only re-navigate if role or onboarding status changed
+            if (freshState.Role != cachedState.Role || freshState.IsOnboarded != cachedState.IsOnboarded)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => NavigateByBootstrapState(freshState));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogWarning(ex, "Background bootstrap refresh failed");
         }
     }
 
@@ -219,15 +300,6 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task LogoutUser()
     {
-        try
-        {
-            await authenticationClient.LogoutAsync();
-        }
-        catch (Exception ex)
-        {
-            Logger?.LogWarning(ex, "Auth0 logout failed in mock mode");
-        }
-
         await ResetToLoggedOutStateAsync(navigateHome: true);
     }
 

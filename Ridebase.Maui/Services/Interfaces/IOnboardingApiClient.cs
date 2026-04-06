@@ -9,4 +9,6 @@ public interface IOnboardingApiClient
     Task<ApiResponse<bool>> CheckOnboardingStatusAsync(string userId);
     Task<ApiResponse<string>> SubmitProfileAsync(OnboardingProfile profile, AppUserRole role);
     Task<ApiResponse<string>> SubmitDriverDetailsAsync(CarDetails carDetails, string licensePhotoPath);
+    Task<ApiResponse<string>> VerifyEmailOtpAsync(string code);
+    Task<ApiResponse<string>> ResendOtpAsync();
 }

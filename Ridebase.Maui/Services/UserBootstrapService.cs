@@ -1,5 +1,7 @@
 using Ridebase.Models;
+using Ridebase.Models.Subscriptions;
 using Ridebase.Services.Interfaces;
+using Ridebase.Services.RestService;
 
 namespace Ridebase.Services;
 
@@ -21,57 +23,73 @@ public class UserBootstrapService : IUserBootstrapService
 
     public async Task<UserBootstrapState> ResolveAfterLoginAsync(string userId)
     {
+        // Read state once — avoid redundant SecureStorage round-trips
         var state = await userSessionService.GetStateAsync();
 
         if (!string.IsNullOrWhiteSpace(userId))
-        {
             state.UserId = userId;
-        }
-
         if (string.IsNullOrWhiteSpace(state.UserId))
-        {
             state.UserId = Guid.NewGuid().ToString("N");
-        }
 
-        var profileResponse = await onboardingApiClient.GetCurrentProfileAsync();
+        // For returning drivers, start subscription check in parallel with profile fetch
+        var profileTask = onboardingApiClient.GetCurrentProfileAsync();
+        Task<ApiResponse<DriverSubscriptionStatus>>? earlySubTask =
+            (state.Role == AppUserRole.Driver && state.IsOnboarded)
+                ? paymentSubscriptionApiClient.GetSubscriptionStatusAsync()
+                : null;
+
+        var profileResponse = await profileTask;
 
         if (!profileResponse.IsSuccess || profileResponse.Data is null)
         {
-            await userSessionService.SetOnboardedAsync(false);
-            await userSessionService.ClearSubscriptionStateAsync();
-
-            state = await userSessionService.GetStateAsync();
+            await Task.WhenAll(
+                userSessionService.SetOnboardedAsync(false),
+                userSessionService.ClearSubscriptionStateAsync()
+            );
             state.IsOnboarded = false;
             state.IsDriverSubscribed = false;
             return state;
         }
 
-        await userSessionService.SetOnboardedAsync(true);
-
         var role = string.Equals(profileResponse.Data.Role, "DRIVER", StringComparison.OrdinalIgnoreCase)
             ? AppUserRole.Driver
             : AppUserRole.Rider;
 
-        await userSessionService.SetRoleAsync(role);
-        await userSessionService.SetProfileAsync(profileResponse.Data.FullName, profileResponse.Data.PhoneNumber);
-        await userSessionService.SetCachedDisplayNameAsync(profileResponse.Data.FullName);
+        // Parallelize storage writes
+        await Task.WhenAll(
+            userSessionService.SetOnboardedAsync(true),
+            userSessionService.SetRoleAsync(role),
+            userSessionService.SetProfileAsync(profileResponse.Data.FullName, profileResponse.Data.PhoneNumber),
+            userSessionService.SetCachedDisplayNameAsync(profileResponse.Data.FullName)
+        );
 
-        state = await userSessionService.GetStateAsync();
+        // Update in-memory state instead of re-reading from storage
+        state.IsOnboarded = true;
+        state.Role = role;
+        state.FullName = profileResponse.Data.FullName;
+        state.PhoneNumber = profileResponse.Data.PhoneNumber;
 
-        if (state.Role == AppUserRole.Driver)
+        if (role == AppUserRole.Driver)
         {
-            var subscriptionResponse = await paymentSubscriptionApiClient.GetSubscriptionStatusAsync();
+            // Await early subscription task, or start it now if role changed to driver
+            var subscriptionResponse = await (earlySubTask ?? paymentSubscriptionApiClient.GetSubscriptionStatusAsync());
 
             if (subscriptionResponse.IsSuccess && subscriptionResponse.Data is not null)
             {
                 await userSessionService.SetSubscriptionStateAsync(subscriptionResponse.Data);
+                state.IsDriverSubscribed = subscriptionResponse.Data.IsSubscribed;
+                state.SubscriptionId = subscriptionResponse.Data.SubscriptionId;
+                state.CustomerId = subscriptionResponse.Data.CustomerId;
+                state.SubscriptionStatus = subscriptionResponse.Data.Status;
+                state.SubscriptionCurrentPeriodStart = subscriptionResponse.Data.CurrentPeriodStart;
+                state.SubscriptionCurrentPeriodEnd = subscriptionResponse.Data.CurrentPeriodEnd;
+                state.SubscriptionCancelAtPeriodEnd = subscriptionResponse.Data.CancelAtPeriodEnd;
             }
             else
             {
                 await userSessionService.ClearSubscriptionStateAsync();
+                state.IsDriverSubscribed = false;
             }
-
-            state = await userSessionService.GetStateAsync();
         }
         else
         {

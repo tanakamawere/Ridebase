@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Maui;
 using DevExpress.Maui;
-using Duende.IdentityModel.Client;
-using Duende.IdentityModel.OidcClient;
 using GoogleApi.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
 using MPowerKit.GoogleMaps;
+using Ridebase.Pages.Auth;
 using Ridebase.Pages.Driver;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
@@ -19,7 +18,6 @@ using Ridebase.ViewModels.Driver;
 using Ridebase.ViewModels.Onboarding;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
-using System.Text.Json;
 
 namespace Ridebase;
 
@@ -98,6 +96,11 @@ public static class MauiProgram
         builder.Services.AddTransient<OnboardingRoleViewModel>();
         builder.Services.AddTransient<OnboardingDriverViewModel>();
 
+        //Auth ViewModels
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<SignUpViewModel>();
+        builder.Services.AddTransient<EmailVerificationViewModel>();
+
         //Rider Pages registration
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddTransient<SearchPage>();
@@ -113,6 +116,11 @@ public static class MauiProgram
         builder.Services.AddTransient<OnboardingProfilePage>();
         builder.Services.AddTransient<OnboardingRolePage>();
         builder.Services.AddTransient<OnboardingDriverPage>();
+
+        //Auth Pages
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<SignUpPage>();
+        builder.Services.AddTransient<EmailVerificationPage>();
 
         //DRIVER'S SIDE
         builder.Services.AddSingleton<DriverDashboardViewModel>();
@@ -131,6 +139,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<DriverStatsPage>();
 
         builder.Services.AddTransient<AuthHeaderHandler>();
+        builder.Services.AddSingleton<AuthentikEnrollmentService>();
+        builder.Services.AddSingleton<OidcLoginService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<IStorageService, StorageService>();
         builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
@@ -196,26 +206,6 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-
-        builder.Services.AddSingleton(new OidcClient(new()
-        {
-            Authority = configuration["Auth:Authority"],
-            ClientId = configuration["Auth:ClientId"],
-            Scope = configuration["Auth:Scopes"],
-            RedirectUri = configuration["Auth:RedirectUri"],
-            Browser = new MauiAuthenticationBrowser(),
-            Policy = new Policy
-            {
-                Discovery = new DiscoveryPolicy
-                {
-                    AdditionalEndpointBaseAddresses =
-                        {
-                            "https://auth.ridebase.tech/application/o/",
-                            "https://auth.ridebase.tech/application/o/authorize/"
-                        }
-                }
-            }
-        }));
 
         return builder.Build();
     }
