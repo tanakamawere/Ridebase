@@ -190,31 +190,19 @@ public class AuthService : IAuthService
             await _sessionService.ClearSessionAsync();
 
             // 3. Browser-based logout — the ONLY way to kill Chrome's session cookie.
-            //    A headless HttpClient can't carry Chrome's authentik_session cookie,
-            //    so Authentik ignores it. We MUST open the browser briefly.
+            //    We skip the discovery document fetch to avoid wasting time on a network
+            //    call before the browser even opens. The endpoint is stable.
             var postLogoutUri = _oidcClient.Options.PostLogoutRedirectUri;
-            using var httpClient = new HttpClient();
-            var disco = await httpClient.GetDiscoveryDocumentAsync(_oidcClient.Options.Authority);
-            
-            string logoutUrl;
+            var authority = _oidcClient.Options.Authority.TrimEnd('/');
             var redirectUriEnc = System.Net.WebUtility.UrlEncode(postLogoutUri);
-            
-            if (!disco.IsError && !string.IsNullOrWhiteSpace(disco.EndSessionEndpoint))
-            {
-                logoutUrl = $"{disco.EndSessionEndpoint}?id_token_hint={idToken}&post_logout_redirect_uri={redirectUriEnc}";
-            }
-            else
-            {
-                var baseUrl = _oidcClient.Options.Authority.TrimEnd('/');
-                logoutUrl = $"{baseUrl}/end-session/?id_token_hint={idToken}&post_logout_redirect_uri={redirectUriEnc}";
-            }
+            var logoutUrl = $"{authority}/end-session/?id_token_hint={idToken}&post_logout_redirect_uri={redirectUriEnc}";
 
             _logger.LogInformation("Browser logout URL: {Url}", logoutUrl);
 
-            // 4. Open the browser with a tight 3s timeout.
-            //    Authentik kills the cookie within ~1s. If the redirect back to the app 
-            //    doesn't fire (Authentik flow issue), the timeout closes things gracefully.
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            // 4. Open the browser — give it 10s to load, process, and redirect.
+            //    The redirect back to ridebase://logout-callback closes the tab instantly,
+            //    so this timeout only fires as a safety net if something goes wrong.
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             try 
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -227,7 +215,7 @@ public class AuthService : IAuthService
             }
             catch (Exception)
             {
-                // Expected: timeout fires before redirect lands — session IS killed though
+                // Timeout or cancel — session should still be killed by this point
             }
 
             // 5. Revoke tokens via backend API (belt-and-suspenders)
