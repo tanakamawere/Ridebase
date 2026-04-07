@@ -52,9 +52,20 @@
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
                                 Keyboard="Telephone"
-                                Placeholder="e.g. +263 77 123 4567"
+                                Placeholder="+263 77 123 4567"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding PhoneNumber}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Confirm Phone Number" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Keyboard="Telephone"
+                                Placeholder="Re-enter your phone number"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding ConfirmPhoneNumber}" />
                         </Border>
                     </VerticalStackLayout>
 
