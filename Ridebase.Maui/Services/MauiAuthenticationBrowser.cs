@@ -1,4 +1,4 @@
-﻿using Duende.IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Duende.IdentityModel.OidcClient.Browser;
 
 namespace Ridebase.Services;
@@ -13,7 +13,9 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
                 new Uri(options.StartUrl),
                 new Uri(options.EndUrl));
 
-            var url = new RequestUrl("myapp://callback")
+            // Reconstruct the full callback URL from the properties returned by the OS
+            // IMPORTANT: use options.EndUrl (ridebase://callback) not a hard-coded string
+            var url = new RequestUrl(options.EndUrl)
                 .Create(new Parameters(result.Properties));
 
             return new BrowserResult
@@ -24,9 +26,14 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
         }
         catch (TaskCanceledException)
         {
+            return new BrowserResult { ResultType = BrowserResultType.UserCancel };
+        }
+        catch (Exception ex)
+        {
             return new BrowserResult
             {
-                ResultType = BrowserResultType.UserCancel
+                ResultType = BrowserResultType.UnknownError,
+                Error = ex.Message
             };
         }
     }

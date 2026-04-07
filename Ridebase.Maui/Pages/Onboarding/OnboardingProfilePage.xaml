@@ -19,7 +19,6 @@
                     <Label
                         FontFamily="{StaticResource KaBodyFontFamily}"
                         FontSize="12"
-                        LetterSpacing="2"
                         Text="STEP 1"
                         TextColor="#C7E4E4" />
                     <Label
@@ -42,7 +41,6 @@
                         <Label Style="{StaticResource KaFieldLabel}" Text="Full Name" />
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
-                                KeyboardFlags="CapitalizeWord"
                                 Placeholder="Enter your full name"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding FullName}" />

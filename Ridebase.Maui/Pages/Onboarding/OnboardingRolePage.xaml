@@ -19,7 +19,6 @@
                     <Label
                         FontFamily="{StaticResource KaBodyFontFamily}"
                         FontSize="12"
-                        LetterSpacing="2"
                         Text="STEP 2"
                         TextColor="#C7E4E4" />
                     <Label

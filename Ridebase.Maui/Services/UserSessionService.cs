@@ -48,7 +48,8 @@ public class UserSessionService : IUserSessionService
             SubscriptionCurrentPeriodEnd = long.TryParse(subscriptionCurrentPeriodEnd, out var parsedPeriodEnd) ? parsedPeriodEnd : null,
             SubscriptionCancelAtPeriodEnd = bool.TryParse(subscriptionCancelAtPeriodEnd, out var parsedCancelAtPeriodEnd) ? parsedCancelAtPeriodEnd : null,
             FullName = await SecureStorage.GetAsync(FullNameKey) ?? string.Empty,
-            PhoneNumber = await SecureStorage.GetAsync(PhoneNumberKey) ?? string.Empty
+            PhoneNumber = await SecureStorage.GetAsync(PhoneNumberKey) ?? string.Empty,
+            Email = await SecureStorage.GetAsync(EmailKey) ?? string.Empty
         };
     }
 

@@ -1,5 +1,7 @@
 using Ridebase.Models;
 using Ridebase.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using Ridebase.Services.RestService;
 
 namespace Ridebase.Services;
 
@@ -8,18 +10,21 @@ public class UserBootstrapService : IUserBootstrapService
     private readonly IUserSessionService userSessionService;
     private readonly IOnboardingApiClient onboardingApiClient;
     private readonly IPaymentSubscriptionApiClient paymentSubscriptionApiClient;
+    private readonly ILogger<UserBootstrapService> logger;
 
     public UserBootstrapService(
         IUserSessionService userSessionService,
         IOnboardingApiClient onboardingApiClient,
-        IPaymentSubscriptionApiClient paymentSubscriptionApiClient)
+        IPaymentSubscriptionApiClient paymentSubscriptionApiClient,
+        ILogger<UserBootstrapService> logger)
     {
         this.userSessionService = userSessionService;
         this.onboardingApiClient = onboardingApiClient;
         this.paymentSubscriptionApiClient = paymentSubscriptionApiClient;
+        this.logger = logger;
     }
 
-    public async Task<UserBootstrapState> ResolveAfterLoginAsync(string userId)
+    public async Task<UserBootstrapState> ResolveAfterLoginAsync(string userId, string? accessToken = null)
     {
         var state = await userSessionService.GetStateAsync();
 
@@ -33,7 +38,17 @@ public class UserBootstrapService : IUserBootstrapService
             state.UserId = Guid.NewGuid().ToString("N");
         }
 
-        var profileResponse = await onboardingApiClient.GetCurrentProfileAsync();
+        ApiResponse<OnboardingProfileResponse> profileResponse;
+
+        try
+        {
+            profileResponse = await onboardingApiClient.GetCurrentProfileAsync(accessToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to check onboarding profile for user {UserId}", userId);
+            profileResponse = new ApiResponse<OnboardingProfileResponse> { IsSuccess = false, ErrorMessage = ex.Message };
+        }
 
         if (!profileResponse.IsSuccess || profileResponse.Data is null)
         {

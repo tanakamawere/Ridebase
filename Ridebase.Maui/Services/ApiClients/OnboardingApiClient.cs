@@ -16,9 +16,16 @@ public class OnboardingApiClient : IOnboardingApiClient
         httpClient = _httpClient;
     }
 
-    public async Task<ApiResponse<OnboardingProfileResponse>> GetCurrentProfileAsync()
+    public async Task<ApiResponse<OnboardingProfileResponse>> GetCurrentProfileAsync(string? accessToken = null)
     {
-        var response = await httpClient.GetAsync("api/v1/onboarding/me");
+        var request = new HttpRequestMessage(HttpMethod.Get, "api/v1/onboarding/me");
+        
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        }
+
+        var response = await httpClient.SendAsync(request);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return new ApiResponse<OnboardingProfileResponse>
@@ -49,6 +56,7 @@ public class OnboardingApiClient : IOnboardingApiClient
         var form = new Dictionary<string, string>
         {
             ["full_name"] = profile.FullName,
+            ["email"] = profile.Email,
             ["phone_number"] = profile.PhoneNumber,
             ["city"] = profile.City,
             ["role"] = role == AppUserRole.Driver ? "DRIVER" : "RIDER"
@@ -87,6 +95,18 @@ public class OnboardingApiClient : IOnboardingApiClient
 
         var response = await httpClient.PostAsync("api/v1/onboarding/driver_setup", multipart);
         return await response.ToStringApiResponseAsync("Driver setup submitted");
+    }
+
+    public async Task<ApiResponse<EmailVerificationResponse>> VerifyEmailOtpAsync(string code)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/v1/onboarding/verify-email", new EmailVerificationRequest { Code = code });
+        return await response.ToApiResponseAsync<EmailVerificationResponse>();
+    }
+
+    public async Task<ApiResponse<string>> ResendOtpAsync()
+    {
+        var response = await httpClient.PostAsync("api/v1/onboarding/resend-otp", null);
+        return await response.ToStringApiResponseAsync("OTP resent successfully");
     }
 
     private static string GetMimeType(string filePath)

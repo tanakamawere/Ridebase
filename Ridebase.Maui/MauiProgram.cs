@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using DevExpress.Maui;
 using Duende.IdentityModel.Client;
 using Duende.IdentityModel.OidcClient;
@@ -97,6 +97,7 @@ public static class MauiProgram
         builder.Services.AddTransient<OnboardingProfileViewModel>();
         builder.Services.AddTransient<OnboardingRoleViewModel>();
         builder.Services.AddTransient<OnboardingDriverViewModel>();
+        builder.Services.AddTransient<OnboardingOtpViewModel>();
 
         //Rider Pages registration
         builder.Services.AddSingleton<HomePage>();
@@ -113,6 +114,7 @@ public static class MauiProgram
         builder.Services.AddTransient<OnboardingProfilePage>();
         builder.Services.AddTransient<OnboardingRolePage>();
         builder.Services.AddTransient<OnboardingDriverPage>();
+        builder.Services.AddTransient<OnboardingOtpPage>();
 
         //DRIVER'S SIDE
         builder.Services.AddSingleton<DriverDashboardViewModel>();
@@ -199,23 +201,34 @@ public static class MauiProgram
 
         builder.Services.AddSingleton(new OidcClient(new()
         {
+            // Authority = the OIDC issuer base URL (NOT the discovery doc URL).
+            // Duende automatically appends /.well-known/openid-configuration
             Authority = configuration["Auth:Authority"],
             ClientId = configuration["Auth:ClientId"],
             Scope = configuration["Auth:Scopes"],
             RedirectUri = configuration["Auth:RedirectUri"],
+            PostLogoutRedirectUri = configuration["Auth:PostLogoutRedirectUri"],
             Browser = new MauiAuthenticationBrowser(),
+
+            // MUST be false — otherwise Duende strips custom Authentik claims
+            // (is_subscribed, email_verified, groups, authentik_pk) from the ClaimsPrincipal
+            FilterClaims = false,
+
             Policy = new Policy
             {
                 Discovery = new DiscoveryPolicy
                 {
                     AdditionalEndpointBaseAddresses =
-                        {
-                            "https://auth.ridebase.tech/application/o/",
-                            "https://auth.ridebase.tech/application/o/authorize/"
-                        }
+                    {
+                        "https://auth.ridebase.tech/application/o/",
+                        "https://auth.ridebase.tech/application/o/authorize/"
+                    }
                 }
             }
         }));
+
+        // AuthService wraps OidcClient with login, silent refresh, and logout logic
+        builder.Services.AddSingleton<IAuthService, AuthService>();
 
         return builder.Build();
     }

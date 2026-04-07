@@ -14,7 +14,16 @@ public static class ApiResponseExtensions
 
         if (response.IsSuccessStatusCode)
         {
-            apiResponse.Data = await response.Content.ReadFromJsonAsync<T>();
+            try
+            {
+                apiResponse.Data = await response.Content.ReadFromJsonAsync<T>();
+            }
+            catch (Exception ex)
+            {
+                // JSON parsing failed — potentially a non-JSON body like an HTML error page.
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessage = $"Failed to parse API response: {ex.Message}";
+            }
         }
         else
         {

@@ -26,6 +26,29 @@ public partial class OnboardingProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool locationPermissionGranted;
 
+    partial void OnLocationPermissionGrantedChanged(bool value)
+    {
+        if (value)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
+                
+                if (status != PermissionStatus.Granted)
+                {
+                    // If they denied it, toggle the checkbox back off
+                    LocationPermissionGranted = false;
+                    await Shell.Current.DisplayAlertAsync("Permission Required", 
+                        "Location access is needed to match you with nearby drivers.", "OK");
+                }
+            });
+        }
+    }
+
     [ObservableProperty]
     private bool profileConfirmed;
 

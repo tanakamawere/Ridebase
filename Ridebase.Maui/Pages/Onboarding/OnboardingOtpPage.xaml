@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.Onboarding.OnboardingOtpPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
+    Title="{Binding Title}"
+    x:DataType="vm:OnboardingOtpViewModel">
+
+    <ScrollView BackgroundColor="{StaticResource KaBackground}">
+        <VerticalStackLayout Padding="24,40,24,32" Spacing="24">
+            <!-- Header Section -->
+            <Border
+                Background="{StaticResource KaPrimaryGradientBrush}"
+                Padding="24"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24">
+                <VerticalStackLayout Spacing="12">
+                    <Label
+                        FontSize="28"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                        Text="Check your email"
+                        TextColor="{StaticResource KaOnPrimary}" />
+                    
+                    <Label
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                        Text="{Binding UserEmail}"
+                        TextColor="{StaticResource KaOnPrimary}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- OTP Input Section -->
+            <Border Style="{StaticResource KaFleetModuleCard}">
+                <VerticalStackLayout Spacing="20">
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="Enter verification code"
+                        TextColor="{StaticResource KaOnSurfaceMuted}" />
+                    
+                    <Border Style="{StaticResource KaInputBorder}" HorizontalOptions="Center" WidthRequest="200">
+                        <Entry
+                            FontSize="32"
+                            FontAttributes="Bold"
+                            HorizontalTextAlignment="Center"
+                            Keyboard="Numeric"
+                            MaxLength="6"
+                            Placeholder="000000"
+                            Text="{Binding OtpCode}"
+                            TextColor="{StaticResource KaPrimary}" />
+                    </Border>
+
+                    <Button
+                        Command="{Binding VerifyCommand}"
+                        HeightRequest="56"
+                        IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                        Style="{StaticResource KaPrimaryButton}"
+                        Text="Verify Email" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Footer / Resend Section -->
+            <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label
+                        FontFamily="{StaticResource KaBodyFontFamily}"
+                        FontSize="14"
+                        Text="Didn't get a code?"
+                        TextColor="{StaticResource KaOnSurfaceMuted}"
+                        VerticalOptions="Center" />
+                    
+                    <Button
+                        Command="{Binding ResendOtpCommand}"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        BackgroundColor="Transparent"
+                        Padding="0"
+                        HeightRequest="40"
+                        TextColor="{StaticResource KaPrimary}"
+                        IsEnabled="{Binding CanResend}"
+                        Text="{Binding ResendText}" />
+                </HorizontalStackLayout>
+                
+                <ActivityIndicator
+                    Color="{StaticResource KaPrimary}"
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}"
+                    HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
