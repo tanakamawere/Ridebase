@@ -5,93 +5,137 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels.Onboarding"
-    Title="{Binding Title}"
+    xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    Title=""
+    Shell.NavBarIsVisible="False"
     x:DataType="vm:OnboardingOtpViewModel">
 
-    <ScrollView BackgroundColor="{StaticResource KaBackground}">
-        <VerticalStackLayout Padding="24,40,24,32" Spacing="24">
-            <!-- Header Section -->
+    <ScrollView BackgroundColor="{StaticResource KaSurfaceContainerLowest}">
+        <VerticalStackLayout Padding="24,80,24,32" Spacing="0">
+            <!-- Icon Section -->
             <Border
-                Background="{StaticResource KaPrimaryGradientBrush}"
-                Padding="24"
+                BackgroundColor="{StaticResource KaPrimary}"
+                HeightRequest="100"
+                HorizontalOptions="Center"
+                Margin="0,0,0,24"
+                StrokeShape="RoundRectangle 50"
                 StrokeThickness="0"
-                StrokeShape="RoundRectangle 24">
-                <VerticalStackLayout Spacing="12">
-                    <Label
-                        FontSize="28"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Center"
-                        Text="Check your email"
-                        TextColor="{StaticResource KaOnPrimary}" />
-                    
-                    <Label
-                        FontSize="16"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Center"
-                        Text="{Binding UserEmail}"
-                        TextColor="{StaticResource KaOnPrimary}" />
-                </VerticalStackLayout>
+                WidthRequest="100">
+                <Image
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="50">
+                    <Image.Source>
+                        <FontImageSource
+                            FontFamily="fasolid"
+                            Glyph="{x:Static icons:Fasolid.Envelope}"
+                            Size="50"
+                            Color="White" />
+                    </Image.Source>
+                </Image>
             </Border>
 
+            <!-- Title -->
+            <Label
+                FontFamily="{StaticResource KaDisplayFontFamily}"
+                FontSize="{StaticResource KaHeadlineMdSize}"
+                HorizontalOptions="Center"
+                Margin="0,0,0,16"
+                Text="Verify Your Email"
+                TextColor="{StaticResource KaOnSurface}" />
+
+            <!-- Subtitle -->
+            <Label
+                FontFamily="{StaticResource KaBodyFontFamily}"
+                FontSize="{StaticResource KaBodyMdSize}"
+                HorizontalTextAlignment="Center"
+                Margin="0,0,0,40"
+                Text="We've sent a verification code to your email. Enter the 6-digit code below."
+                TextColor="{StaticResource KaOnSurfaceMuted}" />
+
             <!-- OTP Input Section -->
-            <Border Style="{StaticResource KaFleetModuleCard}">
-                <VerticalStackLayout Spacing="20">
-                    <Label
-                        FontFamily="{StaticResource KaBodyFontFamily}"
-                        FontSize="14"
-                        HorizontalOptions="Center"
-                        Text="Enter verification code"
-                        TextColor="{StaticResource KaOnSurfaceMuted}" />
-                    
-                    <Border Style="{StaticResource KaInputBorder}" HorizontalOptions="Center" WidthRequest="200">
+            <VerticalStackLayout Spacing="8" Margin="0,0,0,32">
+                <Label
+                    FontFamily="{StaticResource KaBodyFontFamily}"
+                    FontSize="{StaticResource KaLabelMdSize}"
+                    Text="Verification Code"
+                    TextColor="{StaticResource KaOnSurfaceMuted}" />
+                
+                <Border
+                    BackgroundColor="{StaticResource KaSurfaceContainerLow}"
+                    HeightRequest="64"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <Grid>
                         <Entry
-                            FontSize="32"
-                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            FontFamily="{StaticResource KaBodyFontFamily}"
+                            FontSize="24"
                             HorizontalTextAlignment="Center"
                             Keyboard="Numeric"
                             MaxLength="6"
                             Placeholder="000000"
+                            PlaceholderColor="{StaticResource KaOutlineVariant}"
                             Text="{Binding OtpCode}"
-                            TextColor="{StaticResource KaPrimary}" />
-                    </Border>
-
-                    <Button
-                        Command="{Binding VerifyCommand}"
-                        HeightRequest="56"
-                        IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
-                        Style="{StaticResource KaPrimaryButton}"
-                        Text="Verify Email" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Footer / Resend Section -->
-            <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
-                <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Label
-                        FontFamily="{StaticResource KaBodyFontFamily}"
-                        FontSize="14"
-                        Text="Didn't get a code?"
-                        TextColor="{StaticResource KaOnSurfaceMuted}"
-                        VerticalOptions="Center" />
-                    
-                    <Button
-                        Command="{Binding ResendOtpCommand}"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        BackgroundColor="Transparent"
-                        Padding="0"
-                        HeightRequest="40"
-                        TextColor="{StaticResource KaPrimary}"
-                        IsEnabled="{Binding CanResend}"
-                        Text="{Binding ResendText}" />
-                </HorizontalStackLayout>
-                
-                <ActivityIndicator
-                    Color="{StaticResource KaPrimary}"
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}"
-                    HorizontalOptions="Center" />
+                            TextColor="{StaticResource KaOnSurface}" />
+                        
+                        <BoxView
+                            Color="{StaticResource KaOutlineVariant}"
+                            HeightRequest="1"
+                            Margin="16,0"
+                            VerticalOptions="End" />
+                    </Grid>
+                </Border>
             </VerticalStackLayout>
+
+            <!-- Buttons Section -->
+            <VerticalStackLayout Spacing="16">
+                <Button
+                    Command="{Binding VerifyCommand}"
+                    BackgroundColor="{StaticResource KaPrimary}"
+                    CornerRadius="28"
+                    FontAttributes="Bold"
+                    FontFamily="{StaticResource KaBodyFontFamily}"
+                    FontSize="{StaticResource KaTitleSmSize}"
+                    HeightRequest="56"
+                    IsEnabled="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                    Text="Verify"
+                    TextColor="White" />
+
+                <Button
+                    Command="{Binding ResendOtpCommand}"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource KaPrimary}"
+                    BorderWidth="1"
+                    CornerRadius="28"
+                    FontAttributes="Bold"
+                    FontFamily="{StaticResource KaBodyFontFamily}"
+                    FontSize="{StaticResource KaTitleSmSize}"
+                    HeightRequest="56"
+                    IsEnabled="{Binding CanResend}"
+                    Text="{Binding ResendText}"
+                    TextColor="{StaticResource KaPrimary}" />
+            </VerticalStackLayout>
+
+            <ActivityIndicator
+                Color="{StaticResource KaPrimary}"
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Margin="0,16,0,0" />
+
+            <Button
+                Command="{Binding BackToSignInCommand}"
+                BackgroundColor="Transparent"
+                FontFamily="{StaticResource KaBodyFontFamily}"
+                FontSize="{StaticResource KaBodyMdSize}"
+                HorizontalOptions="Center"
+                Margin="0,32,0,0"
+                Text="Back to Sign In"
+                TextColor="{StaticResource KaPrimary}" />
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
+

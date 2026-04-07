@@ -17,10 +17,10 @@ public partial class OnboardingOtpViewModel : BaseViewModel
     private string otpCode = string.Empty;
 
     [ObservableProperty]
-    private string resendText = "Resend Code";
+    private string resendText = "Resend in 60s";
 
     [ObservableProperty]
-    private bool canResend = true;
+    private bool canResend = false;
 
     [ObservableProperty]
     private string userEmail = string.Empty;
@@ -32,6 +32,7 @@ public partial class OnboardingOtpViewModel : BaseViewModel
         Title = "Verify Email";
         _ = InitializeAsync();
         SetupTimer();
+        StartResendTimer();
     }
 
     private async Task InitializeAsync()
@@ -44,6 +45,14 @@ public partial class OnboardingOtpViewModel : BaseViewModel
     {
         resendTimer = new System.Timers.Timer(1000);
         resendTimer.Elapsed += OnTimerElapsed;
+    }
+
+    private void StartResendTimer()
+    {
+        CanResend = false;
+        resendSeconds = 60;
+        ResendText = $"Resend in {resendSeconds}s";
+        resendTimer.Start();
     }
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -119,9 +128,7 @@ public partial class OnboardingOtpViewModel : BaseViewModel
             var response = await onboardingApiClient.ResendOtpAsync();
             if (response.IsSuccess)
             {
-                CanResend = false;
-                resendSeconds = 60;
-                resendTimer.Start();
+                StartResendTimer();
                 await Shell.Current.DisplayAlertAsync("Sent", "A new code has been sent to your email.", "OK");
             }
             else
@@ -137,5 +144,13 @@ public partial class OnboardingOtpViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    public async Task BackToSignInAsync()
+    {
+        // For now, we clear the session and go back to home where the Login button is.
+        await userSessionService.ClearSessionAsync();
+        await Shell.Current.GoToAsync("//Home");
     }
 }
