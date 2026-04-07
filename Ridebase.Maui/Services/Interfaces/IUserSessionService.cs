@@ -6,7 +6,7 @@ namespace Ridebase.Services.Interfaces;
 public interface IUserSessionService
 {
     Task<UserBootstrapState> GetStateAsync();
-    Task SetAuthSessionAsync(string userId, string accessToken, string? refreshToken, string displayName, string email, string imageUrl);
+    Task SetAuthSessionAsync(string userId, string accessToken, string? refreshToken, string? idToken, string displayName, string email, string imageUrl);
     Task<User?> GetCachedUserAsync(string accessToken);
     Task SetCachedDisplayNameAsync(string displayName);
     Task ClearSessionAsync();

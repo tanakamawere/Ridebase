@@ -30,6 +30,7 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
         }
         catch (Exception ex)
         {
+            // Logging the technical details to help diagnose redirection failures
             return new BrowserResult
             {
                 ResultType = BrowserResultType.UnknownError,
