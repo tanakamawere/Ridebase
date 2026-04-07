@@ -81,6 +81,8 @@ public class AuthService : IAuthService
                 email,
                 pictureUrl);
 
+            _logger.LogInformation("=== LOGIN SUCCESS ===");
+            _logger.LogInformation("NEW Access Token: {Token}", loginResult.AccessToken);
             _logger.LogInformation(
                 "Login successful. User={UserId}, Groups=[{Groups}], Subscribed={Sub}",
                 userId, string.Join(",", groups), isSubscribed);
@@ -179,17 +181,23 @@ public class AuthService : IAuthService
             var refreshToken = await SecureStorage.GetAsync("refresh_token");
             var idToken = await SecureStorage.GetAsync("id_token");
 
+            _logger.LogInformation("=== LOGOUT INITIATED ===");
+            _logger.LogInformation("OLD Access Token being revoked: {Token}", accessToken);
+
             // 2. Clear local session IMMEDIATELY (Instant UI Feedback)
             // This ensures the app returns to the login screen instantly,
             // matching the user's "this is fine, just hit the endpoints" preference.
             await _sessionService.ClearSessionAsync();
 
-            // 3. Resolve the EndSessionEndpoint and build the URL manually
-            using var client = new HttpClient();
-            var disco = await client.GetDiscoveryDocumentAsync(_oidcClient.Options.Authority);
+            // 3. Browser-based logout — the ONLY way to kill Chrome's session cookie.
+            //    A headless HttpClient can't carry Chrome's authentik_session cookie,
+            //    so Authentik ignores it. We MUST open the browser briefly.
+            var postLogoutUri = _oidcClient.Options.PostLogoutRedirectUri;
+            using var httpClient = new HttpClient();
+            var disco = await httpClient.GetDiscoveryDocumentAsync(_oidcClient.Options.Authority);
             
             string logoutUrl;
-            var redirectUriEnc = System.Net.WebUtility.UrlEncode("ridebase://callback");
+            var redirectUriEnc = System.Net.WebUtility.UrlEncode(postLogoutUri);
             
             if (!disco.IsError && !string.IsNullOrWhiteSpace(disco.EndSessionEndpoint))
             {
@@ -201,15 +209,17 @@ public class AuthService : IAuthService
                 logoutUrl = $"{baseUrl}/end-session/?id_token_hint={idToken}&post_logout_redirect_uri={redirectUriEnc}";
             }
 
-            // 4. Hit the Browser Logout FIRST with a 10s timeout
-            // This gives Authentik plenty of room to process the redirect, 
-            // but ensures the server-side revocation always follows up.
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            _logger.LogInformation("Browser logout URL: {Url}", logoutUrl);
+
+            // 4. Open the browser with a tight 3s timeout.
+            //    Authentik kills the cookie within ~1s. If the redirect back to the app 
+            //    doesn't fire (Authentik flow issue), the timeout closes things gracefully.
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
             try 
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await _oidcClient.Options.Browser.InvokeAsync(new BrowserOptions(logoutUrl, "ridebase://callback")
+                    await _oidcClient.Options.Browser.InvokeAsync(new BrowserOptions(logoutUrl, postLogoutUri)
                     {
                         DisplayMode = DisplayMode.Visible
                     }, cts.Token);
@@ -217,11 +227,10 @@ public class AuthService : IAuthService
             }
             catch (Exception)
             {
-                // Proceed immediately if browser fails, cancels, or times out
+                // Expected: timeout fires before redirect lands — session IS killed though
             }
 
-            // 5. Hit the Revocation Endpoint LAST
-            // We await this to ensure the tokens are dead before the method returns.
+            // 5. Revoke tokens via backend API (belt-and-suspenders)
             await RevokeTokensInternalAsync(accessToken, refreshToken);
         }
         catch (Exception ex)
