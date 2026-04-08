@@ -94,7 +94,7 @@
                         Text="&#xf3c5;"
                         TextColor="{StaticResource Primary}" />
                     <Border
-                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray700}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowestLight}, Dark={StaticResource KaSurfaceContainerLowDark}}"
                         Padding="10,6"
                         Shadow="{StaticResource CardShadow}"
                         StrokeShape="RoundRectangle 16"
@@ -114,8 +114,8 @@
         <Border
             x:Name="BottomSheet"
             Grid.Row="1"
-            BackgroundColor="{AppThemeBinding Dark={StaticResource OffBlack},
-                                              Light={StaticResource White}}"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource KaSurfaceDark},
+                                              Light={StaticResource KaSurfaceContainerLowestLight}}"
             StrokeShape="RoundRectangle 32,32,0,0"
             StrokeThickness="0">
             <Border.Shadow>
@@ -158,7 +158,7 @@
                     IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
                     Spacing="16">
 
-                    <Border Padding="14,14,14,0" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray700}}" Shadow="{StaticResource CardShadow}" StrokeShape="RoundRectangle 20" StrokeThickness="0">
+                    <Border Padding="14,14,14,0" BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowestLight}, Dark={StaticResource KaSurfaceContainerLowDark}}" Shadow="{StaticResource CardShadow}" StrokeShape="RoundRectangle 20" StrokeThickness="0">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenSearchCommand}" />
                         </Border.GestureRecognizers>
@@ -171,12 +171,12 @@
                     <Border Padding="18" Style="{StaticResource KaFleetModuleCard}">
                         <VerticalStackLayout Spacing="16">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border BackgroundColor="{StaticResource Gray100}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
+                                <Border BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerHighDark}}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
                                     <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="&#xf1da;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label FontAttributes="Bold" FontSize="15" Text="Avondale Shopping Centre" />
-                                    <Label FontSize="13" Text="King George Rd, Harare" TextColor="{StaticResource Gray500}" />
+                                    <Label FontSize="13" Text="King George Rd, Harare" TextColor="{AppThemeBinding Light={StaticResource KaOnSurfaceMutedLight}, Dark={StaticResource KaOnSurfaceMutedDark}}" />
                                 </VerticalStackLayout>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="Avondale Shopping Centre, King George Rd, Harare" />
@@ -187,12 +187,12 @@
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding UsePresetDestinationCommand}" CommandParameter="RG Mugabe Intl Airport, Airport Rd, Harare" />
                                 </Grid.GestureRecognizers>
-                                <Border BackgroundColor="{StaticResource Gray100}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
+                                <Border BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerHighDark}}" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="40">
                                     <Label FontFamily="fasolid" FontSize="16" HorizontalOptions="Center" Text="&#xf5b0;" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label FontAttributes="Bold" FontSize="15" Text="RG Mugabe Intl Airport" />
-                                    <Label FontSize="13" Text="Airport Rd, Harare" TextColor="{StaticResource Gray500}" />
+                                    <Label FontSize="13" Text="Airport Rd, Harare" TextColor="{AppThemeBinding Light={StaticResource KaOnSurfaceMutedLight}, Dark={StaticResource KaOnSurfaceMutedDark}}" />
                                 </VerticalStackLayout>
                             </Grid>
                         </VerticalStackLayout>
@@ -352,7 +352,7 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <Border
                             Padding="12,10"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray700}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerLowDark}}"
                             StrokeShape="RoundRectangle 16"
                             StrokeThickness="0">
                             <Border.GestureRecognizers>
@@ -367,7 +367,7 @@
                         <Border
                             Grid.Column="1"
                             Padding="12,10"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray700}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerLowDark}}"
                             StrokeShape="RoundRectangle 16"
                             StrokeThickness="0">
                             <Border.GestureRecognizers>
@@ -427,8 +427,8 @@
                                         <Border
                                             Grid.Column="0"
                                             Padding="8"
-                                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
-                                                                              Dark={StaticResource Gray600}}"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight},
+                                                                              Dark={StaticResource KaSurfaceContainerHighDark}}"
                                             HeightRequest="40"
                                             StrokeShape="RoundRectangle 20"
                                             StrokeThickness="0"
@@ -520,7 +520,7 @@
 
                     <Border
                         Padding="16,14"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray700}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerLowDark}}"
                         StrokeShape="RoundRectangle 18"
                         StrokeThickness="0">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">

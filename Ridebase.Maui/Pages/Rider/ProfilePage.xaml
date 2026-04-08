@@ -8,7 +8,7 @@
     Title="Profile"
     x:DataType="vm:ProfileViewModel">
 
-    <Grid RowDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource KaBackground}, Dark={StaticResource Gray950}}">
+    <Grid RowDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource KaBackgroundLight}, Dark={StaticResource KaBackgroundDark}}">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20,16,20,24" Spacing="20">
                 <Border Style="{StaticResource KaFleetModuleCard}">
@@ -67,7 +67,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowest}, Dark={StaticResource Gray900}}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+        <Grid Grid.Row="1" Padding="16,12,16,20" BackgroundColor="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowestLight}, Dark={StaticResource KaSurfaceContainerLowestDark}}" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
             <Button Grid.Column="0" Command="{Binding GoHomeCommand}" Style="{StaticResource KaTertiaryButton}" Text="HOME" />
             <Button Grid.Column="1" Command="{Binding GoToHistoryCommand}" Style="{StaticResource KaTertiaryButton}" Text="ACTIVITY" />
             <Button Grid.Column="2" Command="{Binding GoToWalletCommand}" Style="{StaticResource KaTertiaryButton}" Text="WALLET" />

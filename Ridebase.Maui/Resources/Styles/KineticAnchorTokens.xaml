@@ -1,21 +1,90 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xaml-comp compile="true" ?>
-<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:layouts="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
     <!--  Kinetic Anchor color tokens  -->
-    <Color x:Key="KaBackground">#F8FAFA</Color>
-    <Color x:Key="KaSurface">#FCFDFD</Color>
-    <Color x:Key="KaSurfaceBright">#F8FAFA</Color>
-    <Color x:Key="KaSurfaceContainerLowest">#FFFFFF</Color>
-    <Color x:Key="KaSurfaceContainerLow">#F2F4F5</Color>
-    <Color x:Key="KaSurfaceContainer">#E8EDEE</Color>
-    <Color x:Key="KaSurfaceContainerHigh">#DDE4E5</Color>
-    <Color x:Key="KaSurfaceContainerHighest">#D2DBDC</Color>
-    <Color x:Key="KaSurfaceGlass">#CCFCFDFD</Color>
-    <Color x:Key="KaOnSurface">#191C1D</Color>
-    <Color x:Key="KaOnSurfaceMuted">#5B6263</Color>
-    <Color x:Key="KaOutlineVariant">#C1C7C8</Color>
-    <Color x:Key="KaOutlineGhost">#26C1C7C8</Color>
+    <Color x:Key="KaBackgroundLight">#F8FAFA</Color>
+    <Color x:Key="KaBackgroundDark">#101414</Color>
+    <Color x:Key="KaSurfaceLight">#FCFDFD</Color>
+    <Color x:Key="KaSurfaceDark">#191C1D</Color>
+    <Color x:Key="KaSurfaceBrightLight">#F8FAFA</Color>
+    <Color x:Key="KaSurfaceBrightDark">#1D2223</Color>
+    <Color x:Key="KaSurfaceContainerLowestLight">#FFFFFF</Color>
+    <Color x:Key="KaSurfaceContainerLowestDark">#191C1D</Color>
+    <Color x:Key="KaSurfaceContainerLowLight">#F2F4F5</Color>
+    <Color x:Key="KaSurfaceContainerLowDark">#23292A</Color>
+    <Color x:Key="KaSurfaceContainerLight">#E8EDEE</Color>
+    <Color x:Key="KaSurfaceContainerDark">#2B3233</Color>
+    <Color x:Key="KaSurfaceContainerHighLight">#DDE4E5</Color>
+    <Color x:Key="KaSurfaceContainerHighDark">#343C3D</Color>
+    <Color x:Key="KaSurfaceContainerHighestLight">#D2DBDC</Color>
+    <Color x:Key="KaSurfaceContainerHighestDark">#404849</Color>
+    <Color x:Key="KaSurfaceGlassLight">#CCFCFDFD</Color>
+    <Color x:Key="KaSurfaceGlassDark">#CC191C1D</Color>
+    <Color x:Key="KaOnSurfaceLight">#191C1D</Color>
+    <Color x:Key="KaOnSurfaceDark">#F4F7F7</Color>
+    <Color x:Key="KaOnSurfaceMutedLight">#5B6263</Color>
+    <Color x:Key="KaOnSurfaceMutedDark">#B2BCBD</Color>
+    <Color x:Key="KaOutlineVariantLight">#C1C7C8</Color>
+    <Color x:Key="KaOutlineVariantDark">#556061</Color>
+    <Color x:Key="KaOutlineGhostLight">#26C1C7C8</Color>
+    <Color x:Key="KaOutlineGhostDark">#40899495</Color>
+
+    <layouts:AppThemeColor
+        x:Key="KaBackground"
+        Dark="{StaticResource KaBackgroundDark}"
+        Light="{StaticResource KaBackgroundLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurface"
+        Dark="{StaticResource KaSurfaceDark}"
+        Light="{StaticResource KaSurfaceLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceBright"
+        Dark="{StaticResource KaSurfaceBrightDark}"
+        Light="{StaticResource KaSurfaceBrightLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceContainerLowest"
+        Dark="{StaticResource KaSurfaceContainerLowestDark}"
+        Light="{StaticResource KaSurfaceContainerLowestLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceContainerLow"
+        Dark="{StaticResource KaSurfaceContainerLowDark}"
+        Light="{StaticResource KaSurfaceContainerLowLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceContainer"
+        Dark="{StaticResource KaSurfaceContainerDark}"
+        Light="{StaticResource KaSurfaceContainerLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceContainerHigh"
+        Dark="{StaticResource KaSurfaceContainerHighDark}"
+        Light="{StaticResource KaSurfaceContainerHighLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceContainerHighest"
+        Dark="{StaticResource KaSurfaceContainerHighestDark}"
+        Light="{StaticResource KaSurfaceContainerHighestLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaSurfaceGlass"
+        Dark="{StaticResource KaSurfaceGlassDark}"
+        Light="{StaticResource KaSurfaceGlassLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaOnSurface"
+        Dark="{StaticResource KaOnSurfaceDark}"
+        Light="{StaticResource KaOnSurfaceLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaOnSurfaceMuted"
+        Dark="{StaticResource KaOnSurfaceMutedDark}"
+        Light="{StaticResource KaOnSurfaceMutedLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaOutlineVariant"
+        Dark="{StaticResource KaOutlineVariantDark}"
+        Light="{StaticResource KaOutlineVariantLight}" />
+    <layouts:AppThemeColor
+        x:Key="KaOutlineGhost"
+        Dark="{StaticResource KaOutlineGhostDark}"
+        Light="{StaticResource KaOutlineGhostLight}" />
 
     <Color x:Key="KaPrimary">#004444</Color>
     <Color x:Key="KaPrimaryContainer">#005E5D</Color>
@@ -37,14 +106,38 @@
     <Color x:Key="KaOnErrorContainer">#410E0B</Color>
 
     <!--  Design token aliases so new screens can read like the design doc  -->
-    <Color x:Key="background">#F8FAFA</Color>
-    <Color x:Key="surface">#FCFDFD</Color>
-    <Color x:Key="surface-bright">#F8FAFA</Color>
-    <Color x:Key="surface-container-lowest">#FFFFFF</Color>
-    <Color x:Key="surface-container-low">#F2F4F5</Color>
-    <Color x:Key="surface-container">#E8EDEE</Color>
-    <Color x:Key="surface-container-high">#DDE4E5</Color>
-    <Color x:Key="surface-container-highest">#D2DBDC</Color>
+    <layouts:AppThemeColor
+        x:Key="background"
+        Dark="{StaticResource KaBackgroundDark}"
+        Light="{StaticResource KaBackgroundLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface"
+        Dark="{StaticResource KaSurfaceDark}"
+        Light="{StaticResource KaSurfaceLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-bright"
+        Dark="{StaticResource KaSurfaceBrightDark}"
+        Light="{StaticResource KaSurfaceBrightLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-container-lowest"
+        Dark="{StaticResource KaSurfaceContainerLowestDark}"
+        Light="{StaticResource KaSurfaceContainerLowestLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-container-low"
+        Dark="{StaticResource KaSurfaceContainerLowDark}"
+        Light="{StaticResource KaSurfaceContainerLowLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-container"
+        Dark="{StaticResource KaSurfaceContainerDark}"
+        Light="{StaticResource KaSurfaceContainerLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-container-high"
+        Dark="{StaticResource KaSurfaceContainerHighDark}"
+        Light="{StaticResource KaSurfaceContainerHighLight}" />
+    <layouts:AppThemeColor
+        x:Key="surface-container-highest"
+        Dark="{StaticResource KaSurfaceContainerHighestDark}"
+        Light="{StaticResource KaSurfaceContainerHighestLight}" />
     <Color x:Key="primary">#004444</Color>
     <Color x:Key="primary_container">#005E5D</Color>
     <Color x:Key="primary_fixed">#CCE8E7</Color>
@@ -54,8 +147,14 @@
     <Color x:Key="tertiary">#603011</Color>
     <Color x:Key="error_container">#F9DEDC</Color>
     <Color x:Key="on_error_container">#410E0B</Color>
-    <Color x:Key="outline_variant">#C1C7C8</Color>
-    <Color x:Key="on_surface">#191C1D</Color>
+    <layouts:AppThemeColor
+        x:Key="outline_variant"
+        Dark="{StaticResource KaOutlineVariantDark}"
+        Light="{StaticResource KaOutlineVariantLight}" />
+    <layouts:AppThemeColor
+        x:Key="on_surface"
+        Dark="{StaticResource KaOnSurfaceDark}"
+        Light="{StaticResource KaOnSurfaceLight}" />
 
     <!--  Brand alias bridge for existing pages  -->
     <Color x:Key="Primary">#004444</Color>
@@ -81,17 +180,17 @@
     <Color x:Key="BlueGray">#2F4141</Color>
 
     <!--  Brushes  -->
-    <SolidColorBrush x:Key="KaBackgroundBrush" Color="{StaticResource KaBackground}" />
-    <SolidColorBrush x:Key="KaSurfaceBrush" Color="{StaticResource KaSurface}" />
-    <SolidColorBrush x:Key="KaSurfaceLowBrush" Color="{StaticResource KaSurfaceContainerLow}" />
-    <SolidColorBrush x:Key="KaSurfaceLowestBrush" Color="{StaticResource KaSurfaceContainerLowest}" />
+    <SolidColorBrush x:Key="KaBackgroundBrush" Color="{AppThemeBinding Light={StaticResource KaBackgroundLight}, Dark={StaticResource KaBackgroundDark}}" />
+    <SolidColorBrush x:Key="KaSurfaceBrush" Color="{AppThemeBinding Light={StaticResource KaSurfaceLight}, Dark={StaticResource KaSurfaceDark}}" />
+    <SolidColorBrush x:Key="KaSurfaceLowBrush" Color="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowLight}, Dark={StaticResource KaSurfaceContainerLowDark}}" />
+    <SolidColorBrush x:Key="KaSurfaceLowestBrush" Color="{AppThemeBinding Light={StaticResource KaSurfaceContainerLowestLight}, Dark={StaticResource KaSurfaceContainerLowestDark}}" />
     <SolidColorBrush x:Key="KaPrimaryBrush" Color="{StaticResource KaPrimary}" />
     <SolidColorBrush x:Key="KaSecondaryContainerBrush" Color="{StaticResource KaSecondaryContainer}" />
-    <SolidColorBrush x:Key="KaGhostOutlineBrush" Color="{StaticResource KaOutlineGhost}" />
+    <SolidColorBrush x:Key="KaGhostOutlineBrush" Color="{AppThemeBinding Light={StaticResource KaOutlineGhostLight}, Dark={StaticResource KaOutlineGhostDark}}" />
 
     <LinearGradientBrush x:Key="KaPrimaryGradientBrush" EndPoint="1,1">
-        <GradientStop Offset="0.0" Color="{StaticResource KaPrimary}" />
-        <GradientStop Offset="1.0" Color="{StaticResource KaPrimaryContainer}" />
+        <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource KaPrimary}, Dark=#1D6766}" />
+        <GradientStop Offset="1.0" Color="{AppThemeBinding Light={StaticResource KaPrimaryContainer}, Dark=#2D8D8B}" />
     </LinearGradientBrush>
 
     <!--  Typography aliases  -->
@@ -128,10 +227,11 @@
     <x:Double x:Key="KaLabelSmSize">12</x:Double>
 
     <!--  Cloud shadow used for floating modules  -->
-    <Shadow x:Key="KaCloudShadow"
-            Brush="#0F191C1D"
-            Offset="0,12"
-            Opacity="0.06"
-            Radius="32" />
+    <Shadow
+        x:Key="KaCloudShadow"
+        Brush="#0F191C1D"
+        Opacity="0.06"
+        Radius="32"
+        Offset="0,12" />
 
 </ResourceDictionary>
