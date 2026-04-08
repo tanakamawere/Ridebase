@@ -2,11 +2,10 @@ using CommunityToolkit.Maui;
 using DevExpress.Maui;
 using Duende.IdentityModel.Client;
 using Duende.IdentityModel.OidcClient;
-using GoogleApi.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
-using MPowerKit.GoogleMaps;
+using Ridebase.Pages;
 using Ridebase.Pages.Driver;
 using Ridebase.Pages.Onboarding;
 using Ridebase.Pages.Rider;
@@ -20,6 +19,7 @@ using Ridebase.ViewModels.Onboarding;
 using Ridebase.ViewModels.Rider;
 using System.Reflection;
 using System.Text.Json;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace Ridebase;
 
@@ -33,11 +33,7 @@ public static class MauiProgram
             .UseMauiCommunityToolkit()
             .UseDevExpress()
             .UseDevExpressControls()
-            .UseMPowerKitGoogleMaps(
-#if IOS
-                "AIzaSyC9E6Ot4Ui240f88-BGAzUFM-IhPEzT98Y"
-#endif
-            )
+            .UseSkiaSharp()
             .ConfigureMopups()
             .ConfigureFonts(fonts =>
             {
@@ -53,7 +49,8 @@ public static class MauiProgram
 
         //Getting App Settings.json
         var executingAssembly = Assembly.GetExecutingAssembly();
-        using var stream = executingAssembly.GetManifestResourceStream("Ridebase.appsettings.json");
+        using var stream = executingAssembly.GetManifestResourceStream("Ridebase.appsettings.json")
+            ?? throw new FileNotFoundException("Ridebase.appsettings.json not found as an embedded resource.");
 
         var configuration = new ConfigurationBuilder().AddJsonStream(stream)
                 .Build();
@@ -109,6 +106,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ProfilePage>();
         builder.Services.AddTransient<WalletPage>();
         builder.Services.AddTransient<RideSelectionPage>();
+        builder.Services.AddTransient<OsmTestPage>();
 
         //Onboarding Pages
         builder.Services.AddTransient<OnboardingProfilePage>();
@@ -194,7 +192,6 @@ public static class MauiProgram
         }
 
         builder.Services.AddSingleton(Mopups.Services.MopupService.Instance);
-        builder.Services.AddGoogleApiClients();
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
@@ -229,6 +226,9 @@ public static class MauiProgram
 
         // AuthService wraps OidcClient with login, silent refresh, and logout logic
         builder.Services.AddSingleton<IAuthService, AuthService>();
+
+        // Map Service (Self-hosted OSM)
+        builder.Services.AddSingleton<IMapService, OsmMapService>();
 
         return builder.Build();
     }

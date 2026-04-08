@@ -90,7 +90,11 @@ public partial class OnboardingDriverViewModel : BaseViewModel
     [RelayCommand]
     public async Task PickDriverPhotoAsync()
     {
-        await PickDriverPhotoAsync(async () => await MediaPicker.Default.PickPhotoAsync(), "gallery");
+        await PickDriverPhotoAsync(async () => 
+        {
+            var results = await MediaPicker.Default.PickPhotosAsync(new MediaPickerOptions { SelectionLimit = 1 });
+            return results?.FirstOrDefault();
+        }, "gallery");
     }
 
     [RelayCommand]
