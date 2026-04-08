@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
     xmlns:dxco="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
-    xmlns:gm="clr-namespace:MPowerKit.GoogleMaps;assembly=MPowerKit.GoogleMaps"
+    xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:models="clr-namespace:Ridebase.Models"
@@ -24,11 +24,9 @@
 
     <Grid RowDefinitions="5*, 3*">
         <!--  Map covering the top 5/8 of the screen  -->
-        <gm:GoogleMap
+        <mapsui:MapView
+            x:Name="MapControl"
             Grid.Row="0"
-            AnimateCameraFunc="{Binding AnimateCameraFunc, Mode=OneWayToSource}"
-            MoveCameraAction="{Binding MoveCameraAction, Mode=OneWayToSource}"
-            Polylines="{Binding Polylines}"
             VerticalOptions="FillAndExpand" />
 
         <!--  Details section covering the bottom 3/8 of the screen  -->
@@ -41,7 +39,7 @@
                 <Label.FormattedText>
                     <FormattedString>
                         <Span FontAttributes="Bold" Text="Start Location: " />
-                        <Span Text="{Binding StartPlace.Name}" />
+                        <Span Text="{Binding StartAddress}" />
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
@@ -49,7 +47,7 @@
                 <Label.FormattedText>
                     <FormattedString>
                         <Span FontAttributes="Bold" Text="To: " />
-                        <Span Text="{Binding DestinationPlace.Name}" />
+                        <Span Text="{Binding DestinationAddress}" />
                     </FormattedString>
                 </Label.FormattedText>
             </Label>

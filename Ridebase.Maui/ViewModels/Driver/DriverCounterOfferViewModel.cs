@@ -99,13 +99,13 @@ public partial class DriverCounterOfferViewModel : BaseViewModel
                 }
             });
 
-            await Shell.Current.DisplayAlert("Counter offer sent", $"Your ${CounterAmount:F2} offer has been sent to the rider.", "OK");
+            await Shell.Current.DisplayAlertAsync("Counter offer sent", $"Your ${CounterAmount:F2} offer has been sent to the rider.", "OK");
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to submit driver counteroffer");
-            await Shell.Current.DisplayAlert("Counter offer failed", "We couldn't send the counteroffer right now.", "OK");
+            await Shell.Current.DisplayAlertAsync("Counter offer failed", "We couldn't send the counteroffer right now.", "OK");
         }
     }
 }

@@ -1,39 +1,36 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using GoogleApi;
-using GoogleApi.Entities.Common;
-using GoogleApi.Entities.Maps.Common;
-using GoogleApi.Entities.Places.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Controls.Shapes;
-using MPowerKit.GoogleMaps;
 using Ridebase.Helpers;
 using Ridebase.Models;
 using Ridebase.Models.Ride;
 using Ridebase.Pages;
 using Ridebase.Pages.Rider;
+using Ridebase.Services;
 using Ridebase.Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace Ridebase.ViewModels.Rider;
 
-[QueryProperty(nameof(StartPlace), "startPlace")]
-[QueryProperty(nameof(DestinationPlace), "destinationPlace")]
+[QueryProperty(nameof(StartAddress), "startAddress")]
+[QueryProperty(nameof(DestinationAddress), "destinationAddress")]
+[QueryProperty(nameof(StartLat), "startLat")]
+[QueryProperty(nameof(StartLng), "startLng")]
+[QueryProperty(nameof(DestLat), "destLat")]
+[QueryProperty(nameof(DestLng), "destLng")]
 public partial class RideDetailsViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private PlaceResult startPlace;
+    private string startAddress = string.Empty;
     [ObservableProperty]
-    private PlaceResult destinationPlace;
-    [ObservableProperty]
-    private ObservableCollection<Polyline> polylines = [];
-    [ObservableProperty]
-    private Polyline roadPolyline;
-    [ObservableProperty]
-    private ObservableCollection<Coordinate> roadCoordinates = [];
-    [ObservableProperty]
-    private Action<CameraUpdate> _moveCameraAction;
+    private string destinationAddress = string.Empty;
+    
+    // We'll pass these via properties or simplified models
+    public double StartLat { get; set; }
+    public double StartLng { get; set; }
+    public double DestLat { get; set; }
+    public double DestLng { get; set; }
     [ObservableProperty]
     private decimal offerAmount = 2;
 
@@ -46,25 +43,21 @@ public partial class RideDetailsViewModel : BaseViewModel
     [ObservableProperty]
     private int estimatedMinutes;
 
-    [ObservableProperty]
-    private Func<CameraUpdate, int, Task> _animateCameraFunc;
+    private readonly IMapService _mapService;
 
-    private readonly GoogleMaps.DirectionsApi directionsApi;
-    private readonly string _googleMapsApiKey;
-
-    public RideDetailsViewModel(GoogleMaps.DirectionsApi _routesDirectionsApi
-                            , IConfiguration configuration
-                            , IRideApiClient _rideService
-                            , IStorageService storage
-                            , IUserSessionService _userSessionService
-                            , IRideRealtimeService _rideRealtimeService
-                            , IRideStateStore _rideStateStore
-                            , ILogger<RideDetailsViewModel> logger)
+    public RideDetailsViewModel(
+        IMapService mapService,
+        IConfiguration configuration,
+        IRideApiClient _rideService,
+        IStorageService storage,
+        IUserSessionService _userSessionService,
+        IRideRealtimeService _rideRealtimeService,
+        IRideStateStore _rideStateStore,
+        ILogger<RideDetailsViewModel> logger)
     {
         Title = "Ride Details";
         Logger = logger;
-        directionsApi = _routesDirectionsApi;
-        _googleMapsApiKey = configuration["GoogleKeys:MapsApiKey"] ?? string.Empty;
+        _mapService = mapService;
         rideApiClient = _rideService;
         storageService = storage;
         userSessionService = _userSessionService;
@@ -75,50 +68,29 @@ public partial class RideDetailsViewModel : BaseViewModel
     [RelayCommand]
     public async Task GetDirectionsAsync()
     {
-        Logger.LogInformation("Getting directions from {Start} to {Destination}", StartPlace?.Name, DestinationPlace?.Name);
+        Logger.LogInformation("Getting directions from {Start} to {Destination}", StartAddress, DestinationAddress);
         IsBusy = true;
         try
         {
-            if (string.IsNullOrWhiteSpace(_googleMapsApiKey))
+            var routeInfo = await _mapService.GetDirectionsAsync(StartLat, StartLng, DestLat, DestLng);
+
+            if (routeInfo != null)
             {
-                Logger.LogWarning("Google Maps API key is missing for RideDetails directions.");
-                return;
-            }
-
-            var request = new GoogleApi.Entities.Maps.Directions.Request.DirectionsRequest
-            {
-                //TODO: how to set origin and destination
-                Origin = new LocationEx(new CoordinateEx(StartPlace.Geometry.Location.Latitude, StartPlace.Geometry.Location.Longitude)),
-                Destination = new LocationEx(new CoordinateEx(DestinationPlace.Geometry.Location.Latitude, DestinationPlace.Geometry.Location.Longitude)),
-                Key = _googleMapsApiKey,
-                DepartureTime = DateTime.Now,
-            };
-
-            var routesDirectionsApiResponse = await directionsApi.QueryAsync(request);
-
-            if (routesDirectionsApiResponse.Status.Equals(GoogleApi.Entities.Common.Enums.Status.Ok))
-            {
-                var response = routesDirectionsApiResponse.Routes.FirstOrDefault();
-
-                Logger.LogInformation("Directions retrieved successfully, drawing route on map");
-                await DrawRouteAndZoomAsync(response.OverviewPath.Line, response.Bounds);
-                EstimatedDistanceKm = response.Legs.FirstOrDefault()?.Distance?.Value / 1000d ?? 0;
-                EstimatedMinutes = (int)Math.Ceiling((response.Legs.FirstOrDefault()?.Duration?.Value ?? 0) / 60d);
+                EstimatedDistanceKm = routeInfo.DistanceKm;
+                EstimatedMinutes = (int)Math.Ceiling(routeInfo.DurationMinutes);
                 RecommendedFare = CalculateRecommendedFare(EstimatedDistanceKm, EstimatedMinutes);
-                if (OfferAmount <= 0)
-                {
-                    OfferAmount = RecommendedFare;
-                }
-            }
-            else
-            {
-                Logger.LogWarning("Directions API returned status: {Status}", routesDirectionsApiResponse.Status);
+                if (OfferAmount <= 0) OfferAmount = RecommendedFare;
+
+                OnRequestMapUpdate?.Invoke(this, new MapUpdateEventArgs 
+                { 
+                    Type = MapUpdateType.Route, 
+                    RoutePolyline = routeInfo.EncodedPolyline 
+                });
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error getting directions");
-            throw;
         }
         finally
         {
@@ -126,45 +98,17 @@ public partial class RideDetailsViewModel : BaseViewModel
         }
     }
 
-    //Method to draw on map and show route
-    public async Task DrawRouteAndZoomAsync(IEnumerable<Coordinate> coordinates, GoogleApi.Entities.Common.ViewPort viewport)
+    public event EventHandler<MapUpdateEventArgs>? OnRequestMapUpdate;
+
+    public async Task AnimateToLocation(double lat, double lng, double zoom)
     {
-        if (RoadCoordinates == null)
-            return;
-
-        PointCollection points = new();
-
-        foreach (var item in coordinates)
-        {
-            points.Add(new Point(item.Latitude, item.Longitude));
-        }
-
-        RoadPolyline = new Polyline
-        {
-            StrokeThickness = 5,
-            StrokeLineJoin = PenLineJoin.Round,
-            Points = points
-        };
-
-        Polylines.Add(RoadPolyline);
-
-        //Create new camera update to move camera to new location that includes the polyline drawn
-
-        var cameraUpdate = CameraUpdateFactory
-            .NewLatLngBounds(MapUtils.GetLatLngBoundsFromViewPort(viewport), 50);
-
-        await MoveCamera(cameraUpdate);
-    }
-
-    // Animate and zoom onto the map
-    private async Task MoveCamera(CameraUpdate newPosition)
-    {
-        if (AnimateCameraFunc is null)
-        {
-            Logger.LogWarning("AnimateCameraFunc not bound yet — skipping camera animation");
-            return;
-        }
-        await AnimateCameraFunc(newPosition, 2000);
+        OnRequestMapUpdate?.Invoke(this, new MapUpdateEventArgs 
+        { 
+            Type = MapUpdateType.Camera, 
+            Latitude = lat, 
+            Longitude = lng, 
+            Zoom = zoom 
+        });
     }
 
     // Method to find driver from api after sending a ride request object
@@ -184,10 +128,12 @@ public partial class RideDetailsViewModel : BaseViewModel
         {
             RideGuid = Guid.NewGuid(),
             RiderId = await storageService.GetUserIdAsync() ?? string.Empty,
-            StartLocation = new() { latitude = StartPlace.Geometry.Location.Latitude, longitude = StartPlace.Geometry.Location.Longitude },
-            DestinationLocation = new() { latitude = DestinationPlace.Geometry.Location.Latitude, longitude = DestinationPlace.Geometry.Location.Longitude },
+            StartLocation = new() { latitude = StartLat, longitude = StartLng },
+            DestinationLocation = new() { latitude = DestLat, longitude = DestLng },
             OfferAmount = OfferAmount,
-            Comments = "Nothing entered"
+            Comments = "Nothing entered",
+            StartAddress = StartAddress,
+            DestinationAddress = DestinationAddress
         };
 
         Logger.LogInformation("Ride request created with ID: {RideId}", rideRequest.RideGuid);

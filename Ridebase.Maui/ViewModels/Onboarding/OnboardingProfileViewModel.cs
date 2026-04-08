@@ -15,13 +15,13 @@ public partial class OnboardingProfileViewModel : BaseViewModel
     private const string PendingCityKey = "onboarding_pending_city";
 
     [ObservableProperty]
-    private string fullName;
+    private string fullName = string.Empty;
 
     [ObservableProperty]
-    private string phoneNumber;
+    private string phoneNumber = string.Empty;
 
     [ObservableProperty]
-    private string confirmPhoneNumber;
+    private string confirmPhoneNumber = string.Empty;
 
     partial void OnPhoneNumberChanged(string value)
     {
@@ -40,7 +40,7 @@ public partial class OnboardingProfileViewModel : BaseViewModel
     }
 
     [ObservableProperty]
-    private string selectedCity;
+    private string selectedCity = string.Empty;
 
     [ObservableProperty]
     private bool locationPermissionGranted;

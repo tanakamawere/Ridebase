@@ -24,12 +24,24 @@ public class LocationService : ILocationService
                 }
             }
 
-            var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+            // Try to get the last known location first (faster)
+            var location = await Geolocation.Default.GetLastKnownLocationAsync();
+            
+            // On some emulators, last known can be (0,0) which is invalid for our use case (Zimbabwe)
+            if (location != null && location.Latitude == 0 && location.Longitude == 0)
+            {
+                location = null;
+            }
 
-            _cancelTokenSource = new CancellationTokenSource();
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancelTokenSource.Token, cancellationToken);
+            if (location == null)
+            {
+                // If last known is not available or invalid, try to get current location
+                var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+                _cancelTokenSource = new CancellationTokenSource();
+                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancelTokenSource.Token, cancellationToken);
+                location = await Geolocation.Default.GetLocationAsync(request, linkedCts.Token);
+            }
 
-            var location = await Geolocation.Default.GetLocationAsync(request, linkedCts.Token);
             if (location is not null)
             {
                 return new LocationAcquisitionResult
