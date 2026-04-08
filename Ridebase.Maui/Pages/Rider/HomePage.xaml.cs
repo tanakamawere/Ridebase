@@ -1,3 +1,8 @@
+using Mapsui;
+using Mapsui.Projections;
+using Mapsui.Tiling.Layers;
+using Ridebase.Helpers;
+using Ridebase.Models;
 using Ridebase.Services;
 using Ridebase.ViewModels;
 
@@ -23,8 +28,59 @@ public partial class HomePage : ContentPage
 
         _previousState = homePageViewModel.CurrentSearchState;
         homePageViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        homePageViewModel.OnRequestMapUpdate += OnRequestMapUpdate; // New bridge
         _keyboardService.KeyboardStateChanged += OnKeyboardStateChanged;
         SizeChanged += OnPageSizeChanged;
+
+        InitializeOsmMap();
+    }
+
+    private void InitializeOsmMap()
+    {
+        var map = new Mapsui.Map();
+        
+        // Load self-hosted tiles
+        var tileSource = new BruTile.Web.HttpTileSource(
+            new BruTile.Predefined.GlobalSphericalMercator(), 
+            Constants.OsmTileUrl, 
+            name: "Self-Hosted OSM");
+            
+        var tileLayer = new TileLayer(tileSource) { Name = "Self-Hosted OSM" };
+        map.Layers.Add(tileLayer);
+
+        // Center on Zimbabwe
+        var (x, y) = SphericalMercator.FromLonLat(31.05, -17.82);
+        map.Navigator.CenterOnAndZoomTo(new MPoint(x, y), resolution: 200);
+
+        MapControl.Map = map;
+    }
+
+    private async void OnRequestMapUpdate(object? sender, MapUpdateEventArgs e)
+    {
+        var mapControl = MapControl;
+        if (mapControl == null) return;
+
+        switch (e.Type)
+        {
+            case MapUpdateType.Camera:
+                var (x, y) = SphericalMercator.FromLonLat(e.Longitude, e.Latitude);
+                mapControl.Map.Navigator.CenterOnAndZoomTo(new MPoint(x, y), e.Zoom > 0 ? e.Zoom : 38);
+                break;
+            case MapUpdateType.Route:
+                if (!string.IsNullOrEmpty(e.RoutePolyline))
+                {
+                    // Draw polyline logic here (Simplified for PoC)
+                    // In a full implementation, we'd use Mapsui.Layers.GenericLayer
+                }
+                break;
+            case MapUpdateType.Clear:
+                // Special case: ViewModel wants current map center for selection
+                var centerX = MapControl.Map.Navigator.Viewport.CenterX;
+                var centerY = MapControl.Map.Navigator.Viewport.CenterY;
+                var lonLat = SphericalMercator.ToLonLat(centerX, centerY);
+                await homePageViewModel.HandleMapSelectionCallback(lonLat.lat, lonLat.lon);
+                break;
+        }
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -57,11 +113,9 @@ public partial class HomePage : ContentPage
         // ── Fade out floating overlays when leaving Idle ──
         if (from == SearchState.Idle && to == SearchState.PickingDestination)
         {
-            var fadeOut = FloatingHamburger.FadeToAsync(0, duration / 2, Easing.CubicIn);
-
             BottomSheet.TranslationY = 60;
             BottomSheet.Opacity = 0;
-            await fadeOut;
+            // await fadeOut;
 
             await Task.WhenAll(
                 BottomSheet.TranslateToAsync(0, 0, duration, Easing.CubicOut),
@@ -72,12 +126,7 @@ public partial class HomePage : ContentPage
         // ── Returning to Idle ──
         if (to == SearchState.Idle)
         {
-            FloatingHamburger.Opacity = 0;
-            FloatingHamburger.TranslationX = -20;
-
-            await Task.WhenAll(
-                FloatingHamburger.FadeToAsync(1, duration, Easing.CubicOut),
-                FloatingHamburger.TranslateToAsync(0, 0, duration, Easing.CubicOut));
+            // Transition back to Idle if needed
             return;
         }
 
@@ -255,6 +304,15 @@ public partial class HomePage : ContentPage
             homePageViewModel.SetActiveField("Pickup");
         else if (sender == DestinationEntry)
             homePageViewModel.SetActiveField("Destination");
+    }
+
+    // ═════════════════════════════════════════════════════════════
+    //  SEARCH (TEST OSM)
+    // ═════════════════════════════════════════════════════════════
+
+    private async void OnTestOsmTapped(object? sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(OsmTestPage));
     }
 
     // ═════════════════════════════════════════════════════════════

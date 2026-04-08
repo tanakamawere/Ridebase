@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Ridebase.Pages.OsmTestPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+    Title="OSM Feasibility Test"
+    Shell.NavBarIsVisible="True">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <!--  Search Area  -->
+        <VerticalStackLayout Grid.Row="0" Padding="10" Spacing="10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+            <Label FontAttributes="Bold" Text="1. Test Autocomplete (Photon)" />
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                <Entry x:Name="SearchEntry" Placeholder="Search Zimbabwe (e.g. Harare)" />
+                <Button Grid.Column="1" Text="Search" Clicked="OnSearchClicked" />
+            </Grid>
+            <Label x:Name="SearchStatus" FontSize="12" TextColor="Gray" Text="Ready to search..." />
+        </VerticalStackLayout>
+
+        <!--  Map Area  -->
+        <mapsui:MapView x:Name="mapView" Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
+
+        <!--  Routing Area  -->
+        <VerticalStackLayout Grid.Row="2" Padding="10" Spacing="10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}">
+            <Label FontAttributes="Bold" Text="2. Test Routing (OSRM)" />
+            <Button Text="Test Route (Harare Center to Airport)" Clicked="OnTestRouteClicked" />
+            <Label x:Name="RouteStatus" FontSize="12" TextColor="Gray" Text="Routing status..." />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

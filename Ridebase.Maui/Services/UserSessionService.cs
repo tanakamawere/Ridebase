@@ -7,6 +7,7 @@ namespace Ridebase.Services;
 public class UserSessionService : IUserSessionService
 {
     private const string AuthTokenKey = "auth_token";
+    private const string IdTokenKey = "id_token";
     private const string UserIdKey = "user_id";
     private const string RefreshTokenKey = "refresh_token";
     private const string RoleKey = "user_role";
@@ -53,10 +54,19 @@ public class UserSessionService : IUserSessionService
         };
     }
 
-    public async Task SetAuthSessionAsync(string userId, string accessToken, string? refreshToken, string displayName, string email, string imageUrl)
+    public async Task SetAuthSessionAsync(string userId, string accessToken, string? refreshToken, string? idToken, string displayName, string email, string imageUrl)
     {
         await SecureStorage.SetAsync(AuthTokenKey, accessToken);
         await SecureStorage.SetAsync(UserIdKey, userId);
+
+        if (string.IsNullOrWhiteSpace(idToken))
+        {
+            SecureStorage.Remove(IdTokenKey);
+        }
+        else
+        {
+            await SecureStorage.SetAsync(IdTokenKey, idToken);
+        }
 
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
@@ -102,6 +112,7 @@ public class UserSessionService : IUserSessionService
     public Task ClearSessionAsync()
     {
         SecureStorage.Remove(AuthTokenKey);
+        SecureStorage.Remove(IdTokenKey);
         SecureStorage.Remove(UserIdKey);
         SecureStorage.Remove(RefreshTokenKey);
 

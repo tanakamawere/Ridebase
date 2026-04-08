@@ -4,13 +4,13 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converters="clr-namespace:Ridebase.Converters"
-    xmlns:gm="clr-namespace:MPowerKit.GoogleMaps;assembly=MPowerKit.GoogleMaps"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
+    xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
     xmlns:models="clr-namespace:Ridebase.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:Ridebase.ViewModels"
     Title="{Binding Title}"
-    Shell.NavBarIsVisible="False"
+    Shell.NavBarIsVisible="True"
     x:DataType="vm:HomePageViewModel">
 
     <ContentPage.Resources>
@@ -40,45 +40,11 @@
         <!--  ROW 0 — Map + floating overlays                     -->
         <!--  ═══════════════════════════════════════════════════  -->
         <Grid Grid.Row="0">
-            <!--  Google Map fills available space above the sheet  -->
-            <gm:GoogleMap
-                AnimateCameraFunc="{Binding AnimateCameraFunc, Mode=OneWayToSource}"
-                CameraPosition="{Binding CurrentCameraPosition, Mode=OneWayToSource}"
-                InitialCameraPosition="{Binding InitialCameraPosition}"
-                MoveCameraAction="{Binding MoveCameraAction, Mode=OneWayToSource}"
-                MyLocationButtonEnabled="True"
-                MyLocationEnabled="{Binding LocationPermissionGranted}"
-                Polylines="{Binding Polylines}" />
+            <!--  OSM Map (Mapsui) fills available space above the sheet  -->
+            <mapsui:MapView
+                x:Name="MapControl" />
 
-            <!--  Floating Hamburger (Idle only)  -->
-            <Border
-                x:Name="FloatingHamburger"
-                Margin="20,52,0,0"
-                HeightRequest="48"
-                HorizontalOptions="Start"
-                IsVisible="{Binding CurrentSearchState, Converter={StaticResource SearchStateEquals}, ConverterParameter=Idle}"
-                Shadow="{StaticResource CardShadow}"
-                Style="{StaticResource FloatingCircleButton}"
-                VerticalOptions="Start"
-                WidthRequest="48">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding OpenFlyoutCommand}" />
-                </Border.GestureRecognizers>
-                <Image
-                    HeightRequest="22"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    WidthRequest="22">
-                    <Image.Source>
-                        <FontImageSource
-                            FontFamily="fasolid"
-                            Glyph="{x:Static icons:Fasolid.Bars}"
-                            Size="18"
-                            Color="{AppThemeBinding Dark={StaticResource White},
-                                                    Light={StaticResource OffBlack}}" />
-                    </Image.Source>
-                </Image>
-            </Border>
+
 
             <Grid
                 InputTransparent="True"

@@ -6,7 +6,6 @@
     xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
     xmlns:dxco="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
     xmlns:enums="clr-namespace:Ridebase.ViewModels.Rider"
-    xmlns:gmodels="clr-namespace:GoogleApi.Entities.Places.Common;assembly=GoogleApi"
     xmlns:icons="clr-namespace:Ridebase.Helpers.FontsCode"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:models="clr-namespace:Ridebase.Models"
@@ -55,7 +54,7 @@
             IsVisible="{Binding IsBusy, Converter={StaticResource Key=InvertedBoolConverter}}"
             ItemsSource="{Binding Places}">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="gmodels:PlaceResult">
+                <DataTemplate x:DataType="models:PlacePrediction">
                     <Grid Padding="10" RowDefinitions="*, Auto">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SearchPageViewModel}}, Path=SelectPlaceCommand}" CommandParameter="{Binding .}" />
@@ -85,8 +84,8 @@
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="Large"
-                                Text="{Binding Name}" />
-                            <Label Text="{Binding Vicinity}" />
+                                Text="{Binding MainText}" />
+                            <Label Text="{Binding SecondaryText}" />
                         </StackLayout>
 
                         <BoxView

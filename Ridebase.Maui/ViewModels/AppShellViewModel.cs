@@ -224,9 +224,16 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task LogoutUser()
     {
-        // AuthService handles the OIDC end-session call AND clears SecureStorage
-        await _authService.LogoutAsync();
-        await ResetToLoggedOutStateAsync(navigateHome: true);
+        try 
+        {
+            // AuthService handles the OIDC end-session call (now with 8s timeout)
+            await _authService.LogoutAsync();
+        }
+        finally 
+        {
+            // Always transition to logged-out state locally, even if the OIDC browser-dance fails
+            await ResetToLoggedOutStateAsync(navigateHome: true);
+        }
     }
 
     private async Task NavigateByBootstrapState(UserBootstrapState bootstrap)

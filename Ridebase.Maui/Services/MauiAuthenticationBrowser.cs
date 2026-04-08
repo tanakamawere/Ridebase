@@ -9,9 +9,14 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
     {
         try
         {
-            var result = await WebAuthenticator.Default.AuthenticateAsync(
-                new Uri(options.StartUrl),
-                new Uri(options.EndUrl));
+            var authOptions = new WebAuthenticatorOptions
+            {
+                Url = new Uri(options.StartUrl),
+                CallbackUrl = new Uri(options.EndUrl),
+                PrefersEphemeralWebBrowserSession = true
+            };
+
+            var result = await WebAuthenticator.Default.AuthenticateAsync(authOptions);
 
             // Reconstruct the full callback URL from the properties returned by the OS
             // IMPORTANT: use options.EndUrl (ridebase://callback) not a hard-coded string
@@ -30,6 +35,7 @@ public class MauiAuthenticationBrowser : Duende.IdentityModel.OidcClient.Browser
         }
         catch (Exception ex)
         {
+            // Logging the technical details to help diagnose redirection failures
             return new BrowserResult
             {
                 ResultType = BrowserResultType.UnknownError,

@@ -21,8 +21,9 @@ namespace Ridebase.Pages
             Routing.RegisterRoute(nameof(RideProgressPage), typeof(RideProgressPage));
             Routing.RegisterRoute(nameof(RideSelectionPage), typeof(RideSelectionPage));
 
-            // Support route
+            // Support and Test routes
             Routing.RegisterRoute(nameof(SupportPage), typeof(SupportPage));
+            Routing.RegisterRoute(nameof(OsmTestPage), typeof(OsmTestPage));
 
             // Onboarding routes
             Routing.RegisterRoute(nameof(OnboardingProfilePage), typeof(OnboardingProfilePage));

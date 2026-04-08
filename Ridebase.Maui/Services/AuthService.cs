@@ -76,10 +76,13 @@ public class AuthService : IAuthService
                 userId,
                 loginResult.AccessToken,
                 loginResult.RefreshToken,
+                loginResult.IdentityToken,
                 displayName,
                 email,
                 pictureUrl);
 
+            _logger.LogInformation("=== LOGIN SUCCESS ===");
+            _logger.LogInformation("NEW Access Token: {Token}", loginResult.AccessToken);
             _logger.LogInformation(
                 "Login successful. User={UserId}, Groups=[{Groups}], Subscribed={Sub}",
                 userId, string.Join(",", groups), isSubscribed);
@@ -149,6 +152,7 @@ public class AuthService : IAuthService
                 userId,
                 refreshResult.AccessToken,
                 newRefreshToken,
+                refreshResult.IdentityToken,
                 displayName,
                 email,
                 imageUrl);
@@ -172,23 +176,102 @@ public class AuthService : IAuthService
     {
         try
         {
-            // PostLogoutRedirectUri is already set on OidcClientOptions in MauiProgram.cs
-            // so we just call LogoutAsync — it will use ridebase://logout-callback automatically
-            await _oidcClient.LogoutAsync(new LogoutRequest
-            {
-                BrowserDisplayMode = DisplayMode.Hidden
-            });
+            // 1. Fetch tokens before we clear them from storage
+            var accessToken = await SecureStorage.GetAsync("auth_token");
+            var refreshToken = await SecureStorage.GetAsync("refresh_token");
+            var idToken = await SecureStorage.GetAsync("id_token");
 
-            _logger.LogInformation("OIDC logout completed");
+            _logger.LogInformation("=== LOGOUT INITIATED ===");
+            _logger.LogInformation("OLD Access Token being revoked: {Token}", accessToken);
+
+            // 2. Clear local session IMMEDIATELY (Instant UI Feedback)
+            // This ensures the app returns to the login screen instantly,
+            // matching the user's "this is fine, just hit the endpoints" preference.
+            await _sessionService.ClearSessionAsync();
+
+            // 3. Browser-based logout — the ONLY way to kill Chrome's session cookie.
+            //    We skip the discovery document fetch to avoid wasting time on a network
+            //    call before the browser even opens. The endpoint is stable.
+            var postLogoutUri = _oidcClient.Options.PostLogoutRedirectUri;
+            var authority = _oidcClient.Options.Authority.TrimEnd('/');
+            var redirectUriEnc = System.Net.WebUtility.UrlEncode(postLogoutUri);
+            var logoutUrl = $"{authority}/end-session/?id_token_hint={idToken}&post_logout_redirect_uri={redirectUriEnc}";
+
+            _logger.LogInformation("Browser logout URL: {Url}", logoutUrl);
+
+            // 4. Open the browser — give it 10s to load, process, and redirect.
+            //    The redirect back to ridebase://logout-callback closes the tab instantly,
+            //    so this timeout only fires as a safety net if something goes wrong.
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            try 
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await _oidcClient.Options.Browser.InvokeAsync(new BrowserOptions(logoutUrl, postLogoutUri)
+                    {
+                        DisplayMode = DisplayMode.Visible
+                    }, cts.Token);
+                });
+            }
+            catch (Exception)
+            {
+                // Timeout or cancel — session should still be killed by this point
+            }
+
+            // 5. Revoke tokens via backend API (belt-and-suspenders)
+            await RevokeTokensInternalAsync(accessToken, refreshToken);
         }
         catch (Exception ex)
         {
-            // Log but don't throw — we always clear the local session regardless
-            _logger.LogWarning(ex, "OIDC logout request failed (Authentik may have already ended the session)");
+            _logger.LogWarning(ex, "OIDC logout sequence encountered an error");
         }
-        finally
+    }
+
+    private async Task RevokeTokensInternalAsync(string? accessToken, string? refreshToken)
+    {
+        try
         {
-            await _sessionService.ClearSessionAsync();
+            var options = _oidcClient.Options;
+            using var client = new HttpClient();
+            
+            // Standard way to fetch discovery doc in IdentityModel
+            var disco = await client.GetDiscoveryDocumentAsync(options.Authority);
+            
+            if (disco.IsError || string.IsNullOrWhiteSpace(disco.RevocationEndpoint))
+            {
+                _logger.LogWarning("Could not resolve revocation endpoint from discovery: {Error}", disco.Error);
+                return;
+            }
+
+            var clientId = _oidcClient.Options.ClientId;
+            
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                await client.RevokeTokenAsync(new TokenRevocationRequest
+                {
+                    Address = disco.RevocationEndpoint,
+                    ClientId = options.ClientId,
+                    Token = accessToken,
+                    TokenTypeHint = "access_token"
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await client.RevokeTokenAsync(new TokenRevocationRequest
+                {
+                    Address = disco.RevocationEndpoint,
+                    ClientId = options.ClientId,
+                    Token = refreshToken,
+                    TokenTypeHint = "refresh_token"
+                });
+            }
+
+            _logger.LogInformation("Background token revocation completed");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Token revocation failed silently (non-critical for overall logout)");
         }
     }
 

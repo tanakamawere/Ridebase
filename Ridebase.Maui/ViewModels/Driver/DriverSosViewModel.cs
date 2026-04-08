@@ -78,18 +78,18 @@ public partial class DriverSosViewModel : BaseViewModel
 
             if (response.IsSuccess)
             {
-                await Shell.Current.DisplayAlert("SOS sent", "The emergency alert has been submitted to backend support placeholders.", "OK");
+                await Shell.Current.DisplayAlertAsync("SOS sent", "The emergency alert has been submitted to backend support placeholders.", "OK");
                 await Shell.Current.GoToAsync("..");
             }
             else
             {
-                await Shell.Current.DisplayAlert("SOS failed", response.ErrorMessage ?? "We couldn't submit the SOS alert.", "OK");
+                await Shell.Current.DisplayAlertAsync("SOS failed", response.ErrorMessage ?? "We couldn't submit the SOS alert.", "OK");
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to submit driver SOS");
-            await Shell.Current.DisplayAlert("SOS failed", "We couldn't submit the SOS alert.", "OK");
+            await Shell.Current.DisplayAlertAsync("SOS failed", "We couldn't submit the SOS alert.", "OK");
         }
         finally
         {
