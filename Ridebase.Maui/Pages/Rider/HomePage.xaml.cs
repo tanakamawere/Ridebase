@@ -38,15 +38,20 @@ public partial class HomePage : ContentPage
     private void InitializeOsmMap()
     {
         var map = new Mapsui.Map();
-        
+
         // Load self-hosted tiles
-        var tileSource = new BruTile.Web.HttpTileSource(
-            new BruTile.Predefined.GlobalSphericalMercator(), 
-            Constants.OsmTileUrl, 
-            name: "Self-Hosted OSM");
-            
-        var tileLayer = new TileLayer(tileSource) { Name = "Self-Hosted OSM" };
-        map.Layers.Add(tileLayer);
+        //var tileSource = new BruTile.Web.HttpTileSource(
+        //    new BruTile.Predefined.GlobalSphericalMercator(), 
+        //    Constants.OsmTileUrl, 
+        //    name: "Self-Hosted OSM");
+
+        //var tileLayer = new TileLayer(tileSource) { Name = "Self-Hosted OSM" };
+        //map.Layers.Add(tileLayer);
+
+
+        var mapControl = new Mapsui.UI.Maui.MapControl();
+        mapControl.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
+        Content = mapControl;
 
         // Center on Zimbabwe
         var (x, y) = SphericalMercator.FromLonLat(31.05, -17.82);
