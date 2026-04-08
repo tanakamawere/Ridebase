@@ -19,7 +19,6 @@
                     <Label
                         FontFamily="{StaticResource KaBodyFontFamily}"
                         FontSize="12"
-                        LetterSpacing="2"
                         Text="STEP 1"
                         TextColor="#C7E4E4" />
                     <Label
@@ -42,7 +41,6 @@
                         <Label Style="{StaticResource KaFieldLabel}" Text="Full Name" />
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
-                                KeyboardFlags="CapitalizeWord"
                                 Placeholder="Enter your full name"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding FullName}" />
@@ -54,9 +52,20 @@
                         <Border Style="{StaticResource KaInputBorder}">
                             <Entry
                                 Keyboard="Telephone"
-                                Placeholder="e.g. +263 77 123 4567"
+                                Placeholder="+263 77 123 4567"
                                 Style="{StaticResource KaEntry}"
                                 Text="{Binding PhoneNumber}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource KaFieldLabel}" Text="Confirm Phone Number" />
+                        <Border Style="{StaticResource KaInputBorder}">
+                            <Entry
+                                Keyboard="Telephone"
+                                Placeholder="Re-enter your phone number"
+                                Style="{StaticResource KaEntry}"
+                                Text="{Binding ConfirmPhoneNumber}" />
                         </Border>
                     </VerticalStackLayout>
 

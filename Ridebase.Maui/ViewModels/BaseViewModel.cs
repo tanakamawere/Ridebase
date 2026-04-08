@@ -1,6 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;
 using Mopups.Interfaces;
 using Ridebase.Models;
@@ -30,7 +29,7 @@ public partial class BaseViewModel : ObservableObject
     public IPopupNavigation popupNavigation = null!;
     public IRideApiClient rideApiClient = null!;
     public IStorageService storageService = null!;
-    public OidcClient authenticationClient = null!;
+    public IAuthService _authService = null!;
     protected ILogger Logger = null!;
     public IOnboardingApiClient onboardingApiClient = null!;
     public IUserSessionService userSessionService = null!;

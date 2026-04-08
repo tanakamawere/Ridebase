@@ -56,6 +56,7 @@ public partial class OnboardingRoleViewModel : BaseViewModel
             var submitResponse = await onboardingApiClient.SubmitProfileAsync(new OnboardingProfile
             {
                 FullName = fullName,
+                Email = state.Email,
                 PhoneNumber = phoneNumber,
                 City = city,
                 DefaultLocationPermissionGranted = true,
@@ -77,16 +78,8 @@ public partial class OnboardingRoleViewModel : BaseViewModel
             SecureStorage.Remove(PendingPhoneNumberKey);
             SecureStorage.Remove(PendingCityKey);
 
-            if (role == AppUserRole.Driver)
-            {
-                await userSessionService.SetOnboardedAsync(false);
-                await Shell.Current.GoToAsync(nameof(OnboardingDriverPage));
-            }
-            else
-            {
-                await userSessionService.SetOnboardedAsync(true);
-                await Shell.Current.GoToAsync("//Home");
-            }
+            // Always navigate to OTP verification first
+            await Shell.Current.GoToAsync(nameof(OnboardingOtpPage));
         }
         finally
         {

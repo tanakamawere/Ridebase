@@ -1,6 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;
 using Ridebase.Models;
 using Ridebase.Pages;
@@ -26,13 +25,13 @@ public partial class AppShellViewModel : BaseViewModel
     private string currentModeLabel = "Rider";
 
     public AppShellViewModel(
-        OidcClient authClient,
+        IAuthService authService,
         ILogger<AppShellViewModel> logger,
         IOnboardingApiClient _onboardingApiClient,
         IUserSessionService _userSessionService,
         IUserBootstrapService _userBootstrapService)
     {
-        authenticationClient = authClient;
+        _authService = authService;
         onboardingApiClient = _onboardingApiClient;
         userSessionService = _userSessionService;
         userBootstrapService = _userBootstrapService;
@@ -125,45 +124,37 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task Login()
     {
-        if (IsBusy)
-        {
-            return;
-        }
+        if (IsBusy) return;
 
         IsBusy = true;
         try
         {
-            var loginResult = await authenticationClient.LoginAsync();
-            if (loginResult.IsError)
+            var loginResult = await _authService.LoginAsync();
+
+            if (!loginResult.Success)
             {
-                await ShowAlertAsync("Login Failed", loginResult.ErrorDescription);
+                await ShowAlertAsync("Login Failed", loginResult.ErrorMessage ?? "Unable to sign in. Please try again.");
                 return;
             }
 
-            var userId = loginResult.User.FindFirst(c => c.Type == "sub")?.Value ?? Guid.NewGuid().ToString("N");
-            var email = loginResult.User.FindFirst(c => c.Type == "email")?.Value
-                     ?? loginResult.User.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value
-                     ?? string.Empty;
-            var displayName = loginResult.User.Identity?.Name ?? "Ridebase User";
-            var pictureUrl = loginResult.User.FindFirst(c => c.Type == "picture")?.Value ?? string.Empty;
+            // Perform bootstrap check (onboarding/role) BEFORE updating UI state
+            var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(loginResult.UserId, loginResult.AccessToken);
 
-            await userSessionService.SetAuthSessionAsync(userId, loginResult.AccessToken, loginResult.RefreshToken, displayName, email, pictureUrl);
-
+            // Now that we have a success and a bootstrap state, update the UI
             RidebaseUser = await userSessionService.GetCachedUserAsync(loginResult.AccessToken)
-                ?? await userSessionService.BuildUserAsync(userId, loginResult.AccessToken, displayName);
+                ?? await userSessionService.BuildUserAsync(loginResult.UserId, loginResult.AccessToken, loginResult.DisplayName);
+            
             HasEmail = !string.IsNullOrWhiteSpace(RidebaseUser.Email);
             IsLoggedIn = true;
-
             Shell.Current.FlyoutIsPresented = false;
 
-            var bootstrap = await userBootstrapService.ResolveAfterLoginAsync(userId);
             ApplyBootstrapDisplayName(bootstrap);
             await NavigateByBootstrapState(bootstrap);
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Auth0 login failed");
-            await ShowAlertAsync("Login Failed", "Unable to complete authentication right now. Please try again.");
+            Logger?.LogError(ex, "Login flow failed");
+            await ShowAlertAsync("Login Failed", $"Technical Error: {ex.Message}\n\nStack: {ex.StackTrace?.Take(100)}");
         }
         finally
         {
@@ -178,10 +169,24 @@ public partial class AppShellViewModel : BaseViewModel
         {
             var token = await SecureStorage.GetAsync("auth_token");
 
+            // If token is missing or expired, try a silent refresh before giving up
             if (string.IsNullOrEmpty(token) || IsTokenExpired(token))
             {
-                await ResetToLoggedOutStateAsync();
-                return;
+                Logger?.LogInformation("Access token missing/expired — attempting silent refresh");
+                var refreshed = await _authService.TryRefreshAsync();
+                if (!refreshed)
+                {
+                    await ResetToLoggedOutStateAsync();
+                    return;
+                }
+
+                // Re-read the freshly stored token
+                token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    await ResetToLoggedOutStateAsync();
+                    return;
+                }
             }
 
             var userId = await SecureStorage.GetAsync("user_id") ?? string.Empty;
@@ -219,16 +224,16 @@ public partial class AppShellViewModel : BaseViewModel
     [RelayCommand]
     public async Task LogoutUser()
     {
-        try
+        try 
         {
-            await authenticationClient.LogoutAsync();
+            // AuthService handles the OIDC end-session call (now with 8s timeout)
+            await _authService.LogoutAsync();
         }
-        catch (Exception ex)
+        finally 
         {
-            Logger?.LogWarning(ex, "Auth0 logout failed in mock mode");
+            // Always transition to logged-out state locally, even if the OIDC browser-dance fails
+            await ResetToLoggedOutStateAsync(navigateHome: true);
         }
-
-        await ResetToLoggedOutStateAsync(navigateHome: true);
     }
 
     private async Task NavigateByBootstrapState(UserBootstrapState bootstrap)
